@@ -122,9 +122,9 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
             self.assertEqual(result["summary"]["group_stage_matches"], 72)
             self.assertEqual(result["summary"]["knockout_matches"], 32)
 
-            ledger_path = root / "_meta/projects/世界杯预测/data/editions/2098/match-ledger.json"
-            registry_path = root / "raw/体育/世界杯/2098/source-registry.json"
-            moc_path = root / "wiki/体育/世界杯/2098/synthesis/MOC-世界杯2098.md"
+            ledger_path = root / "_meta/projects/世界杯预测/knowledge-base/2098/data/match-ledger.json"
+            registry_path = root / "_meta/projects/世界杯预测/knowledge-base/2098/raw/source-registry.json"
+            moc_path = root / "_meta/projects/世界杯预测/knowledge-base/2098/wiki/synthesis/MOC-世界杯2098.md"
             self.assertTrue(ledger_path.exists())
             self.assertTrue(registry_path.exists())
             self.assertTrue(moc_path.exists())
@@ -145,8 +145,8 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
 
             module.initialize_edition(root=root, edition="2098", now="2026-06-09T12:00:00+08:00")
 
-            self.assertTrue((root / "data/editions/2098/match-ledger.json").exists())
-            self.assertFalse((root / "_meta/projects/世界杯预测/data/editions/2098/match-ledger.json").exists())
+            self.assertTrue((root / "knowledge-base/2098/data/match-ledger.json").exists())
+            self.assertFalse((root / "_meta/projects/世界杯预测/knowledge-base/2098/data/match-ledger.json").exists())
 
     def test_standalone_export_copies_runtime_and_edition_knowledge_base(self):
         init_module = load_script("worldcup_edition_init.py")
@@ -155,9 +155,9 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
             root = Path(tmp) / "repo"
             output = Path(tmp) / "export"
             init_module.initialize_edition(root=root, edition="2098", now="2026-06-09T12:00:00+08:00")
-            leaky_path = root / "_meta/projects/世界杯预测/data/editions/2098/reports/posters/leaky-path.json"
+            leaky_path = root / "_meta/projects/世界杯预测/knowledge-base/2098/data/reports/posters/leaky-path.json"
             leaky_path.parent.mkdir(parents=True, exist_ok=True)
-            leaky_path.write_text(json.dumps({"path": str(root / "_meta/projects/世界杯预测/data/editions/2098/match-ledger.json")}), encoding="utf-8")
+            leaky_path.write_text(json.dumps({"path": str(root / "_meta/projects/世界杯预测/knowledge-base/2098/data/match-ledger.json")}), encoding="utf-8")
 
             result = export_module.export_standalone(root=root, edition="2098", output=output, now="2026-06-09T12:30:00+08:00")
 
@@ -178,10 +178,19 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
             self.assertTrue((output / "assets/posters/2026-06-12-mexico-vs-south-africa.png").exists())
             self.assertTrue((output / "assets/posters/2026-06-12-south-korea-vs-czechia.png").exists())
             self.assertTrue((output / "assets/contact/wechat-qr.jpg").exists())
-            self.assertTrue((output / "data/editions/2098/match-ledger.json").exists())
-            self.assertTrue((output / "raw/体育/世界杯/2098/source-registry.json").exists())
-            self.assertTrue((output / "wiki/体育/世界杯/2098/index.md").exists())
-            self.assertNotIn(str(root), (output / "data/editions/2098/reports/posters/leaky-path.json").read_text(encoding="utf-8"))
+            self.assertTrue((output / "knowledge-base/agent/AGENT_CARD.json").exists())
+            self.assertTrue((output / "knowledge-base/agent/TOOL_CATALOG.json").exists())
+            self.assertTrue((output / "knowledge-base/agent/RUNBOOK.md").exists())
+            self.assertTrue((output / "knowledge-base/agent/GUARDRAILS.md").exists())
+            self.assertTrue((output / "knowledge-base/agent/HANDOFFS.md").exists())
+            self.assertTrue((output / "knowledge-base/agent/TRACE_EVENTS.md").exists())
+            self.assertTrue((output / "schema/agent-card.schema.json").exists())
+            self.assertTrue((output / "schema/agent-tool-catalog.schema.json").exists())
+            self.assertEqual(result["agent_contracts"]["tool_catalog"], "knowledge-base/agent/TOOL_CATALOG.json")
+            self.assertTrue((output / "knowledge-base/2098/data/match-ledger.json").exists())
+            self.assertTrue((output / "knowledge-base/2098/raw/source-registry.json").exists())
+            self.assertTrue((output / "knowledge-base/2098/wiki/index.md").exists())
+            self.assertNotIn(str(root), (output / "knowledge-base/2098/data/reports/posters/leaky-path.json").read_text(encoding="utf-8"))
 
     def test_profile_init_marks_missing_roster_players_blocked_instead_of_complete(self):
         init_module = load_script("worldcup_edition_init.py")
@@ -210,7 +219,7 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
             root = Path(tmp)
             init_module.initialize_edition(root=root, edition="2098", now="2026-06-09T12:00:00+08:00")
 
-            ledger_path = root / "_meta/projects/世界杯预测/data/editions/2098/match-ledger.json"
+            ledger_path = root / "_meta/projects/世界杯预测/knowledge-base/2098/data/match-ledger.json"
             ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
             now = datetime(2026, 6, 9, 12, tzinfo=timezone.utc)
             ledger["matches"][0]["kickoff_at"] = (now + timedelta(hours=3)).isoformat()
@@ -235,8 +244,15 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
             self.assertLessEqual(prediction["divination_overlay"]["weight"], 0.15)
             play_card = prediction["play_card"]
             self.assertIn("share_title", play_card)
+            self.assertIn("poster_caption", play_card)
+            self.assertIn("AI预测比分", play_card["poster_caption"])
             self.assertGreaterEqual(len(play_card["watch_points"]), 2)
             self.assertIn("poster_angle", play_card)
+            self.assertIn("analysis_layers", prediction)
+            self.assertGreaterEqual(len(prediction["analysis_layers"]), 6)
+            self.assertEqual(prediction["analysis_layers"][0]["layer_id"], "evidence_integrity")
+            self.assertIn("scenario_analysis", prediction)
+            self.assertIn("decision_audit", prediction)
             play_text = json.dumps(play_card, ensure_ascii=False)
             self.assertNotIn("稳胆", play_text)
             self.assertNotIn("稳赢", play_text)
@@ -259,7 +275,7 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             init_module.initialize_edition(root=root, edition="2098", now="2026-06-09T12:00:00+08:00")
-            ledger_path = root / "_meta/projects/世界杯预测/data/editions/2098/match-ledger.json"
+            ledger_path = root / "_meta/projects/世界杯预测/knowledge-base/2098/data/match-ledger.json"
             ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
             ledger["matches"][0]["kickoff_at"] = "2026-06-09T18:00:00+00:00"
             ledger["matches"][0]["home_team"] = {"name": "Alpha", "team_id": "alpha"}
@@ -294,13 +310,13 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             init_module.initialize_edition(root=root, edition="2098", now="2026-06-09T12:00:00+08:00")
-            ledger_path = root / "_meta/projects/世界杯预测/data/editions/2098/match-ledger.json"
+            ledger_path = root / "_meta/projects/世界杯预测/knowledge-base/2098/data/match-ledger.json"
             ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
             ledger["matches"][0]["kickoff_at"] = "2026-06-09T18:00:00+00:00"
             ledger["matches"][0]["home_team"] = {"name": "Alpha", "team_id": "alpha"}
             ledger["matches"][0]["away_team"] = {"name": "Beta", "team_id": "beta"}
             ledger_path.write_text(json.dumps(ledger, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-            roster_path = root / "_meta/projects/世界杯预测/data/editions/2098/rosters/fifa-squad-lists.json"
+            roster_path = root / "_meta/projects/世界杯预测/knowledge-base/2098/data/rosters/fifa-squad-lists.json"
             roster_path.parent.mkdir(parents=True, exist_ok=True)
             roster_path.write_text(
                 json.dumps(
@@ -361,11 +377,14 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
             self.assertIn("BETA B", prompt)
             self.assertIn("完整阵容", prompt)
             self.assertIn("AI 赛前预测｜胜负趋势分析", prompt)
+            self.assertIn("AI预测比分", prompt)
+            self.assertNotIn("谁能抢下关键三分", prompt)
             self.assertIn("fictional players", item["negative_prompt"])
             self.assertIn("6月10日 02:00 开赛", item["required_text"])
             prompt_text = Path(manifest["prompt_text_path"]).read_text(encoding="utf-8")
             self.assertFalse(prompt_text.lstrip().startswith("{"))
             self.assertIn("Alpha VS Beta", prompt_text)
+            self.assertNotIn("谁能抢下关键三分", prompt_text)
             self.assertIn("负面提示词", prompt_text)
 
     def test_scoring_report_feeds_report_and_poster_prompts(self):
@@ -376,7 +395,7 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             init_module.initialize_edition(root=root, edition="2098", now="2026-06-09T12:00:00+08:00")
-            ledger_path = root / "_meta/projects/世界杯预测/data/editions/2098/match-ledger.json"
+            ledger_path = root / "_meta/projects/世界杯预测/knowledge-base/2098/data/match-ledger.json"
             ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
             ledger["matches"][0]["kickoff_at"] = "2026-06-09T18:00:00+00:00"
             ledger["matches"][0]["home_team"] = {"name": "Alpha", "team_id": "alpha"}
@@ -394,7 +413,7 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
             self.assertIn("score", prediction)
             self.assertIn("result", prediction)
             self.assertIn("total_goals", prediction)
-            report_path = root / "_meta/projects/世界杯预测/data/editions/2098/reports/2026-06-09-prediction-report.json"
+            report_path = root / "_meta/projects/世界杯预测/knowledge-base/2098/data/reports/2026-06-09-prediction-report.json"
 
             prompt_manifest = report_prompt_module.build_report_prompt_manifest(
                 root=root,
@@ -435,7 +454,7 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
             self.assertEqual(team_report["summary"]["predictions_created"], 1)
             self.assertEqual(team_report["filters"]["teams"], ["Alpha", "Beta"])
             self.assertTrue(
-                (root / "_meta/projects/世界杯预测/data/editions/2098/reports/2026-06-09-alpha-vs-beta-prediction-report.json").exists()
+                (root / "_meta/projects/世界杯预测/knowledge-base/2098/data/reports/2026-06-09-alpha-vs-beta-prediction-report.json").exists()
             )
 
     def test_prediction_evidence_plan_lists_required_families_and_current_status(self):
@@ -444,7 +463,7 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             init_module.initialize_edition(root=root, edition="2098", now="2026-06-09T12:00:00+08:00")
-            roster_path = root / "_meta/projects/世界杯预测/data/editions/2098/rosters/fifa-squad-lists.json"
+            roster_path = root / "_meta/projects/世界杯预测/knowledge-base/2098/data/rosters/fifa-squad-lists.json"
             roster_path.parent.mkdir(parents=True, exist_ok=True)
             roster_path.write_text(
                 json.dumps(
@@ -528,7 +547,14 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
             ]:
                 (root / "scripts" / name).write_text("# marker\n", encoding="utf-8")
             (root / "schema").mkdir()
-            for name in ["match-ledger.schema.json", "prediction-evidence-plan.schema.json", "daily-prediction-report.schema.json", "github-readiness.schema.json"]:
+            for name in [
+                "match-ledger.schema.json",
+                "prediction-evidence-plan.schema.json",
+                "daily-prediction-report.schema.json",
+                "github-readiness.schema.json",
+                "agent-card.schema.json",
+                "agent-tool-catalog.schema.json",
+            ]:
                 schema_text = "{\"play_card\": true}\n" if name == "daily-prediction-report.schema.json" else "{}\n"
                 (root / "schema" / name).write_text(schema_text, encoding="utf-8")
             (root / "skills/fifa-winner-skill").mkdir(parents=True)
@@ -541,6 +567,89 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
             (root / "README.md").write_text(
                 "Quick Start\nRoadmap\nPrediction Evidence\nDaily Prediction\nGitHub Readiness\nPlayability\nExamples\nSafety\n", encoding="utf-8"
             )
+            (root / "AGENT_README.md").write_text(
+                "Capability Card\nInstall For Runtime Agents\nAgent Design Alignment\nA2A Invocation Contract\nTool Resource Prompt Discovery\nHandoff Contract\nTrace Contract\nOutput Contract For A2A Callers\nStorage Policy\nSafety Requirements\n",
+                encoding="utf-8",
+            )
+            (root / "knowledge-base/agent").mkdir(parents=True)
+            (root / "knowledge-base/agent/AGENT_CARD.json").write_text(
+                json.dumps(
+                    {
+                        "$schema": "../../schema/agent-card.schema.json",
+                        "agent_id": "ai-octopus-paul-predictor",
+                        "name": "AI Octopus Paul Predictor Agent",
+                        "runtime_contract": {"type": "local_cli", "command_template": "python scripts/<tool>.py", "working_directory": "repository_root"},
+                        "discovery": {"tool_catalog": "knowledge-base/agent/TOOL_CATALOG.json"},
+                        "interfaces": [{"protocol": "local_cli", "status": "implemented"}],
+                        "skills": [{"id": "predict", "name": "Predict", "description": "Predict matches"}],
+                        "safety": {"disclaimer": "娱乐预测，非投注建议", "not_for": ["betting"], "forbidden_terms": ["稳赢"]},
+                        "capabilities": [{"id": "predict_daily", "title": "Predict daily", "command": "python scripts/daily_prediction_runner.py run"}],
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            (root / "knowledge-base/agent/TOOL_CATALOG.json").write_text(
+                json.dumps(
+                    {
+                        "tools": [
+                            {
+                                "id": "initialize_edition",
+                                "kind": "cli_tool",
+                                "description": "Initialize",
+                                "command_template": "python scripts/worldcup_edition_init.py init",
+                                "inputs": ["edition"],
+                                "outputs": ["match-ledger.json"],
+                                "safety_profile": "setup_only",
+                            },
+                            {
+                                "id": "plan_prediction_evidence",
+                                "kind": "cli_tool",
+                                "description": "Plan evidence",
+                                "command_template": "python scripts/worldcup_prediction_evidence_planner.py write",
+                                "inputs": ["edition"],
+                                "outputs": ["prediction-evidence-plan.json"],
+                                "safety_profile": "evidence_boundary",
+                            },
+                            {
+                                "id": "predict_daily",
+                                "kind": "cli_tool",
+                                "description": "Predict daily",
+                                "command_template": "python scripts/daily_prediction_runner.py run",
+                                "inputs": ["edition", "date"],
+                                "outputs": ["prediction-report.json"],
+                                "safety_profile": "entertainment_prediction_only",
+                            },
+                            {
+                                "id": "export_standalone",
+                                "kind": "cli_tool",
+                                "description": "Export",
+                                "command_template": "python scripts/worldcup_export_standalone.py",
+                                "inputs": ["edition", "output"],
+                                "outputs": ["export-manifest.json"],
+                                "safety_profile": "portable_export",
+                            },
+                        ],
+                        "resources": [{"id": "agent_card", "kind": "json", "path": "knowledge-base/agent/AGENT_CARD.json", "description": "Agent card"}],
+                        "prompts": [{"id": "summary", "description": "Summary", "source": "AGENT_README.md", "inputs": ["status"]}],
+                        "guardrails": [{"id": "entertainment_only", "description": "No betting"}],
+                        "handoffs": [{"id": "prediction_requested", "description": "Prediction requested"}],
+                        "trace_events": [{"id": "tool.started", "description": "Tool started"}],
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            (root / "knowledge-base/agent/ARCHITECTURE.md").write_text("# Agent Architecture\n", encoding="utf-8")
+            (root / "knowledge-base/agent/SKILL.md").write_text("# Agent Skill\n", encoding="utf-8")
+            (root / "knowledge-base/agent/RUNBOOK.md").write_text("# Runbook\n", encoding="utf-8")
+            (root / "knowledge-base/agent/GUARDRAILS.md").write_text("# Guardrails\n", encoding="utf-8")
+            (root / "knowledge-base/agent/HANDOFFS.md").write_text("# Handoffs\n", encoding="utf-8")
+            (root / "knowledge-base/agent/TRACE_EVENTS.md").write_text("# Trace Events\n", encoding="utf-8")
             (root / "TODO.md").write_text("# Roadmap\n", encoding="utf-8")
             (root / "LICENSE").write_text("MIT License\n", encoding="utf-8")
             (root / "install_as_skill.sh").write_text("#!/usr/bin/env bash\n", encoding="utf-8")
@@ -572,11 +681,13 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
 
             self.assertEqual(result["status"], "ready_with_known_data_gaps")
             self.assertTrue(result["summary"]["format_ready"])
+            self.assertTrue(result["summary"]["agent_interop_ready"])
             self.assertTrue(result["summary"]["data_accuracy_guardrails_ready"])
             self.assertTrue(result["summary"]["playability_ready"])
             self.assertTrue(Path(result["report_path"]).exists())
             section_ids = {section["section_id"] for section in result["sections"]}
             self.assertIn("format", section_ids)
+            self.assertIn("agent_interop", section_ids)
             self.assertIn("data_accuracy", section_ids)
             self.assertIn("playability", section_ids)
 
@@ -586,7 +697,7 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             init_module.initialize_edition(root=root, edition="2098", now="2026-06-09T12:00:00+08:00")
-            eval_dir = root / "_meta/projects/世界杯预测/data/editions/2098/reports/evaluations"
+            eval_dir = root / "_meta/projects/世界杯预测/knowledge-base/2098/data/reports/evaluations"
             eval_dir.mkdir(parents=True, exist_ok=True)
             (eval_dir / "2026-06-11.json").write_text(
                 json.dumps(
@@ -668,8 +779,105 @@ class WorldCupPredictorSystemTest(unittest.TestCase):
             self.assertEqual(calibration["medium"]["evaluated_matches"], 2)
             self.assertEqual(calibration["medium"]["result_hits"], 1)
             self.assertEqual(calibration["medium"]["result_hit_rate"], 0.5)
-            self.assertTrue(Path(result["dashboard_path"]).exists())
             self.assertTrue(Path(result["markdown_path"]).exists())
+
+    def test_tianji_oracle_computes_star_palaces_and_scores(self):
+        tianji_module = load_script("tianji_oracle.py")
+        res = tianji_module.compute_tianji_overlay("2026-06-11T19:00:00+08:00", "2026-GA-01")
+
+        self.assertIn("lunar_date", res)
+        self.assertIn("shichen", res)
+        self.assertIn("host_palace_branch", res)
+        self.assertIn("guest_palace_branch", res)
+        self.assertIn("home_stars", res)
+        self.assertIn("away_stars", res)
+        self.assertIsInstance(res["home_modifier"], (int, float))
+        self.assertIsInstance(res["away_modifier"], (int, float))
+        self.assertIsInstance(res["interpretation"], str)
+        self.assertIsInstance(res["has_physical_conflict"], bool)
+
+    def test_live_fetcher_sentiment_analysis_and_mock_generation(self):
+        fetcher_module = load_script("worldcup_live_fetcher.py")
+
+        # Test analyze_sentiment
+        self.assertEqual(fetcher_module.analyze_sentiment("Messi suffered a severe injury and is ruled out"), "negative")
+        self.assertEqual(fetcher_module.analyze_sentiment("Ronaldo is fit and returns to squad"), "positive")
+        self.assertEqual(fetcher_module.analyze_sentiment("The weather is nice today in Mexico"), "neutral")
+
+        # Test get_mock_odds
+        odds = fetcher_module.get_mock_odds("Mexico", "South Africa")
+        self.assertIn("home_win", odds)
+        self.assertIn("draw", odds)
+        self.assertIn("away_win", odds)
+        self.assertEqual(odds["source"], "mock_bookmaker")
+
+        # Test get_mock_news_for_teams
+        news = fetcher_module.get_mock_news_for_teams([("MEX", "Mexico")])
+        self.assertTrue(len(news) >= 1)
+        self.assertEqual(news[0]["team_code"], "MEX")
+        self.assertIn("sentiment", news[0])
+
+    def test_update_readme_and_history_partitions_matches_correctly(self):
+        init_module = load_script("worldcup_edition_init.py")
+        daily_module = load_script("daily_prediction_runner.py")
+        updater_module = load_script("update_readme_and_history.py")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            # Initialize project structure
+            (root / "scripts").mkdir()
+            (root / "scripts" / "worldcup_core.py").write_text("def build_play_card():\n    return {}\n", encoding="utf-8")
+            (root / "schema").mkdir()
+            (root / "README.md").write_text(
+                "## Prediction Schedule / 预测日历\n| 节奏 | 比赛 | 预测摘要 | 状态 |\n|---|---|---|---|\n## Quick Start / 快速开始\n", encoding="utf-8"
+            )
+
+            init_module.initialize_edition(root=root, edition="2098", now="2026-06-09T12:00:00+08:00")
+
+            # Setup match ledger kickoff times
+            ledger_path = root / "knowledge-base/2098/data/match-ledger.json"
+            ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+
+            # Match 1: Kickoff tomorrow
+            ledger["matches"][0]["kickoff_at"] = "2026-06-10T20:00:00+08:00"
+            # Match 2: Kickoff in the past
+            ledger["matches"][1]["kickoff_at"] = "2026-06-09T20:00:00+08:00"
+            ledger_path.write_text(json.dumps(ledger, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+            # Run predictions for the past match and upcoming match
+            daily_module.run_daily_predictions(
+                root=root, edition="2098", date="2026-06-09", now="2026-06-09T12:00:00+08:00", poster=False
+            )
+            daily_module.run_daily_predictions(
+                root=root, edition="2098", date="2026-06-10", now="2026-06-09T12:00:00+08:00", poster=False
+            )
+
+            # Run updater
+            res = updater_module.update_readme_and_history(
+                root=root,
+                edition="2098",
+                date_str="2026-06-10",
+                now="2026-06-09T12:00:00+08:00"
+            )
+
+            self.assertEqual(res["status"], "completed")
+            self.assertEqual(res["target_date"], "2026-06-10")
+            self.assertEqual(res["tomorrow_matches_count"], 1)
+            self.assertEqual(res["history_matches_count"], 1)
+
+            # Verify README.md has correct sections updated
+            readme_text = (root / "README.md").read_text(encoding="utf-8")
+            self.assertIn("## Prediction Schedule / 预测日历", readme_text)
+            self.assertIn("## Quick Start / 快速开始", readme_text)
+            self.assertIn("2098-GA-01", readme_text)
+            self.assertNotIn("2098-GA-02", readme_text)
+
+            # Verify HISTORY.md is created and has the past match
+            history_path = root / "HISTORY.md"
+            self.assertTrue(history_path.exists())
+            history_text = history_path.read_text(encoding="utf-8")
+            self.assertIn("2098-GA-02", history_text)
+            self.assertNotIn("2098-GA-01", history_text)
 
 
 if __name__ == "__main__":

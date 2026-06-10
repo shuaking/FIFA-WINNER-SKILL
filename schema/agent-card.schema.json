@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dxboy.local/worldcup/agent-card.schema.json",
+  "title": "AI Octopus Paul Agent Card",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "agent_id",
+    "name",
+    "skill_name",
+    "version",
+    "description",
+    "runtime_contract",
+    "safety",
+    "storage_policy",
+    "capabilities"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "agent_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "skill_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "runtime_contract": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["type", "working_directory", "command_template"],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "working_directory": {
+          "type": "string"
+        },
+        "command_template": {
+          "type": "string"
+        },
+        "canonical_human_readme": {
+          "type": "string"
+        },
+        "canonical_skill_file": {
+          "type": "string"
+        }
+      }
+    },
+    "discovery": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "tool_catalog": {
+          "type": "string"
+        },
+        "guardrails": {
+          "type": "string"
+        },
+        "handoffs": {
+          "type": "string"
+        },
+        "trace_events": {
+          "type": "string"
+        }
+      }
+    },
+    "interfaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["protocol", "status"],
+        "additionalProperties": true,
+        "properties": {
+          "protocol": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "description"],
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "examples": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["disclaimer", "not_for", "forbidden_terms"],
+      "properties": {
+        "disclaimer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "not_for": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "forbidden_terms": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "storage_policy": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title"],
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "command": {
+            "type": "string"
+          },
+          "commands": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "outputs": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        },
+        "anyOf": [
+          {"required": ["command"]},
+          {"required": ["commands"]},
+          {"required": ["outputs"]}
+        ]
+      }
+    },
+    "recommended_a2a_response_shape": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

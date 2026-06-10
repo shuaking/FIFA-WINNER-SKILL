@@ -208,6 +208,7 @@ def cmd_add_news(
     source: str,
     detail: str = "",
     team_code: str = "",
+    sentiment: str = "neutral",
     source_url: str = "",
     now: str | None = None,
 ) -> dict:
@@ -221,6 +222,7 @@ def cmd_add_news(
         "headline": headline,
         "detail": detail,
         "impact": impact,
+        "sentiment": sentiment,
         "team_code": team_code,
         "source": source,
         "source_url": source_url,
@@ -231,6 +233,100 @@ def cmd_add_news(
     evidence["status"] = "updated"
     if source_url:
         evidence["source_refs"].append({"source": source, "url": source_url, "recorded_at": generated_at})
+    _save_daily_evidence(root, edition, date, evidence)
+    return evidence
+
+
+def cmd_add_referee(
+    *,
+    root: Path,
+    edition: str,
+    date: str,
+    match_id: str,
+    referee_name: str,
+    strictness: str,
+    yellow_cards: float | None = None,
+    red_cards: float | None = None,
+    penalties: float | None = None,
+    now: str | None = None,
+) -> dict:
+    """Add referee details for a match in daily evidence."""
+    generated_at = iso_now(now)
+    evidence = _load_daily_evidence(root, edition, date)
+    if not evidence:
+        raise SystemExit(f"Error: no daily evidence file for {date}. Run 'init' first.")
+
+    matches = evidence.setdefault("matches", [])
+    matched_match = None
+    for m in matches:
+        if m.get("match_id") == match_id:
+            matched_match = m
+            break
+
+    if not matched_match:
+        matched_match = {
+            "match_id": match_id,
+            "referee": None,
+            "odds": None,
+            "sentiment": None
+        }
+        matches.append(matched_match)
+
+    matched_match["referee"] = {
+        "name": referee_name,
+        "strictness": strictness,
+        "yellow_cards_per_match": yellow_cards,
+        "red_cards_per_match": red_cards,
+        "penalties_per_match": penalties,
+    }
+    evidence["generated_at"] = generated_at
+    evidence["status"] = "updated"
+    _save_daily_evidence(root, edition, date, evidence)
+    return evidence
+
+
+def cmd_add_odds(
+    *,
+    root: Path,
+    edition: str,
+    date: str,
+    match_id: str,
+    home_win: float,
+    draw: float,
+    away_win: float,
+    source: str = "manual",
+    now: str | None = None,
+) -> dict:
+    """Add decimal odds for a match in daily evidence."""
+    generated_at = iso_now(now)
+    evidence = _load_daily_evidence(root, edition, date)
+    if not evidence:
+        raise SystemExit(f"Error: no daily evidence file for {date}. Run 'init' first.")
+
+    matches = evidence.setdefault("matches", [])
+    matched_match = None
+    for m in matches:
+        if m.get("match_id") == match_id:
+            matched_match = m
+            break
+
+    if not matched_match:
+        matched_match = {
+            "match_id": match_id,
+            "referee": None,
+            "odds": None,
+            "sentiment": None
+        }
+        matches.append(matched_match)
+
+    matched_match["odds"] = {
+        "home_win": home_win,
+        "draw": draw,
+        "away_win": away_win,
+        "source": source
+    }
+    evidence["generated_at"] = generated_at
+    evidence["status"] = "updated"
     _save_daily_evidence(root, edition, date, evidence)
     return evidence
 
@@ -356,9 +452,29 @@ def build_parser() -> argparse.ArgumentParser:
     p_news.add_argument("--headline", required=True)
     p_news.add_argument("--detail", default="")
     p_news.add_argument("--impact", required=True, choices=_impact_choices())
+    p_news.add_argument("--sentiment", default="neutral", choices=["positive", "negative", "neutral"])
     p_news.add_argument("--team-code", default="")
     p_news.add_argument("--source", required=True, choices=_source_choices())
     p_news.add_argument("--source-url", default="")
+
+    # add-referee ---------------------------------------------------------
+    p_ref = sub.add_parser("add-referee", help="Add referee details for a match.")
+    _add_common(p_ref)
+    p_ref.add_argument("--match-id", required=True)
+    p_ref.add_argument("--referee-name", required=True)
+    p_ref.add_argument("--strictness", required=True, choices=["high", "medium", "low"])
+    p_ref.add_argument("--yellow-cards", type=float, default=None)
+    p_ref.add_argument("--red-cards", type=float, default=None)
+    p_ref.add_argument("--penalties", type=float, default=None)
+
+    # add-odds ------------------------------------------------------------
+    p_odds = sub.add_parser("add-odds", help="Add decimal odds for a match.")
+    _add_common(p_odds)
+    p_odds.add_argument("--match-id", required=True)
+    p_odds.add_argument("--home-win", required=True, type=float)
+    p_odds.add_argument("--draw", required=True, type=float)
+    p_odds.add_argument("--away-win", required=True, type=float)
+    p_odds.add_argument("--source", default="manual")
 
     # status --------------------------------------------------------------
     p_stat = sub.add_parser("status", help="Show evidence completeness for a date.")
@@ -428,8 +544,36 @@ def main(argv: list[str] | None = None) -> int:
             detail=args.detail,
             impact=args.impact,
             team_code=args.team_code,
+            sentiment=args.sentiment,
             source=args.source,
             source_url=args.source_url,
+            now=now,
+        )
+
+    elif args.command == "add-referee":
+        result = cmd_add_referee(
+            root=root,
+            edition=edition,
+            date=date,
+            match_id=args.match_id,
+            referee_name=args.referee_name,
+            strictness=args.strictness,
+            yellow_cards=args.yellow_cards,
+            red_cards=args.red_cards,
+            penalties=args.penalties,
+            now=now,
+        )
+
+    elif args.command == "add-odds":
+        result = cmd_add_odds(
+            root=root,
+            edition=edition,
+            date=date,
+            match_id=args.match_id,
+            home_win=args.home_win,
+            draw=args.draw,
+            away_win=args.away_win,
+            source=args.source,
             now=now,
         )
 

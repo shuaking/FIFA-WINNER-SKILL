@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "edition": "2026",
+  "generated_at": "2026-06-10T12:00:00+08:00",
+  "mode": "worldcup-custom-predictions",
+  "filter": {
+    "phase": null,
+    "group": null,
+    "teams": "Mexico,South Korea",
+    "all": false
+  },
+  "predictions": [
+    {
+      "match_id": "2026-GA-04",
+      "kickoff_at": "2026-06-19T03:00:00Z",
+      "venue": "Estadio Akron, Zapopan, Mexico",
+      "group": "A",
+      "phase": "group",
+      "home_team": {
+        "team_id": "mex",
+        "name": "Mexico",
+        "ranking": 15,
+        "points": 1681.03
+      },
+      "away_team": {
+        "team_id": "kor",
+        "name": "South Korea",
+        "ranking": 25,
+        "points": 1588.66
+      },
+      "data_score": {
+        "home": 67.3,
+        "away": 58.4,
+        "components": {
+          "ranking_strength": {
+            "home": 68.72,
+            "away": 55.52,
+            "weight": 0.3
+          },
+          "squad_depth": {
+            "home": 88.8,
+            "away": 85.01,
+            "weight": 0.2
+          },
+          "historical_proxy": {
+            "home": 68.72,
+            "away": 55.52,
+            "weight": 0.2
+          },
+          "rest_travel": {
+            "home": 100.0,
+            "away": 90.0,
+            "weight": 0.15
+          },
+          "evidence_completeness": {
+            "home": 1.02,
+            "away": 1.02,
+            "weight": 0.15
+          }
+        }
+      },
+      "divination_overlay": {
+        "lunar_date": "农历：丙午马年 5月5日 午时 (11:00-12:59)",
+        "shichen": "午时 (11:00-12:59)",
+        "host_palace_branch": "戌",
+        "guest_palace_branch": "辰",
+        "home_stars": [],
+        "away_stars": [
+          "天府 (Tianfu)"
+        ],
+        "home_modifier": 0.0,
+        "away_modifier": 1.0,
+        "interpretation": "客队迁移宫吉曜临门，客战气势如虹，不容小觑。",
+        "has_physical_conflict": false,
+        "hexagram_name": "午时 (11:00-12:59)",
+        "hexagram_number": 0,
+        "hexagram": "午时 (11:00-12:59)",
+        "weight": 0.15
+      },
+      "prediction": {
+        "home_final": 67.3,
+        "away_final": 59.4,
+        "result": "home_win",
+        "predicted_outcome": "home_win",
+        "score": {
+          "home": 1,
+          "away": 0
+        },
+        "total_goals": 1,
+        "goals_line_2_5": "under",
+        "confidence": "low",
+        "confidence_label": "低信心",
+        "evidence_gaps": [
+          "official_fixtures_partial",
+          "fifa_rankings_partial",
+          "historical_worldcup_results_blocked",
+          "recent_form_results_blocked",
+          "squad_depth_position_balance_partial",
+          "injury_availability_blocked",
+          "venue_rest_travel_blocked"
+        ]
+      },
+      "referee_analysis": null,
+      "market_odds": null,
+      "dual_track": null,
+      "play_card": {
+        "share_title": "Mexico vs South Korea | 娱乐预测 1-0",
+        "match_hook": "Mexico 倾向胜出，总进球参考 1 球。A组对决，Estadio Akron, Zapopan, Mexico。",
+        "watch_points": [
+          "双方实力接近，临场发挥将决定走向",
+          "中场控制权和定位球效率是关键",
+          "小组赛积分策略可能影响比赛节奏"
+        ],
+        "risk_flags": [
+          "历史战绩数据不足",
+          "近期战绩数据缺失",
+          "伤停信息不完整",
+          "休息和旅行因素未充分计算"
+        ],
+        "poster_angle": "Mexico vs South Korea, Estadio Akron, Zapopan, Mexico, vibrant crowd atmosphere, 午时 (11:00-12:59) aesthetic overlay, predicted score 1-0, total goals 1",
+        "confidence_meter": "数据 85% | 玄学 15% | 信心: 低信心",
+        "gameplay_tags": [
+          "胜平负",
+          "比分",
+          "总进球",
+          "看点"
+        ]
+      },
+      "disclaimer": "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。"
+    }
+  ],
+  "disclaimer": "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。"
+}

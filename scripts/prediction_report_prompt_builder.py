@@ -48,6 +48,17 @@ def build_single_report_prompt(item: dict) -> dict:
     play_card = item.get("play_card", {})
     data_score = item.get("data_score", {})
     evidence_gaps = prediction.get("evidence_gaps", [])
+    analysis_layers = item.get("analysis_layers", []) or []
+    layer_lines = []
+    for layer in analysis_layers:
+        drivers = "; ".join(layer.get("key_drivers", [])[:3])
+        counters = "; ".join(layer.get("counter_signals", [])[:2])
+        missing = "; ".join(layer.get("missing_context", [])[:2])
+        layer_lines.append(
+            f"- {layer.get('title') or layer.get('layer_id')}: verdict={layer.get('verdict')}, summary={layer.get('summary')}, drivers={drivers}, counters={counters}, missing={missing}"
+        )
+    scenario_analysis = item.get("scenario_analysis", {}) or {}
+    decision_audit = item.get("decision_audit", {}) or {}
 
     prompt = f"""请基于下面的结构化预测数据，写一份中文世界杯赛前娱乐预测报告。
 
@@ -95,6 +106,22 @@ def build_single_report_prompt(item: dict) -> dict:
 风险提示
 免责声明
 """
+    prompt += f"""
+
+多层分析栈：
+{chr(10).join(layer_lines) if layer_lines else '- 暂无多层分析'}
+
+比赛剧本推演：
+- Base case：{scenario_analysis.get('base_case', '')}
+- Counter case：{scenario_analysis.get('upset_case', '')}
+- Draw case：{scenario_analysis.get('draw_case', '')}
+
+反方审稿：
+- 风险等级：{decision_audit.get('risk_level', '')}
+- 为什么这么选：{'; '.join(decision_audit.get('why_this_pick', []))}
+- 什么会改变判断：{'; '.join(decision_audit.get('what_would_change_the_pick', []))}
+"""
+
     return {
         "match_id": item.get("match_id", ""),
         "home_team": home,

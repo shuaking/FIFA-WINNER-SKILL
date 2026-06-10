@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dxboy.local/worldcup/agent-tool-catalog.schema.json",
+  "title": "AI Octopus Paul Tool Catalog",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "catalog_id",
+    "agent_id",
+    "tools",
+    "resources",
+    "prompts",
+    "guardrails",
+    "handoffs",
+    "trace_events"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "catalog_id": {
+      "type": "string"
+    },
+    "agent_id": {
+      "type": "string"
+    },
+    "tools": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/tool"}
+    },
+    "resources": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/resource"}
+    },
+    "prompts": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/prompt"}
+    },
+    "guardrails": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/namedReference"}
+    },
+    "handoffs": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/namedReference"}
+    },
+    "trace_events": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/namedReference"}
+    }
+  },
+  "$defs": {
+    "tool": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "kind", "description", "command_template", "inputs", "outputs", "safety_profile"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "command_template": {
+          "type": "string"
+        },
+        "inputs": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "outputs": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "safety_profile": {
+          "type": "string"
+        }
+      }
+    },
+    "resource": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "kind", "path", "description"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "prompt": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "description", "source", "inputs"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "inputs": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "namedReference": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "description"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

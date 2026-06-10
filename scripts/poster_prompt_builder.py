@@ -23,6 +23,194 @@ NEGATIVE_PROMPT_SHOWDOWN = (
     "plastic skin, cartoon, anime, video game render, fantasy armor, low quality"
 )
 
+TEAM_TRANSLATIONS = {
+    "Algeria": "阿尔及利亚",
+    "Argentina": "阿根廷",
+    "Australia": "澳大利亚",
+    "Austria": "奥地利",
+    "Belgium": "比利时",
+    "Bosnia and Herzegovina": "波黑",
+    "Bosnia And Herzegovina": "波黑",
+    "Brazil": "巴西",
+    "Cabo Verde": "佛得角",
+    "Canada": "加拿大",
+    "Colombia": "哥伦比亚",
+    "Congo DR": "民主刚果",
+    "Côte D'Ivoire": "科特迪瓦",
+    "Croatia": "克罗地亚",
+    "Curaçao": "库拉索",
+    "Czechia": "捷克",
+    "Czech Republic": "捷克",
+    "Ecuador": "厄瓜多尔",
+    "Egypt": "埃及",
+    "England": "英格兰",
+    "France": "法国",
+    "Germany": "德国",
+    "Ghana": "加纳",
+    "Haiti": "海地",
+    "IR Iran": "伊朗",
+    "Iran": "伊朗",
+    "Iraq": "伊拉克",
+    "Japan": "日本",
+    "Jordan": "约旦",
+    "Korea Republic": "韩国",
+    "South Korea": "韩国",
+    "Mexico": "墨西哥",
+    "Morocco": "摩洛哥",
+    "Netherlands": "荷兰",
+    "New Zealand": "新西兰",
+    "Nigeria": "尼日利亚",
+    "Panama": "巴拿马",
+    "Peru": "秘鲁",
+    "Poland": "波兰",
+    "Portugal": "葡萄牙",
+    "Qatar": "卡塔尔",
+    "Saudi Arabia": "沙特",
+    "Senegal": "塞内加尔",
+    "Serbia": "塞尔维亚",
+    "South Africa": "南非",
+    "Spain": "西班牙",
+    "Sweden": "瑞典",
+    "Switzerland": "瑞士",
+    "Tunisia": "突尼斯",
+    "Turkey": "土耳其",
+    "Ukraine": "乌克兰",
+    "Uruguay": "乌拉圭",
+    "United States": "美国",
+    "USA": "美国",
+    "Venezuela": "委内瑞拉",
+    "Wales": "威尔士"
+}
+
+TEAM_META = {
+    "South Korea": {
+        "name_zh": "韩国",
+        "colors": "红色主色球衣",
+        "glow_color": "红色",
+        "stars": "Son Heungmin, Kim Minjae, Lee Kangin, Hwang Heechan",
+        "adjective": "亚洲锋刃"
+    },
+    "Korea Republic": {
+        "name_zh": "韩国",
+        "colors": "红色主色球衣",
+        "glow_color": "红色",
+        "stars": "Son Heungmin, Kim Minjae, Lee Kangin, Hwang Heechan",
+        "adjective": "亚洲锋刃"
+    },
+    "Czechia": {
+        "name_zh": "捷克",
+        "colors": "白红或红蓝主色球衣",
+        "glow_color": "蓝白色",
+        "stars": "Patrik Schick, Tomas Soucek, Pavel Sulc, Adam Hlozek",
+        "adjective": "欧洲铁阵"
+    },
+    "Canada": {
+        "name_zh": "加拿大",
+        "colors": "红色或白色主色球衣",
+        "glow_color": "红白色",
+        "stars": "Alphonso Davies, Jonathan David, Stephen Eustaquio, Tajon Buchanan",
+        "adjective": "北美枫刃"
+    },
+    "Bosnia and Herzegovina": {
+        "name_zh": "波黑",
+        "colors": "蓝色或白色主色球衣",
+        "glow_color": "蓝黄色",
+        "stars": "Edin Dzeko, Sead Kolasinac, Miralem Pjanic, Rade Krunic",
+        "adjective": "巴尔干铁骑"
+    },
+    "Mexico": {
+        "name_zh": "墨西哥",
+        "colors": "绿色或白色主色球衣",
+        "glow_color": "绿白色",
+        "stars": "Santiago Gimenez, Edson Alvarez, Raul Jimenez, Guillermo Ochoa",
+        "adjective": "高原雄鹰"
+    },
+    "Argentina": {
+        "name_zh": "阿根廷",
+        "colors": "蓝白相间条纹球衣",
+        "glow_color": "蓝白色",
+        "stars": "Lionel Messi, Lautaro Martinez, Enzo Fernandez, Rodrigo De Paul",
+        "adjective": "潘帕斯雄鹰"
+    },
+    "Brazil": {
+        "name_zh": "巴西",
+        "colors": "经典黄色主色、绿色点缀球衣",
+        "glow_color": "黄绿色",
+        "stars": "Vinicius Junior, Neymar Jr, Rodrygo, Bruno Guimaraes",
+        "adjective": "桑巴军团"
+    },
+    "Germany": {
+        "name_zh": "德国",
+        "colors": "白色主色球衣",
+        "glow_color": "黑红金色",
+        "stars": "Florian Wirtz, Jamal Musiala, Kai Havertz, Joshua Kimmich",
+        "adjective": "德意志战车"
+    },
+    "France": {
+        "name_zh": "法国",
+        "colors": "深蓝色主色球衣",
+        "glow_color": "蓝白红色",
+        "stars": "Kylian Mbappe, Antoine Griezmann, William Saliba, Ousmane Dembele",
+        "adjective": "高卢雄鸡"
+    },
+    "Spain": {
+        "name_zh": "西班牙",
+        "colors": "红色主色、黄色点缀球衣",
+        "glow_color": "红黄色",
+        "stars": "Lamine Yamal, Rodri, Pedri, Nico Williams",
+        "adjective": "斗牛狂飙"
+    },
+    "England": {
+        "name_zh": "英格兰",
+        "colors": "白色主色球衣",
+        "glow_color": "红白色",
+        "stars": "Harry Kane, Jude Bellingham, Bukayo Saka, Phil Foden",
+        "adjective": "三狮军旗"
+    },
+    "Italy": {
+        "name_zh": "意大利",
+        "colors": "蓝色主色球衣",
+        "glow_color": "蔚蓝色",
+        "stars": "Nicolo Barella, Federico Chiesa, Alessandro Bastoni, Gianluigi Donnarumma",
+        "adjective": "钢防蓝翼"
+    },
+    "Portugal": {
+        "name_zh": "葡萄牙",
+        "colors": "红绿相间球衣",
+        "glow_color": "红绿色",
+        "stars": "Cristiano Ronaldo, Bruno Fernandes, Rafael Leao, Bernardo Silva",
+        "adjective": "航海家军团"
+    },
+    "Netherlands": {
+        "name_zh": "荷兰",
+        "colors": "橙色主色球衣",
+        "glow_color": "橙黑色",
+        "stars": "Virgil van Dijk, Cody Gakpo, Frenkie de Jong, Xavi Simons",
+        "adjective": "橙色风暴"
+    },
+    "Japan": {
+        "name_zh": "日本",
+        "colors": "深蓝色主色球衣",
+        "glow_color": "蓝白色",
+        "stars": "Kaoru Mitoma, Takefusa Kubo, Wataru Endo, Takumi Minamino",
+        "adjective": "东瀛刀锋"
+    },
+    "USA": {
+        "name_zh": "美国",
+        "colors": "白色主色球衣",
+        "glow_color": "红蓝双色",
+        "stars": "Christian Pulisic, Weston McKennie, Folarin Balogun, Timothy Weah",
+        "adjective": "星条战力"
+    },
+    "United States": {
+        "name_zh": "美国",
+        "colors": "白色主色球衣",
+        "glow_color": "红蓝双色",
+        "stars": "Christian Pulisic, Weston McKennie, Folarin Balogun, Timothy Weah",
+        "adjective": "星条战力"
+    }
+}
+
 
 def _team_name(value: object) -> str:
     if isinstance(value, dict):
@@ -92,7 +280,7 @@ def _format_player(player: dict) -> str:
     position = str(player.get("position") or "").strip()
     name = str(player.get("player_name") or player.get("name_on_shirt") or "").strip()
     club = str(player.get("club") or "").strip()
-    shirt_text = f"{shirt}号" if shirt not in (None, "") else "号码未知"
+    shirt_text = f"{shirt}号" if shirt not in (None, "") else ""
     main = " ".join(part for part in [shirt_text, position, name] if part)
     return f"{main} ({club})" if club else main
 
@@ -101,7 +289,7 @@ def _format_roster(team: dict | None) -> str:
     players = team.get("players", []) if isinstance(team, dict) else []
     if not players:
         return "官方阵容未找到，请生成前先补齐该队 roster。"
-    return "\n".join(f"- {_format_player(player)}" for player in players if isinstance(player, dict))
+    return ", ".join(_format_player(player) for player in players if isinstance(player, dict))
 
 
 def _parse_datetime(value: str) -> datetime | None:
@@ -141,12 +329,30 @@ def prompt_for_prediction(item: dict) -> str:
     )
 
 
-def _showdown_copy(home: str, away: str, prediction_item: dict) -> tuple[str, str]:
-    play_card = prediction_item.get("play_card", {}) if isinstance(prediction_item.get("play_card"), dict) else {}
-    hook = str(play_card.get("match_hook") or "").strip()
-    if hook:
-        return "大战一触即发", hook
-    return "大战一触即发", f"{home} 与 {away} 正面交锋，谁能抢下关键三分？"
+def _get_team_meta(team_name: str, roster: dict | None) -> dict:
+    meta = TEAM_META.get(team_name)
+    if not meta:
+        name_zh = TEAM_TRANSLATIONS.get(team_name, team_name)
+        stars_list = []
+        if roster and isinstance(roster, dict):
+            players = roster.get("players", [])
+            for p in players:
+                if isinstance(p, dict):
+                    pname = p.get("player_name") or p.get("name_on_shirt")
+                    if pname:
+                        stars_list.append(str(pname))
+            stars_list = stars_list[:4]
+        if not stars_list:
+            stars_list = ["核心球员"]
+
+        meta = {
+            "name_zh": name_zh,
+            "colors": "国家队经典主色球衣",
+            "glow_color": "国家队代表光效",
+            "stars": ", ".join(stars_list),
+            "adjective": f"{name_zh}劲旅"
+        }
+    return meta
 
 
 def prompt_for_showdown_prediction(
@@ -158,49 +364,79 @@ def prompt_for_showdown_prediction(
 ) -> tuple[str, str]:
     home = _team_name(item.get("home_team"))
     away = _team_name(item.get("away_team"))
+
+    home_meta = _get_team_meta(home, home_roster)
+    away_meta = _get_team_meta(away, away_roster)
+
+    home_zh = home_meta["name_zh"]
+    away_zh = away_meta["name_zh"]
+
     prediction = item["prediction"]
     score = prediction["score"]
     kickoff = _kickoff_text(str(item.get("kickoff_at") or ""), timezone_name)
-    atmosphere, support = _showdown_copy(home, away, item)
+
     home_players = _format_roster(home_roster)
     away_players = _format_roster(away_roster)
-    prompt = f"""为世界杯比赛「{home} vs {away}」制作一张高燃赛前预测宣传海报。
+
+    divination = item.get("divination_overlay", {}) or {}
+    hexagram = divination.get("hexagram", "乾")
+
+    home_adj = home_meta["adjective"]
+    away_adj = away_meta["adjective"]
+    atmosphere = f"{home_adj}，硬碰{away_adj}"
+    play_card = item.get("play_card", {}) if isinstance(item.get("play_card"), dict) else {}
+    support_caption = str(play_card.get("poster_caption") or "").strip()
+    if not support_caption:
+        result = prediction.get("result") or prediction.get("predicted_outcome")
+        score_text = f"{score['home']}-{score['away']}"
+        if result == "home_win":
+            support_caption = f"AI预测比分 {score_text}，{home_zh}主线占优，胜负趋势指向主队。"
+        elif result == "away_win":
+            support_caption = f"AI预测比分 {score_text}，{away_zh}主线占优，胜负趋势指向客队。"
+        else:
+            support_caption = f"AI预测比分 {score_text}，双方拉扯成局，平局剧本需要重点防范。"
+
+    support = f"天纪卦象【{hexagram}】：{support_caption}"
+
+    prompt = f"""为世界杯小组赛「{home_zh} vs {away_zh}」制作一张高燃赛前预测宣传海报。
 
 海报必须准确出现这些中文文字：
-主标题：{home} VS {away}
+主标题：{home_zh} VS {away_zh}
 比赛时间：{kickoff}
 氛围文案：{atmosphere}
 副文案：AI 赛前预测｜胜负趋势分析
 辅助文案：{support}
-预测信息：娱乐预测 {score['home']}-{score['away']}，信心等级 {prediction['confidence']}
+免责声明：娱乐预测，非投注建议
 
 重要要求：
-海报中必须出现 {home} 和 {away} 两支球队的完整阵容，不要只生成少数几个人。每队所有指定球员都要出现在画面中，采用完整球队大合影式战争海报构图：核心球员在前排，其他球员在中后排形成阵列。所有球员都必须是真实球员形象，根据公开比赛照片中的真实面部特征、发型、肤色、身材比例、球衣号码和比赛气质生成，不要生成虚构球员。
+1. 海报中必须完整出现 {home_zh} 和 {away_zh} 两支球队的所有 26 人阵容（总计 52 人），禁止只渲染少数几名核心球员，绝不可遗漏后排球员。采用震撼的大合影战争海报对称构图：核心球星位于前排显眼位置，其余队员依次在中后排呈密集、威武的阵列排开。
+2. ⚠️【绝对禁令：严禁将球员名字直接以文字形式写在海报画面中】。除顶部标题与指定文案外，画面各处（如球员头部上方、身旁、下方等）绝对不要出现任何球员的名字、英文缩写或拼音文字标签！所有球员名字仅作为其真实长相生成特征（面部、发型、肤色、身材、球衣号码）的提示基础，而非用于排版文字。
 
-{home} 完整球员名单：
+{home_zh} 完整 26 人球员名单：
 {home_players}
 
-{away} 完整球员名单：
+{away_zh} 完整 26 人球员名单：
 {away_players}
 
 构图：
-竖版 9:16。左侧是 {home} 完整阵容，右侧是 {away} 完整阵容。两队面对面站立，像开赛前最后一刻，前排球员身体前倾、眼神紧张，后排球员形成密集阵列。画面中央放置足球，足球附近有草屑、尘土、烟雾和强烈光影碰撞。
+横版 16:9。画面整体呈严整的战争大合影列阵：左半侧为 {home_zh} 完整阵容，穿 {home_zh} 国家队 {home_meta['colors']}；右半侧为 {away_zh} 完整阵容，穿 {away_zh} 国家队 {away_meta['colors']}。{home_zh} 一侧前排突出渲染：{home_meta['stars']}；{away_zh} 一侧前排突出渲染：{away_meta['stars']}。双方球员均根据公开赛事实时照片的真实面容生成，眼神中透露出大战将至的紧迫与杀气，前排前倾，后排紧密矗立。画面中央草坪放置足球，四周伴有强烈的光效对冲、草屑飞扬、战火硝烟与极具张力的氛围。
 
 视觉氛围：
-夜晚世界杯体育场，强烈探照灯，满场观众，草坪，国家队颜色的烟雾与光效。整体是电影级体育海报、真实足球摄影、商业赛事主视觉、高对比度、热血、紧张、压迫感、赛前大战氛围。
+夜晚的现代化世界杯体育场内部，高空探照灯形成极具戏剧张力的顶光和侧逆光，看台座无虚席。{home_meta['glow_color']} 与 {away_meta['glow_color']} 两股标志性的国家队代表色光效在画面中央激烈交撞。整体呈电影级体育海报质感，追求极高的超写实摄影细节、高对比度、高光影清晰度，摒弃任何卡通、低像素或塑料质感的 3D 渲染，呈现高燃的小组赛决战气氛。
 
 文字设计：
-顶部放置大标题「{home} VS {away}」
-标题下方放置「{kickoff}」
-中部或底部放置「{atmosphere}」
-底部放置「AI 赛前预测｜胜负趋势分析」
-文字要清晰、简洁、像专业体育赛事海报，不要乱码，不要错字，不要出现错误时间。
+顶部显著位置排版大标题「{home_zh} VS {away_zh}」
+大标题正下方放置「{kickoff}」
+画面中部或底部点缀「{atmosphere}」
+底部放置副文案「AI 赛前预测｜胜负趋势分析」
+所有文字版式均需与专业顶级赛事宣传视觉契合，位置合理、层次分明，不要乱码，不要出现任何多余或错误的文本图层。
 
 风格关键词：
 ultra realistic sports poster, cinematic football photography, official tournament atmosphere, dramatic stadium lighting, realistic faces, full squad lineup, intense face-off, high detail, professional commercial poster, epic matchday poster
 
 避免：
-不要生成虚构球员，不要只出现几个人，不要遗漏完整阵容，不要重复同一个球员，不要错误球衣颜色，不要错误国旗，不要乱码文字，不要卡通风，不要游戏渲染风，不要塑料皮肤，不要脸部畸形，不要多手多脚，不要把 {home} 球员放到 {away} 阵容里，不要把 {away} 球员放到 {home} 阵容里。"""
+不要生成虚构球员，不要只出现几个人，不要遗漏完整阵容，不要重复同一个球员，不要错误球衣颜色，不要错误国旗，不要乱码文字，不要卡通风，不要游戏渲染风，不要塑料皮肤，不要脸部畸形，不要多手多脚，不要把 {home_zh} 球员放到 {away_zh} 阵容里，不要把 {away_zh} 球员放到 {home_zh} 阵容里。"""
+
     return prompt, NEGATIVE_PROMPT_SHOWDOWN
 
 
@@ -238,6 +474,11 @@ def build_poster_manifest(
         negative_prompt = ""
         kickoff_text = ""
         roster_counts = {}
+        home_meta = _get_team_meta(home, rosters_by_team_id.get(home_team_id) if style == "showdown" else None)
+        away_meta = _get_team_meta(away, rosters_by_team_id.get(away_team_id) if style == "showdown" else None)
+        home_zh = home_meta["name_zh"]
+        away_zh = away_meta["name_zh"]
+
         if style == "showdown":
             home_roster = rosters_by_team_id.get(home_team_id)
             away_roster = rosters_by_team_id.get(away_team_id)
@@ -272,6 +513,8 @@ def build_poster_manifest(
                 "required_text": [
                     home,
                     away,
+                    home_zh,
+                    away_zh,
                     f"{score['home']}-{score['away']}",
                     "娱乐预测，非投注建议",
                 ]
@@ -321,6 +564,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except AttributeError:
+        pass
     args = build_parser().parse_args(argv)
     result = build_poster_manifest(
         root=Path(args.root).resolve(),

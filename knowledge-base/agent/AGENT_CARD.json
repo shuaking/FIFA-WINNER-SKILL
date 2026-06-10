@@ -1,0 +1,286 @@
+{
+  "$schema": "../../schema/agent-card.schema.json",
+  "schema_version": "a2a.capability-card.v1",
+  "agent_id": "ai-octopus-paul-predictor",
+  "name": "AI Octopus Paul Predictor Agent",
+  "skill_name": "fifa-winner-skill",
+  "version": "1.0.0",
+  "description": "World Cup knowledge-base and entertainment-prediction agent with evidence planning, multi-layer match analysis, play cards, poster prompts, and post-match evaluation.",
+  "runtime_contract": {
+    "type": "local_cli",
+    "working_directory": "repository_root",
+    "command_template": "python scripts/<tool>.py <command> --edition <edition> --root .",
+    "canonical_human_readme": "AGENT_README.md",
+    "canonical_skill_file": "SKILL.md"
+  },
+  "discovery": {
+    "agent_readme": "AGENT_README.md",
+    "agent_card": "knowledge-base/agent/AGENT_CARD.json",
+    "tool_catalog": "knowledge-base/agent/TOOL_CATALOG.json",
+    "runbook": "knowledge-base/agent/RUNBOOK.md",
+    "guardrails": "knowledge-base/agent/GUARDRAILS.md",
+    "handoffs": "knowledge-base/agent/HANDOFFS.md",
+    "trace_events": "knowledge-base/agent/TRACE_EVENTS.md",
+    "schemas": {
+      "agent_card": "schema/agent-card.schema.json",
+      "tool_catalog": "schema/agent-tool-catalog.schema.json",
+      "daily_prediction_report": "schema/daily-prediction-report.schema.json"
+    }
+  },
+  "interfaces": [
+    {
+      "protocol": "local_cli",
+      "status": "implemented",
+      "transport": "stdio",
+      "entrypoint": "scripts/*.py",
+      "notes": "Primary interface today; call from repository root with --root ."
+    },
+    {
+      "protocol": "a2a",
+      "status": "static_contract_ready",
+      "agent_card_path": "knowledge-base/agent/AGENT_CARD.json",
+      "handoff_contract": "knowledge-base/agent/HANDOFFS.md",
+      "notes": "Runtime server is intentionally deferred; the card and handoff contract are ready for a wrapper."
+    },
+    {
+      "protocol": "mcp",
+      "status": "catalog_ready",
+      "tool_catalog_path": "knowledge-base/agent/TOOL_CATALOG.json",
+      "notes": "Tools, resources, and prompts are cataloged for a future MCP server wrapper."
+    },
+    {
+      "protocol": "openai_agents_sdk",
+      "status": "wrapper_ready_contract",
+      "alignment": ["tools", "handoffs", "guardrails", "tracing"],
+      "notes": "Use TOOL_CATALOG.json, HANDOFFS.md, GUARDRAILS.md, and TRACE_EVENTS.md when building a wrapper."
+    }
+  ],
+  "skills": [
+    {
+      "id": "worldcup_edition_setup",
+      "name": "World Cup edition setup",
+      "description": "Initialize edition-scoped match ledger, source registry, wiki, and SQLite query index.",
+      "tags": ["setup", "knowledge-base", "fixtures"],
+      "examples": ["Initialize the 2026 World Cup knowledge base."]
+    },
+    {
+      "id": "evidence_aware_prediction",
+      "name": "Evidence-aware entertainment prediction",
+      "description": "Generate locked pre-match predictions with data score, Tianji overlay, market/evidence context, scenario analysis, and decision audit.",
+      "tags": ["prediction", "analysis_layers", "entertainment_only"],
+      "examples": ["Predict Mexico vs South Africa with visible evidence gaps."]
+    },
+    {
+      "id": "shareable_report_and_poster_prompting",
+      "name": "Shareable report and poster prompting",
+      "description": "Turn structured prediction reports into human report prompts, play cards, and poster prompts when explicitly requested.",
+      "tags": ["report", "poster", "play_card"],
+      "examples": ["Build a showdown poster prompt for match 2026-GA-01."]
+    },
+    {
+      "id": "post_match_evaluation",
+      "name": "Post-match evaluation",
+      "description": "Evaluate locked predictions after final scores are recorded and aggregate calibration dashboards.",
+      "tags": ["evaluation", "calibration", "reflection"],
+      "examples": ["Evaluate all 2026-06-11 predictions after final scores."]
+    },
+    {
+      "id": "portable_agent_export",
+      "name": "Portable agent export",
+      "description": "Export the repo, agent docs, schemas, examples, tests, and selected edition knowledge base for another runtime agent.",
+      "tags": ["export", "a2a", "runtime_agent"],
+      "examples": ["Export a standalone 2026 bundle for another agent."]
+    }
+  ],
+  "design_alignment": {
+    "a2a": {
+      "agent_card_ready": true,
+      "skills_ready": true,
+      "task_states": ["submitted", "working", "input_required", "blocked", "completed", "failed", "canceled"],
+      "runtime_server_status": "deferred"
+    },
+    "mcp": {
+      "tools_cataloged": true,
+      "resources_cataloged": true,
+      "prompts_cataloged": true,
+      "server_status": "deferred"
+    },
+    "agent_sdk_style": {
+      "tools": "knowledge-base/agent/TOOL_CATALOG.json",
+      "handoffs": "knowledge-base/agent/HANDOFFS.md",
+      "guardrails": "knowledge-base/agent/GUARDRAILS.md",
+      "tracing": "knowledge-base/agent/TRACE_EVENTS.md"
+    }
+  },
+  "safety": {
+    "disclaimer": "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。",
+    "not_for": [
+      "betting advice",
+      "stake sizing",
+      "bankroll decisions",
+      "lottery advice",
+      "guaranteed win claims"
+    ],
+    "forbidden_terms": [
+      "稳赢",
+      "稳胆",
+      "必赚",
+      "梭哈",
+      "guaranteed win",
+      "lock bet"
+    ]
+  },
+  "storage_policy": {
+    "canonical_artifacts": "JSON and Markdown files under knowledge-base/<edition>/",
+    "query_index": "SQLite file knowledge-base/<edition>/data/worldcup_<edition>.db",
+    "conflict_policy": "Prefer locked JSON reports over SQLite rows and report any mismatch."
+  },
+  "inputs": {
+    "required": [
+      "edition"
+    ],
+    "optional": [
+      "date",
+      "match_id",
+      "teams",
+      "phase",
+      "group",
+      "now",
+      "root",
+      "poster"
+    ]
+  },
+  "capabilities": [
+    {
+      "id": "initialize_edition",
+      "title": "Initialize World Cup edition",
+      "command": "python scripts/worldcup_edition_init.py init --edition <edition> --root .",
+      "outputs": [
+        "knowledge-base/<edition>/data/match-ledger.json",
+        "knowledge-base/<edition>/raw/source-registry.json",
+        "knowledge-base/<edition>/wiki/index.md"
+      ]
+    },
+    {
+      "id": "audit_sources",
+      "title": "Audit source readiness and prediction evidence",
+      "commands": [
+        "python scripts/worldcup_source_readiness_auditor.py write --edition <edition> --root .",
+        "python scripts/worldcup_prediction_evidence_planner.py write --edition <edition> --root ."
+      ],
+      "outputs": [
+        "knowledge-base/<edition>/data/source-readiness.json",
+        "knowledge-base/<edition>/data/prediction-evidence-plan.json"
+      ]
+    },
+    {
+      "id": "ingest_official_data",
+      "title": "Parse fixtures, rankings, rosters, and squad depth",
+      "commands": [
+        "python scripts/worldcup_fixture_parser.py parse --edition <edition> --schedule-json <schedule.json> --root .",
+        "python scripts/worldcup_ranking_parser.py parse --edition <edition> --ranking-json <ranking.json> --snapshot-manifest <manifest.json> --root .",
+        "python scripts/fifa_squad_pdf_parser.py parse --edition <edition> --pdf <snapshot.pdf> --update-edition-teams --root .",
+        "python scripts/worldcup_squad_depth_compiler.py build --edition <edition> --root ."
+      ],
+      "outputs": [
+        "knowledge-base/<edition>/data/match-ledger.json",
+        "knowledge-base/<edition>/data/rankings/fifa-men-ranking.json",
+        "knowledge-base/<edition>/data/rosters/fifa-squad-lists.json",
+        "knowledge-base/<edition>/data/squad-depth-features.json"
+      ]
+    },
+    {
+      "id": "collect_daily_evidence",
+      "title": "Collect or record daily match evidence",
+      "commands": [
+        "python scripts/daily_evidence_input.py init --edition <edition> --date <YYYY-MM-DD> --root .",
+        "python scripts/worldcup_live_fetcher.py fetch-odds --edition <edition> --date <YYYY-MM-DD> --root .",
+        "python scripts/worldcup_live_fetcher.py fetch-news --edition <edition> --date <YYYY-MM-DD> --root ."
+      ],
+      "outputs": [
+        "knowledge-base/<edition>/data/daily-evidence/<YYYY-MM-DD>.json"
+      ]
+    },
+    {
+      "id": "predict_daily",
+      "title": "Generate locked pre-match entertainment predictions",
+      "command": "python scripts/daily_prediction_runner.py run --edition <edition> --date <YYYY-MM-DD> --root .",
+      "outputs": [
+        "knowledge-base/<edition>/data/reports/<YYYY-MM-DD>-prediction-report.json",
+        "knowledge-base/<edition>/wiki/reports/daily-predictions/<YYYY-MM-DD>.md"
+      ],
+      "important_fields": [
+        "predictions[].prediction",
+        "predictions[].analysis_layers",
+        "predictions[].scenario_analysis",
+        "predictions[].decision_audit",
+        "predictions[].play_card",
+        "predictions[].disclaimer"
+      ]
+    },
+    {
+      "id": "predict_custom",
+      "title": "Generate scoped predictions by match, teams, group, phase, or all",
+      "commands": [
+        "python scripts/prediction_scoring_model.py predict --edition <edition> --match-id <match_id> --root .",
+        "python scripts/prediction_scoring_model.py predict --edition <edition> --teams \"Team A,Team B\" --root .",
+        "python scripts/octopus_paul_agent.py predict --edition <edition> --group <group> --root .",
+        "python scripts/octopus_paul_agent.py predict --edition <edition> --all --root ."
+      ]
+    },
+    {
+      "id": "build_report_prompt",
+      "title": "Build a Chinese report-writing prompt from a structured prediction report",
+      "command": "python scripts/prediction_report_prompt_builder.py build --edition <edition> --date <YYYY-MM-DD> --report-path <prediction-report.json> --match-id <match_id> --root .",
+      "outputs": [
+        "knowledge-base/<edition>/data/reports/prompts/*.json",
+        "knowledge-base/<edition>/wiki/reports/prompts/*.md"
+      ]
+    },
+    {
+      "id": "build_poster_prompt",
+      "title": "Build poster prompt material when explicitly requested",
+      "command": "python scripts/poster_prompt_builder.py build --edition <edition> --date <YYYY-MM-DD> --style showdown --match-id <match_id> --root .",
+      "outputs": [
+        "knowledge-base/<edition>/data/reports/posters/*.txt",
+        "knowledge-base/<edition>/data/reports/posters/*.json"
+      ]
+    },
+    {
+      "id": "evaluate_predictions",
+      "title": "Evaluate locked predictions after final scores are recorded",
+      "commands": [
+        "python scripts/prediction_evaluator.py write --edition <edition> --date <YYYY-MM-DD> --root .",
+        "python scripts/prediction_evaluation_dashboard.py write --edition <edition> --root ."
+      ],
+      "outputs": [
+        "knowledge-base/<edition>/data/reports/evaluations/<YYYY-MM-DD>.json",
+        "knowledge-base/<edition>/data/reports/evaluations/aggregate-dashboard.json"
+      ]
+    },
+    {
+      "id": "export_standalone",
+      "title": "Export a portable copy for another runtime agent",
+      "command": "python scripts/worldcup_export_standalone.py --edition <edition> --output <target_dir> --root .",
+      "outputs": [
+        "<target_dir>/AGENT_README.md",
+        "<target_dir>/knowledge-base/agent/AGENT_CARD.json",
+        "<target_dir>/knowledge-base/agent/TOOL_CATALOG.json",
+        "<target_dir>/knowledge-base/agent/GUARDRAILS.md",
+        "<target_dir>/knowledge-base/agent/HANDOFFS.md",
+        "<target_dir>/knowledge-base/agent/TRACE_EVENTS.md",
+        "<target_dir>/export-manifest.json"
+      ]
+    }
+  ],
+  "recommended_a2a_response_shape": {
+    "status": "created | locked_existing_report | blocked | no_matches_found",
+    "report": "<path>",
+    "matches": "<count>",
+    "main_pick": "<result plus score>",
+    "confidence": "low | medium | high",
+    "evidence_gaps": [],
+    "key_layers": [],
+    "safety": "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。"
+  }
+}

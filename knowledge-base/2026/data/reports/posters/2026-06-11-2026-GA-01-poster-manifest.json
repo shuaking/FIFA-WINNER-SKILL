@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "edition": "2026",
+  "date": "2026-06-11",
+  "generated_at": "2026-06-11T00:47:17.324136+08:00",
+  "mode": "worldcup-prediction-poster-prompt-manifest",
+  "source_report": "D:\\res\\project\\FIFA-WINNER-SKILL\\knowledge-base\\2026\\data\\reports\\daily-predictions\\2026-06-11.json",
+  "manifest_path": "D:\\res\\project\\FIFA-WINNER-SKILL\\knowledge-base\\2026\\data\\reports\\posters\\2026-06-11-2026-GA-01-poster-manifest.json",
+  "prompt_text_path": "D:\\res\\project\\FIFA-WINNER-SKILL\\knowledge-base\\2026\\data\\reports\\posters\\2026-06-11-2026-GA-01-poster-prompt.txt",
+  "match_id_filter": "2026-GA-01",
+  "style": "showdown",
+  "timezone": "Asia/Shanghai",
+  "poster_items": [
+    {
+      "poster_id": "2026-GA-01:prediction-poster",
+      "match_id": "2026-GA-01",
+      "style": "showdown",
+      "home_team": "Mexico",
+      "away_team": "South Africa",
+      "home_team_id": "mex",
+      "away_team_id": "rsa",
+      "prediction": {
+        "home_final": 70.5,
+        "away_final": 45.5,
+        "result": "home_win",
+        "predicted_outcome": "home_win",
+        "score": {
+          "home": 2,
+          "away": 1
+        },
+        "total_goals": 3,
+        "goals_line_2_5": "over",
+        "confidence": "medium",
+        "confidence_label": "中等信心",
+        "evidence_gaps": []
+      },
+      "kickoff_at": "2026-06-11T19:00:00Z",
+      "kickoff_text": "6月12日 03:00 开赛",
+      "roster_counts": {
+        "mex": 26,
+        "rsa": 26
+      },
+      "disclaimer": "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。",
+      "prompt": "为世界杯小组赛「墨西哥 vs 南非」制作一张高燃赛前预测宣传海报。\n\n海报必须准确出现这些中文文字：\n主标题：墨西哥 VS 南非\n比赛时间：6月12日 03:00 开赛\n氛围文案：高原雄鹰，硬碰南非劲旅\n副文案：AI 赛前预测｜胜负趋势分析\n辅助文案：天纪卦象【寅时 (03:00-04:59)】：AI预测比分 2-1，墨西哥主线占优，双轨共振支撑主队方向。\n免责声明：娱乐预测，非投注建议\n\n重要要求：\n1. 海报中必须完整出现 墨西哥 和 南非 两支球队的所有 26 人阵容（总计 52 人），禁止只渲染少数几名核心球员，绝不可遗漏后排球员。采用震撼的大合影战争海报对称构图：核心球星位于前排显眼位置，其余队员依次在中后排呈密集、威武的阵列排开。\n2. ⚠️【绝对禁令：严禁将球员名字直接以文字形式写在海报画面中】。除顶部标题与指定文案外，画面各处（如球员头部上方、身旁、下方等）绝对不要出现任何球员的名字、英文缩写或拼音文字标签！所有球员名字仅作为其真实长相生成特征（面部、发型、肤色、身材、球衣号码）的提示基础，而非用于排版文字。\n\n墨西哥 完整 26 人球员名单：\n1号 GK RANGEL Raul (CD Guadalajara (MEX)), 2号 DF SANCHEZ Jorge (PAOK Saloniki (GRE)), 3号 DF MONTES Cesar (FC Lokomotiv Moscow (RUS)), 4号 DF ALVAREZ Edson (Fenerbahçe SK (TUR)), 5号 DF VASQUEZ Johan (Genoa CFC (ITA)), 6号 MF LIRA Erik (CF Cruz Azul (MEX)), 7号 MF ROMO Luis (CD Guadalajara (MEX)), 8号 MF FIDALGO Alvaro (Real Betis (ESP)), 9号 FW JIMENEZ Raul (Fulham FC (ENG)), 10号 FW VEGA Alexis (Deportivo Toluca FC (MEX)), 11号 FW GIMENEZ Santiago (AC Milan (ITA)), 12号 GK ACEVEDO Carlos (Club Santos Laguna (MEX)), 13号 GK OCHOA Guillermo (AEL Limassol (CYP)), 14号 FW GONZALEZ Armando (CD Guadalajara (MEX)), 15号 DF REYES Israel (Club América (MEX)), 16号 FW QUINONES Julian (Al Qadsiah FC (KSA)), 17号 MF PINEDA Orbelin (AEK Athens (GRE)), 18号 MF VARGAS Obed (Atlético De Madrid (ESP)), 19号 MF MORA Gilberto (Club Tijuana (MEX)), 20号 DF CHAVEZ Mateo (AZ Alkmaar (NED)), 21号 FW HUERTA Cesar (RSC Anderlecht (BEL)), 22号 FW MARTINEZ Guillermo (Pumas UNAM (MEX)), 23号 DF GALLARDO Jesus (Deportivo Toluca FC (MEX)), 24号 MF CHAVEZ Luis (FC Dynamo Moscow (RUS)), 25号 FW ALVARADO Roberto (CD Guadalajara (MEX)), 26号 MF GUTIERREZ Brian (CD Guadalajara (MEX))\n\n南非 完整 26 人球员名单：\n1号 GK WILLIAMS Ronwen (Mamelodi Sundowns FC (RSA)), 2号 DF MATULUDI Thabang (Polokwane City FC (RSA)), 3号 DF NDAMANE Khulumani (Mamelodi Sundowns FC (RSA)), 4号 MF MOKOENA Teboho (Mamelodi Sundowns FC (RSA)), 5号 MF MBATHA Thalente (Orlando Pirates FC (RSA)), 6号 DF MODIBA Aubrey (Mamelodi Sundowns FC (RSA)), 7号 FW APPOLLIS Oswin (Orlando Pirates FC (RSA)), 8号 FW MOREMI Tshepang (Orlando Pirates FC (RSA)), 9号 FW FOSTER Lyle (Burnley FC (ENG)), 10号 FW MOFOKENG Relebohile (Orlando Pirates FC (RSA)), 11号 MF ZWANE Themba (Mamelodi Sundowns FC (RSA)), 12号 FW MASEKO Thapelo (AEL Limassol (CYP)), 13号 MF SITHOLE Sphephelo (CD Tondela (POR)), 14号 DF MBOKAZI Mbekezeli (Chicago Fire FC (USA)), 15号 FW RAYNERS Iqraam (Mamelodi Sundowns FC (RSA)), 16号 GK CHAINE Sipho (Orlando Pirates FC (RSA)), 17号 FW MAKGOPA Evidence (Orlando Pirates FC (RSA)), 18号 DF KABINI Samukele (Molde FK (NOR)), 19号 DF SIBISI Nkosinathi (Orlando Pirates FC (RSA)), 20号 DF MUDAU Khuliso (Mamelodi Sundowns FC (RSA)), 21号 DF OKON Ime (Hannover 96 (GER)), 22号 GK GOSS Ricardo (Siwelele FC (RSA)), 23号 MF ADAMS Jayden (Mamelodi Sundowns FC (RSA)), 24号 DF MAKHANYA Olwethu (Philadelphia Union (USA)), 25号 FW SEBELEBELE Kamogelo (Orlando Pirates FC (RSA)), 26号 DF CROSS Bradley (Kaizer Chiefs FC (RSA))\n\n构图：\n横版 16:9。画面整体呈严整的战争大合影列阵：左半侧为 墨西哥 完整阵容，穿 墨西哥 国家队 绿色或白色主色球衣；右半侧为 南非 完整阵容，穿 南非 国家队 国家队经典主色球衣。墨西哥 一侧前排突出渲染：Santiago Gimenez, Edson Alvarez, Raul Jimenez, Guillermo Ochoa；南非 一侧前排突出渲染：WILLIAMS Ronwen, MATULUDI Thabang, NDAMANE Khulumani, MOKOENA Teboho。双方球员均根据公开赛事实时照片的真实面容生成，眼神中透露出大战将至的紧迫与杀气，前排前倾，后排紧密矗立。画面中央草坪放置足球，四周伴有强烈的光效对冲、草屑飞扬、战火硝烟与极具张力的氛围。\n\n视觉氛围：\n夜晚的现代化世界杯体育场内部，高空探照灯形成极具戏剧张力的顶光和侧逆光，看台座无虚席。绿白色 与 国家队代表光效 两股标志性的国家队代表色光效在画面中央激烈交撞。整体呈电影级体育海报质感，追求极高的超写实摄影细节、高对比度、高光影清晰度，摒弃任何卡通、低像素或塑料质感的 3D 渲染，呈现高燃的小组赛决战气氛。\n\n文字设计：\n顶部显著位置排版大标题「墨西哥 VS 南非」\n大标题正下方放置「6月12日 03:00 开赛」\n画面中部或底部点缀「高原雄鹰，硬碰南非劲旅」\n底部放置副文案「AI 赛前预测｜胜负趋势分析」\n所有文字版式均需与专业顶级赛事宣传视觉契合，位置合理、层次分明，不要乱码，不要出现任何多余或错误的文本图层。\n\n风格关键词：\nultra realistic sports poster, cinematic football photography, official tournament atmosphere, dramatic stadium lighting, realistic faces, full squad lineup, intense face-off, high detail, professional commercial poster, epic matchday poster\n\n避免：\n不要生成虚构球员，不要只出现几个人，不要遗漏完整阵容，不要重复同一个球员，不要错误球衣颜色，不要错误国旗，不要乱码文字，不要卡通风，不要游戏渲染风，不要塑料皮肤，不要脸部畸形，不要多手多脚，不要把 墨西哥 球员放到 南非 阵容里，不要把 南非 球员放到 墨西哥 阵容里。",
+      "prompt_text_path": "D:\\res\\project\\FIFA-WINNER-SKILL\\knowledge-base\\2026\\data\\reports\\posters\\2026-06-11-2026-GA-01-poster-prompt.txt",
+      "negative_prompt": "fictional players, generic footballers, fake faces, missing squad members, only 5 players, only 10 players, duplicate players, wrong team colors, wrong jersey numbers, wrong flag, fake logo, unreadable Chinese text, misspelled text, incorrect date, incorrect kickoff time, distorted faces, deformed hands, extra limbs, plastic skin, cartoon, anime, video game render, fantasy armor, low quality",
+      "required_text": [
+        "Mexico",
+        "South Africa",
+        "墨西哥",
+        "南非",
+        "2-1",
+        "娱乐预测，非投注建议",
+        "6月12日 03:00 开赛",
+        "AI 赛前预测｜胜负趋势分析"
+      ],
+      "forbidden_text": [
+        "投注金额",
+        "稳赢",
+        "稳胆",
+        "下注",
+        "odds",
+        "sportsbook"
+      ]
+    }
+  ],
+  "summary": {
+    "poster_items": 1
+  },
+  "safety_invariants": [
+    "poster_prompt_derived_from_structured_prediction_report",
+    "poster_disclaimer_required",
+    "poster_must_not_include_betting_language",
+    "user_facing_image2_prompt_is_plain_text"
+  ]
+}

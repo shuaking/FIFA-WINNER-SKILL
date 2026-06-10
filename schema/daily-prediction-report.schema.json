@@ -18,12 +18,34 @@
         "required": ["match_id", "prediction", "divination_overlay", "play_card", "disclaimer"],
         "additionalProperties": true,
         "properties": {
+          "analysis_layers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["layer_id", "verdict", "summary"],
+              "additionalProperties": true,
+              "properties": {
+                "layer_id": {"type": "string"},
+                "title": {"type": "string"},
+                "verdict": {"type": "string"},
+                "confidence": {"type": "string"},
+                "summary": {"type": "string"},
+                "key_drivers": {"type": "array", "items": {"type": "string"}},
+                "counter_signals": {"type": "array", "items": {"type": "string"}},
+                "missing_context": {"type": "array", "items": {"type": "string"}},
+                "watch_triggers": {"type": "array", "items": {"type": "string"}}
+              }
+            }
+          },
+          "scenario_analysis": {"type": "object", "additionalProperties": true},
+          "decision_audit": {"type": "object", "additionalProperties": true},
           "play_card": {
             "type": "object",
             "required": ["share_title", "match_hook", "watch_points", "risk_flags", "poster_angle", "confidence_meter", "gameplay_tags"],
             "properties": {
               "share_title": {"type": "string"},
               "match_hook": {"type": "string"},
+              "poster_caption": {"type": "string"},
               "watch_points": {"type": "array", "items": {"type": "string"}},
               "risk_flags": {"type": "array", "items": {"type": "string"}},
               "poster_angle": {"type": "string"},

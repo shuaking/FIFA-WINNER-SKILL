@@ -67,6 +67,19 @@ def initialize_edition(*, root: Path, edition: str, now: str | None = None) -> d
     write_json(data_root / "match-ledger.json", ledger)
     write_json(data_root / "teams.json", teams)
 
+    db_path = data_root / f"worldcup_{edition}.db"
+    from worldcup_db import init_database, get_db_connection, save_team, save_match
+    init_database(db_path)
+    conn = get_db_connection(db_path)
+    try:
+        with conn:
+            for t in teams["teams"]:
+                save_team(conn, t)
+            for m in ledger["matches"]:
+                save_match(conn, m)
+    finally:
+        conn.close()
+
     return {
         "version": 1,
         "edition": edition,
@@ -77,6 +90,7 @@ def initialize_edition(*, root: Path, edition: str, now: str | None = None) -> d
             "data": str(data_root),
             "match_ledger": str(data_root / "match-ledger.json"),
             "source_registry": str(raw_root / "source-registry.json"),
+            "database": str(db_path),
         },
         "summary": ledger["summary"],
         "safety_invariants": ledger["safety_invariants"],

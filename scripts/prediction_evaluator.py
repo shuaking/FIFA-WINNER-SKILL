@@ -119,6 +119,30 @@ def evaluate_predictions(*, root: Path, edition: str, date: str, now: str | None
     out_path = edition_data_root(root, edition) / "reports" / "evaluations" / f"{date}.json"
     md_path = wiki_edition_root(root, edition) / "reports" / "evaluations" / f"{date}.md"
     write_json(out_path, result)
+
+    db_path = edition_data_root(root, edition) / f"worldcup_{edition}.db"
+    from worldcup_db import get_db_connection, init_database, save_match, save_evaluation
+    init_database(db_path)
+    conn = get_db_connection(db_path)
+    try:
+        with conn:
+            for ev in evaluations:
+                if ev.get("status") == "evaluated":
+                    match_obj = ledger_by_id.get(ev["match_id"])
+                    if match_obj:
+                        save_match(conn, match_obj)
+                    db_ev = {
+                        "match_id": ev["match_id"],
+                        "actual_score_home": ev["actual_score"]["home"],
+                        "actual_score_away": ev["actual_score"]["away"],
+                        "is_result_correct": ev["result_hit"],
+                        "is_score_correct": ev["score_hit"],
+                        "evaluated_at": generated_at
+                    }
+                    save_evaluation(conn, db_ev)
+    finally:
+        conn.close()
+
     write_text(
         md_path,
         f"""---

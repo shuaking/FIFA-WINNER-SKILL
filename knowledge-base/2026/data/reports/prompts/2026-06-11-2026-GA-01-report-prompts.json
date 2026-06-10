@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "edition": "2026",
+  "date": "2026-06-11",
+  "generated_at": "2026-06-10T20:45:00+08:00",
+  "mode": "worldcup-prediction-report-prompt-manifest",
+  "source_report": "data/editions/2026/reports/2026-06-11-prediction-report.json",
+  "manifest_path": "data/editions/2026/reports/prompts/2026-06-11-2026-GA-01-report-prompts.json",
+  "markdown_path": "wiki/体育/世界杯/2026/reports/prompts/2026-06-11-2026-GA-01-report-prompts.md",
+  "match_id_filter": "2026-GA-01",
+  "summary": {
+    "prompt_items": 1
+  },
+  "prompt_items": [
+    {
+      "match_id": "2026-GA-01",
+      "home_team": "Mexico",
+      "away_team": "South Africa",
+      "prediction": {
+        "home_final": 63.6,
+        "away_final": 46.1,
+        "result": "home_win",
+        "predicted_outcome": "home_win",
+        "score": {
+          "home": 2,
+          "away": 1
+        },
+        "total_goals": 3,
+        "goals_line_2_5": "over",
+        "confidence": "low",
+        "confidence_label": "低信心",
+        "evidence_gaps": [
+          "official_fixtures_partial",
+          "fifa_rankings_partial",
+          "historical_worldcup_results_blocked",
+          "recent_form_results_blocked",
+          "squad_depth_position_balance_partial",
+          "injury_availability_blocked",
+          "venue_rest_travel_blocked"
+        ]
+      },
+      "prompt": "请基于下面的结构化预测数据，写一份中文世界杯赛前娱乐预测报告。\n\n硬性要求：\n1. 报告必须清楚给出胜平负、预测比分、总进球数、信心等级。\n2. 必须说明数据模型权重 85%，周易娱乐层最多 15%，周易只做娱乐叙事，不能覆盖硬数据。\n3. 必须写出关键证据和证据缺口，缺失资料要标注为风险，不要假装完整。\n4. 必须包含免责声明：娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。\n5. 禁止出现投注金额、下注建议、赔率建议、稳赢、稳胆、保证命中等赌博相关措辞。\n\n比赛：\n- Match ID：2026-GA-01\n- 对阵：Mexico vs South Africa\n- 开球时间：2026-06-11T19:00:00Z\n\n预测结论：\n- 胜平负：主队胜\n- 预测比分：2-1\n- 总进球数：3\n- 大小球倾向：over\n- 信心：低信心\n\n模型证据：\n- 主队数据分：66.5\n- 客队数据分：45.5\n- 主队最终分：63.6\n- 客队最终分：46.1\n- 证据缺口：official_fixtures_partial, fifa_rankings_partial, historical_worldcup_results_blocked, recent_form_results_blocked, squad_depth_position_balance_partial, injury_availability_blocked, venue_rest_travel_blocked\n\n周易娱乐层：\n- 卦象：震 (The Arousing)\n- 解读：洊雷震\n\n玩法卡片：\n- 分享标题：Mexico vs South Africa | 娱乐预测 2-1\n- 看点：双方实力接近，临场发挥将决定走向; 中场控制权和定位球效率是关键; 小组赛积分策略可能影响比赛节奏\n- 风险提示：历史战绩数据不足; 近期战绩数据缺失; 伤停信息不完整; 休息和旅行因素未充分计算\n\n请输出结构：\n标题\n一句话结论\n预测结果表\n关键证据\n周易娱乐解读\n风险提示\n免责声明\n",
+      "required_text": [
+        "Mexico",
+        "South Africa",
+        "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。",
+        "数据模型权重 85%",
+        "周易娱乐层最多 15%"
+      ],
+      "forbidden_text": [
+        "投注金额",
+        "下注",
+        "赔率建议",
+        "稳赢",
+        "稳胆",
+        "保证命中"
+      ]
+    }
+  ],
+  "safety_invariants": [
+    "report_prompt_derived_from_structured_prediction_report",
+    "report_prompt_requires_entertainment_disclaimer",
+    "report_prompt_forbids_betting_language"
+  ]
+}

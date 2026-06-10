@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sqlite3
 import sys
 from pathlib import Path
 
@@ -81,9 +82,49 @@ def collect_evaluation_files(root: Path, edition: str) -> list[Path]:
     ]
 
 
-def build_evaluation_dashboard(*, root: Path, edition: str, now: str | None = None) -> dict:
-    generated_at = iso_now(now)
-    days: list[dict] = []
+def _dashboard_paths(root: Path, edition: str) -> tuple[Path, Path]:
+    dashboard_path = edition_data_root(root, edition) / "reports" / "evaluations" / "aggregate-dashboard.json"
+    markdown_path = wiki_edition_root(root, edition) / "reports" / "evaluations" / "aggregate-dashboard.md"
+    return dashboard_path, markdown_path
+
+
+def _empty_dashboard(*, root: Path, edition: str, generated_at: str) -> dict:
+    dashboard_path, markdown_path = _dashboard_paths(root, edition)
+    return {
+        "version": 1,
+        "edition": edition,
+        "generated_at": generated_at,
+        "mode": "worldcup-prediction-evaluation-dashboard",
+        "status": "no_evaluations_yet",
+        "dashboard_path": str(dashboard_path),
+        "markdown_path": str(markdown_path),
+        "summary": {
+            "evaluation_days": 0,
+            "evaluated_matches": 0,
+            "blocked_missing_final_score": 0,
+            "result_hits": 0,
+            "score_hits": 0,
+            "total_goals_hits": 0,
+            "confidence_calibration": {},
+        },
+        "rates": {
+            "result_hit_rate": 0.0,
+            "score_hit_rate": 0.0,
+            "total_goals_hit_rate": 0.0,
+        },
+        "days": [],
+        "safety_invariants": [
+            "evaluation_dashboard_reads_evaluations_without_rewriting_predictions",
+            "locked_pre_match_reports_remain_unchanged",
+        ],
+    }
+
+
+def _build_dashboard_from_evaluation_files(*, root: Path, edition: str, generated_at: str) -> dict:
+    paths = collect_evaluation_files(root, edition)
+    if not paths:
+        return _empty_dashboard(root=root, edition=edition, generated_at=generated_at)
+
     totals = {
         "evaluated_matches": 0,
         "blocked_missing_final_score": 0,
@@ -91,49 +132,188 @@ def build_evaluation_dashboard(*, root: Path, edition: str, now: str | None = No
         "score_hits": 0,
         "total_goals_hits": 0,
     }
+    days = []
     confidence_buckets: dict[str, dict] = {}
 
-    for path in collect_evaluation_files(root, edition):
-        payload = load_json(path)
-        if payload.get("mode") != "worldcup-prediction-post-match-evaluation":
-            continue
-        summary = payload.get("summary", {})
+    for path in paths:
+        payload = load_json(path, {})
+        summary = payload.get("summary", {}) or {}
+        evaluations = payload.get("evaluations", []) or []
+        evaluated_from_items = sum(1 for item in evaluations if item.get("status") == "evaluated")
+        blocked_from_items = sum(1 for item in evaluations if item.get("status") == "blocked_missing_final_score")
+
+        evaluated = int(summary.get("evaluated_matches", evaluated_from_items) or 0)
+        blocked = int(summary.get("blocked_missing_final_score", blocked_from_items) or 0)
+        result_hits = int(summary.get("result_hits", sum(1 for item in evaluations if item.get("result_hit"))) or 0)
+        score_hits = int(summary.get("score_hits", sum(1 for item in evaluations if item.get("score_hit"))) or 0)
+        total_goals_hits = int(summary.get("total_goals_hits", sum(1 for item in evaluations if item.get("total_goals_hit"))) or 0)
+
         day = {
-            "date": payload.get("date", path.stem),
+            "date": str(payload.get("date") or path.stem),
             "path": str(path),
-            "evaluated_matches": int(summary.get("evaluated_matches", 0) or 0),
-            "blocked_missing_final_score": int(summary.get("blocked_missing_final_score", 0) or 0),
-            "result_hits": int(summary.get("result_hits", 0) or 0),
-            "score_hits": int(summary.get("score_hits", 0) or 0),
-            "total_goals_hits": int(summary.get("total_goals_hits", 0) or 0),
+            "evaluated_matches": evaluated,
+            "blocked_missing_final_score": blocked,
+            "result_hits": result_hits,
+            "score_hits": score_hits,
+            "total_goals_hits": total_goals_hits,
         }
-        days.append(day)
-        for key in totals:
-            totals[key] += day[key]
-        summary_calibration = summary.get("confidence_calibration", {})
-        if isinstance(summary_calibration, dict):
-            for level, bucket in summary_calibration.items():
-                if isinstance(bucket, dict):
-                    _merge_confidence_bucket(
-                        confidence_buckets.setdefault(_confidence_level(level), _empty_confidence_bucket()),
-                        bucket,
-                    )
+        if evaluated or blocked or evaluations:
+            days.append(day)
+
+        totals["evaluated_matches"] += evaluated
+        totals["blocked_missing_final_score"] += blocked
+        totals["result_hits"] += result_hits
+        totals["score_hits"] += score_hits
+        totals["total_goals_hits"] += total_goals_hits
+
+        file_buckets = _confidence_from_evaluations(evaluations)
+        if file_buckets:
+            for level, bucket in file_buckets.items():
+                _merge_confidence_bucket(confidence_buckets.setdefault(level, _empty_confidence_bucket()), bucket)
         else:
-            for level, bucket in _confidence_from_evaluations(payload.get("evaluations", [])).items():
-                _merge_confidence_bucket(
-                    confidence_buckets.setdefault(level, _empty_confidence_bucket()),
-                    bucket,
-                )
-        if not summary_calibration:
-            for level, bucket in _confidence_from_evaluations(payload.get("evaluations", [])).items():
-                _merge_confidence_bucket(
-                    confidence_buckets.setdefault(level, _empty_confidence_bucket()),
-                    bucket,
-                )
+            for level, bucket in (summary.get("confidence_calibration", {}) or {}).items():
+                _merge_confidence_bucket(confidence_buckets.setdefault(level, _empty_confidence_bucket()), bucket)
+
+    dashboard_path, markdown_path = _dashboard_paths(root, edition)
+    evaluated_total = totals["evaluated_matches"]
+    return {
+        "version": 1,
+        "edition": edition,
+        "generated_at": generated_at,
+        "mode": "worldcup-prediction-evaluation-dashboard",
+        "status": "written" if days else "no_evaluations_yet",
+        "dashboard_path": str(dashboard_path),
+        "markdown_path": str(markdown_path),
+        "summary": {
+            "evaluation_days": len(days),
+            **totals,
+            "confidence_calibration": _finalize_confidence_calibration(confidence_buckets),
+        },
+        "rates": {
+            "result_hit_rate": _rate(totals["result_hits"], evaluated_total),
+            "score_hit_rate": _rate(totals["score_hits"], evaluated_total),
+            "total_goals_hit_rate": _rate(totals["total_goals_hits"], evaluated_total),
+        },
+        "days": sorted(days, key=lambda item: item["date"]),
+        "source": "evaluation_json_files",
+        "safety_invariants": [
+            "evaluation_dashboard_reads_evaluations_without_rewriting_predictions",
+            "locked_pre_match_reports_remain_unchanged",
+        ],
+    }
+
+
+def build_evaluation_dashboard(*, root: Path, edition: str, now: str | None = None) -> dict:
+    generated_at = iso_now(now)
+    db_path = edition_data_root(root, edition) / f"worldcup_{edition}.db"
+    file_dashboard = _build_dashboard_from_evaluation_files(root=root, edition=edition, generated_at=generated_at)
+
+    if not db_path.exists():
+        return file_dashboard
+
+    from worldcup_db import get_db_connection
+    conn = get_db_connection(db_path)
+    try:
+        # 1. Fetch evaluated matches joined with predictions
+        cursor = conn.execute("""
+            SELECT
+                e.match_id,
+                e.actual_score_home,
+                e.actual_score_away,
+                p.predicted_score_home,
+                p.predicted_score_away,
+                p.confidence,
+                p.prediction_date,
+                e.is_result_correct,
+                e.is_score_correct
+            FROM evaluations e
+            JOIN predictions p ON e.match_id = p.match_id
+            ORDER BY p.prediction_date ASC, e.match_id ASC
+        """)
+        rows = cursor.fetchall()
+
+        # 2. Fetch blocked / missing score count
+        cursor_blocked = conn.execute("""
+            SELECT COUNT(*)
+            FROM predictions p
+            LEFT JOIN evaluations e ON p.match_id = e.match_id
+            WHERE e.match_id IS NULL
+        """)
+        blocked_count = cursor_blocked.fetchone()[0]
+    except sqlite3.Error:
+        return file_dashboard
+    finally:
+        conn.close()
+
+    if not rows and file_dashboard.get("status") == "written":
+        return file_dashboard
+
+    # Process evaluated records
+    totals = {
+        "evaluated_matches": len(rows),
+        "blocked_missing_final_score": blocked_count,
+        "result_hits": 0,
+        "score_hits": 0,
+        "total_goals_hits": 0,
+    }
+
+    # Group by date
+    days_map = {}
+    confidence_buckets = {}
+
+    for row in rows:
+        m_id = row["match_id"]
+        act_home = row["actual_score_home"]
+        act_away = row["actual_score_away"]
+        pred_home = row["predicted_score_home"]
+        pred_away = row["predicted_score_away"]
+        conf = _confidence_level(row["confidence"])
+        p_date = row["prediction_date"] or "unknown-date"
+        res_hit = bool(row["is_result_correct"])
+        score_hit = bool(row["is_score_correct"])
+
+        tg_hit = (act_home + act_away) == (pred_home + pred_away)
+
+        if res_hit:
+            totals["result_hits"] += 1
+        if score_hit:
+            totals["score_hits"] += 1
+        if tg_hit:
+            totals["total_goals_hits"] += 1
+
+        # Day aggregation
+        day_bucket = days_map.setdefault(p_date, {
+            "date": p_date,
+            "path": "",
+            "evaluated_matches": 0,
+            "blocked_missing_final_score": 0,
+            "result_hits": 0,
+            "score_hits": 0,
+            "total_goals_hits": 0,
+        })
+        day_bucket["evaluated_matches"] += 1
+        if res_hit:
+            day_bucket["result_hits"] += 1
+        if score_hit:
+            day_bucket["score_hits"] += 1
+        if tg_hit:
+            day_bucket["total_goals_hits"] += 1
+
+        # Confidence aggregation
+        conf_bucket = confidence_buckets.setdefault(conf, _empty_confidence_bucket())
+        conf_bucket["evaluated_matches"] += 1
+        if res_hit:
+            conf_bucket["result_hits"] += 1
+
+
+
+    # Convert days_map to sorted list
+    days = [days_map[d] for d in sorted(days_map.keys())]
 
     dashboard_path = edition_data_root(root, edition) / "reports" / "evaluations" / "aggregate-dashboard.json"
     markdown_path = wiki_edition_root(root, edition) / "reports" / "evaluations" / "aggregate-dashboard.md"
     evaluated = totals["evaluated_matches"]
+
     return {
         "version": 1,
         "edition": edition,

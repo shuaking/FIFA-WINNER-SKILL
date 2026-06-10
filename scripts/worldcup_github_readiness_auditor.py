@@ -16,6 +16,7 @@ from worldcup_core import edition_data_root, iso_now, load_json, project_root, r
 
 REQUIRED_REPO_FILES = [
     "README.md",
+    "AGENT_README.md",
     "TODO.md",
     "SKILL.md",
     "LICENSE",
@@ -29,6 +30,14 @@ REQUIRED_REPO_FILES = [
     "assets/posters/2026-06-12-mexico-vs-south-africa.png",
     "assets/posters/2026-06-12-south-korea-vs-czechia.png",
     "assets/contact/wechat-qr.jpg",
+    "knowledge-base/agent/AGENT_CARD.json",
+    "knowledge-base/agent/TOOL_CATALOG.json",
+    "knowledge-base/agent/ARCHITECTURE.md",
+    "knowledge-base/agent/SKILL.md",
+    "knowledge-base/agent/RUNBOOK.md",
+    "knowledge-base/agent/GUARDRAILS.md",
+    "knowledge-base/agent/HANDOFFS.md",
+    "knowledge-base/agent/TRACE_EVENTS.md",
     "scripts/worldcup_core.py",
     "scripts/daily_prediction_runner.py",
     "scripts/prediction_report_prompt_builder.py",
@@ -39,11 +48,25 @@ REQUIRED_REPO_FILES = [
     "schema/prediction-evidence-plan.schema.json",
     "schema/daily-prediction-report.schema.json",
     "schema/github-readiness.schema.json",
+    "schema/agent-card.schema.json",
+    "schema/agent-tool-catalog.schema.json",
     "skills/fifa-winner-skill/SKILL.md",
     "tests/test_worldcup_predictor_system.py",
 ]
 
 README_SECTIONS = ["Quick Start", "Roadmap", "Prediction Evidence", "Daily Prediction", "GitHub Readiness", "Playability", "Examples", "Safety"]
+AGENT_README_SECTIONS = [
+    "Capability Card",
+    "Install For Runtime Agents",
+    "Agent Design Alignment",
+    "A2A Invocation Contract",
+    "Tool Resource Prompt Discovery",
+    "Handoff Contract",
+    "Trace Contract",
+    "Output Contract For A2A Callers",
+    "Storage Policy",
+    "Safety Requirements",
+]
 SKILL_SECTIONS = ["Source Tiers", "Prediction Evidence", "Prediction Rules", "Poster Rules", "玩法卡片"]
 
 
@@ -67,6 +90,94 @@ def check_text_sections(repo_root: Path, rel: str, sections: list[str]) -> tuple
     for section in sections:
         present = section in text
         checks.append({"check_id": f"{rel}:{section}", "status": "pass" if present else "fail", "section": section})
+    return checks, all(item["status"] == "pass" for item in checks)
+
+
+def read_json_document(repo_root: Path, rel: str) -> tuple[object | None, str]:
+    path = repo_root / rel
+    if not path.exists():
+        return None, "missing_file"
+    try:
+        return json.loads(path.read_text(encoding="utf-8")), ""
+    except json.JSONDecodeError as exc:
+        return None, f"invalid_json:{exc.msg}"
+
+
+def check_agent_interop(repo_root: Path) -> tuple[list[dict], bool]:
+    checks: list[dict] = []
+    card, card_error = read_json_document(repo_root, "knowledge-base/agent/AGENT_CARD.json")
+    catalog, catalog_error = read_json_document(repo_root, "knowledge-base/agent/TOOL_CATALOG.json")
+
+    checks.append(
+        {
+            "check_id": "agent-card-json-valid",
+            "status": "pass" if card_error == "" and isinstance(card, dict) else "fail",
+            "error": card_error,
+        }
+    )
+    checks.append(
+        {
+            "check_id": "tool-catalog-json-valid",
+            "status": "pass" if catalog_error == "" and isinstance(catalog, dict) else "fail",
+            "error": catalog_error,
+        }
+    )
+
+    if isinstance(card, dict):
+        required_card_keys = [
+            "$schema",
+            "agent_id",
+            "name",
+            "runtime_contract",
+            "discovery",
+            "interfaces",
+            "skills",
+            "safety",
+            "capabilities",
+        ]
+        for key in required_card_keys:
+            checks.append(
+                {
+                    "check_id": f"agent-card-key:{key}",
+                    "status": "pass" if key in card and card.get(key) not in ("", [], {}) else "fail",
+                }
+            )
+        discovery_blob = json.dumps(card.get("discovery", {}), ensure_ascii=False)
+        checks.append(
+            {
+                "check_id": "agent-card-references-tool-catalog",
+                "status": "pass" if "TOOL_CATALOG.json" in discovery_blob else "fail",
+            }
+        )
+
+    if isinstance(catalog, dict):
+        required_catalog_keys = ["tools", "resources", "prompts", "guardrails", "handoffs", "trace_events"]
+        for key in required_catalog_keys:
+            checks.append(
+                {
+                    "check_id": f"tool-catalog-key:{key}",
+                    "status": "pass" if isinstance(catalog.get(key), list) and len(catalog.get(key, [])) > 0 else "fail",
+                }
+            )
+
+        tools = catalog.get("tools", []) if isinstance(catalog.get("tools"), list) else []
+        tool_ids = {str(tool.get("id", "")) for tool in tools if isinstance(tool, dict)}
+        for tool_id in ["initialize_edition", "plan_prediction_evidence", "predict_daily", "export_standalone"]:
+            checks.append(
+                {
+                    "check_id": f"tool-catalog-tool:{tool_id}",
+                    "status": "pass" if tool_id in tool_ids else "fail",
+                }
+            )
+
+        tool_shape_ok = all(
+            isinstance(tool, dict)
+            and str(tool.get("command_template", "")).strip()
+            and str(tool.get("safety_profile", "")).strip()
+            for tool in tools
+        )
+        checks.append({"check_id": "tool-catalog-tools-have-command-and-safety", "status": "pass" if tool_shape_ok else "fail"})
+
     return checks, all(item["status"] == "pass" for item in checks)
 
 
@@ -134,21 +245,25 @@ def build_github_readiness_report(*, root: Path, edition: str, now: str | None =
     repo_root = project_root(root)
     file_checks, files_ok = check_required_files(repo_root)
     readme_checks, readme_ok = check_text_sections(repo_root, "README.md", README_SECTIONS)
+    agent_readme_checks, agent_readme_ok = check_text_sections(repo_root, "AGENT_README.md", AGENT_README_SECTIONS)
     skill_checks, skill_ok = check_text_sections(repo_root, "skills/fifa-winner-skill/SKILL.md", SKILL_SECTIONS)
+    agent_interop_checks, agent_interop_ok = check_agent_interop(repo_root)
     source_checks, sources_ok = source_registry_checks(root, edition)
     evidence_checks, evidence_ok, data_gaps_present = evidence_plan_checks(root, edition)
     play_checks, play_ok = playability_checks(repo_root)
 
-    format_ready = files_ok and readme_ok and skill_ok
+    format_ready = files_ok and readme_ok and agent_readme_ok and skill_ok
+    agent_interop_ready = agent_interop_ok
     data_accuracy_guardrails_ready = sources_ok and evidence_ok
     playability_ready = play_ok
-    if format_ready and data_accuracy_guardrails_ready and playability_ready:
+    if format_ready and agent_interop_ready and data_accuracy_guardrails_ready and playability_ready:
         status = "ready_with_known_data_gaps" if data_gaps_present else "ready"
     else:
         status = "blocked"
 
     sections = [
-        {"section_id": "format", "status": "pass" if format_ready else "fail", "checks": file_checks + readme_checks + skill_checks},
+        {"section_id": "format", "status": "pass" if format_ready else "fail", "checks": file_checks + readme_checks + agent_readme_checks + skill_checks},
+        {"section_id": "agent_interop", "status": "pass" if agent_interop_ready else "fail", "checks": agent_interop_checks},
         {"section_id": "data_accuracy", "status": "pass" if data_accuracy_guardrails_ready else "fail", "checks": source_checks + evidence_checks},
         {"section_id": "playability", "status": "pass" if playability_ready else "fail", "checks": play_checks},
     ]
@@ -162,6 +277,7 @@ def build_github_readiness_report(*, root: Path, edition: str, now: str | None =
         "report_path": str(report_path),
         "summary": {
             "format_ready": format_ready,
+            "agent_interop_ready": agent_interop_ready,
             "data_accuracy_guardrails_ready": data_accuracy_guardrails_ready,
             "playability_ready": playability_ready,
             "known_data_gaps_present": data_gaps_present,
@@ -171,6 +287,7 @@ def build_github_readiness_report(*, root: Path, edition: str, now: str | None =
             "github_readiness_does_not_claim_data_completeness_when_evidence_has_gaps",
             "github_readiness_requires_source_tier_allowed_use_and_blocker_visibility",
             "github_readiness_requires_playability_without_betting_language",
+            "github_readiness_requires_agent_card_tool_catalog_and_guardrail_discovery",
         ],
     }
 

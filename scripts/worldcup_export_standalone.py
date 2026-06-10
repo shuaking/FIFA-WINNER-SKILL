@@ -43,9 +43,23 @@ def _sanitize_export_text(text: str, *, root: Path, src_project: Path) -> str:
     sanitized = text
     replacements = []
     for base in [src_project, src_project.resolve(), root, root.resolve()]:
-        value = str(base)
-        if value and (value + "/", "") not in replacements:
-            replacements.append((value + "/", ""))
+        val_str = str(base)
+        if not val_str:
+            continue
+        # Add basic slashes/backslashes
+        for sep in ["/", "\\"]:
+            term = val_str + sep
+            if (term, "") not in replacements:
+                replacements.append((term, ""))
+        # Add escaped backslashes for JSON
+        val_escaped = val_str.replace("\\", "\\\\")
+        for sep in ["/", "\\\\"]:
+            term = val_escaped + sep
+            if (term, "") not in replacements:
+                replacements.append((term, ""))
+
+    # Sort by length descending to match longer patterns first
+    replacements.sort(key=lambda x: len(x[0]), reverse=True)
     for old, new in replacements:
         sanitized = sanitized.replace(old, new)
     return sanitized
@@ -81,6 +95,8 @@ def export_standalone(*, root: Path, edition: str, output: Path, now: str | None
         "examples",
         "assets",
         ".github",
+        "knowledge-base/agent",
+        "AGENT_README.md",
         "SKILL.md",
         "README.md",
         "TODO.md",
@@ -101,9 +117,9 @@ def export_standalone(*, root: Path, edition: str, output: Path, now: str | None
     raw_src = raw_edition_root(root, edition)
     wiki_src = wiki_edition_root(root, edition)
     for src, dst_rel in [
-        (edition_data_src, Path("data") / "editions" / edition),
-        (raw_src, Path("raw") / "体育" / "世界杯" / edition),
-        (wiki_src, Path("wiki") / "体育" / "世界杯" / edition),
+        (edition_data_src, Path("knowledge-base") / edition / "data"),
+        (raw_src, Path("knowledge-base") / edition / "raw"),
+        (wiki_src, Path("knowledge-base") / edition / "wiki"),
     ]:
         if copy_path(src, output / dst_rel):
             copied.append(dst_rel.as_posix())
@@ -122,14 +138,25 @@ def export_standalone(*, root: Path, edition: str, output: Path, now: str | None
         "copied": copied,
         "missing_optional": missing,
         "path_sanitization": sanitization,
+        "agent_contracts": {
+            "human_readme": "AGENT_README.md",
+            "agent_card": "knowledge-base/agent/AGENT_CARD.json",
+            "tool_catalog": "knowledge-base/agent/TOOL_CATALOG.json",
+            "runbook": "knowledge-base/agent/RUNBOOK.md",
+            "guardrails": "knowledge-base/agent/GUARDRAILS.md",
+            "handoffs": "knowledge-base/agent/HANDOFFS.md",
+            "trace_events": "knowledge-base/agent/TRACE_EVENTS.md",
+        },
         "next_steps": [
             "cd exported directory",
+            "read AGENT_README.md and knowledge-base/agent/TOOL_CATALOG.json",
             "python3 -m unittest tests/test_worldcup_predictor_system.py",
             "python3 scripts/worldcup_edition_init.py init --edition <edition>",
         ],
         "safety_invariants": [
             "standalone_export_keeps_runtime_code_schema_skill_tests",
             "standalone_export_keeps_selected_edition_raw_wiki_and_data",
+            "standalone_export_keeps_agent_card_tool_catalog_guardrails_handoffs_and_trace_contracts",
             "standalone_export_removes_local_absolute_paths_from_text_artifacts",
         ],
     }

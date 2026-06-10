@@ -1,0 +1,344 @@
+{
+  "version": 1,
+  "edition": "2026",
+  "date": "2026-06-11",
+  "generated_at": "2026-06-11T00:05:00+08:00",
+  "mode": "worldcup-prediction-scoring-model",
+  "filters": {
+    "match_id": "2026-GA-01",
+    "teams": []
+  },
+  "model_weights": {
+    "data_model": 0.85,
+    "divination_overlay": 0.15,
+    "component_weights": {
+      "ranking_strength": 0.3,
+      "squad_depth": 0.2,
+      "historical_proxy": 0.2,
+      "rest_travel": 0.15,
+      "evidence_completeness": 0.15
+    }
+  },
+  "status": "created",
+  "summary": {
+    "predictions_created": 1,
+    "matches_skipped_started": 0,
+    "matches_skipped_missing_kickoff": 0
+  },
+  "predictions": [
+    {
+      "match_id": "2026-GA-01",
+      "kickoff_at": "2026-06-11T19:00:00Z",
+      "venue": "Estadio Azteca, Mexico City",
+      "group": "A",
+      "phase": "group",
+      "home_team": {
+        "team_id": "mex",
+        "name": "Mexico",
+        "ranking": 15,
+        "points": 1681.03
+      },
+      "away_team": {
+        "team_id": "rsa",
+        "name": "South Africa",
+        "ranking": 60,
+        "points": 1429.73
+      },
+      "data_score": {
+        "home": 69.5,
+        "away": 44.5,
+        "components": {
+          "ranking_strength": {
+            "home": 68.72,
+            "away": 32.82,
+            "weight": 0.3
+          },
+          "squad_depth": {
+            "home": 88.8,
+            "away": 81.01,
+            "weight": 0.2
+          },
+          "historical_proxy": {
+            "home": 68.72,
+            "away": 32.82,
+            "weight": 0.2
+          },
+          "rest_travel": {
+            "home": 95.0,
+            "away": 85.0,
+            "weight": 0.15
+          },
+          "evidence_completeness": {
+            "home": 1.02,
+            "away": 1.02,
+            "weight": 0.15
+          }
+        }
+      },
+      "divination_overlay": {
+        "lunar_date": "农历：丙午马年 4月27日 寅时 (03:00-04:59)",
+        "shichen": "寅时 (03:00-04:59)",
+        "host_palace_branch": "丑",
+        "guest_palace_branch": "未",
+        "home_stars": [
+          "紫微 (Ziwei)"
+        ],
+        "away_stars": [
+          "太阴 (Taiyin)",
+          "左辅 (Zuofu)"
+        ],
+        "home_modifier": 1.0,
+        "away_modifier": 1.0,
+        "interpretation": "主队命宫得帝星/府星高照，占据天时地利，发挥较稳健。",
+        "has_physical_conflict": false,
+        "hexagram_name": "寅时 (03:00-04:59)",
+        "hexagram_number": 0,
+        "hexagram": "寅时 (03:00-04:59)",
+        "weight": 0.15
+      },
+      "prediction": {
+        "home_final": 70.5,
+        "away_final": 45.5,
+        "result": "home_win",
+        "predicted_outcome": "home_win",
+        "score": {
+          "home": 2,
+          "away": 1
+        },
+        "total_goals": 3,
+        "goals_line_2_5": "over",
+        "confidence": "medium",
+        "confidence_label": "中等信心",
+        "evidence_gaps": []
+      },
+      "referee_analysis": {
+        "name": "Clement Turpin",
+        "strictness": "high",
+        "predicted_yellow_cards": 4.5,
+        "predicted_red_cards": 0.25,
+        "predicted_penalties": 0.35
+      },
+      "market_odds": {
+        "odds": {
+          "home_win": 1.85,
+          "draw": 3.4,
+          "away_win": 4.5,
+          "source": "manual"
+        },
+        "implied_probabilities": {
+          "home": 0.511,
+          "draw": 0.278,
+          "away": 0.21
+        },
+        "market_outcome": "home_win"
+      },
+      "dual_track": {
+        "alignment": "aligned",
+        "divergence_analysis": "【双轨共振】数据基本面与市场赔率一致倾向【Mexico】。章鱼哥触手坚定，玄学气运与盘口期望形成合力。"
+      },
+      "analysis_layers": [
+        {
+          "layer_id": "evidence_integrity",
+          "title": "证据完整度层",
+          "verdict": "usable_evidence",
+          "confidence": "medium",
+          "summary": "Evidence is strong enough for a richer read.",
+          "key_drivers": [
+            "matchday evidence file available",
+            "market odds available",
+            "referee profile available",
+            "2 late-news items scanned"
+          ],
+          "counter_signals": [],
+          "missing_context": [],
+          "watch_triggers": [
+            "refresh daily evidence before kickoff",
+            "mark mock sources separately from live sources"
+          ]
+        },
+        {
+          "layer_id": "fundamentals",
+          "title": "基本面强弱层",
+          "verdict": "home_edge",
+          "confidence": "medium",
+          "summary": "Fundamentals plus capped overlay lean Mexico 倾向不败或取胜 with final delta +25.0.",
+          "key_drivers": [
+            "FIFA ranking strength: Mexico edge +35.9",
+            "Squad depth and balance: Mexico edge +7.8",
+            "Historical proxy: Mexico edge +35.9",
+            "Rest/travel context: Mexico edge +10.0",
+            "Evidence completeness supports model confidence (+1.02)"
+          ],
+          "counter_signals": [],
+          "missing_context": [],
+          "watch_triggers": [
+            "ranking and roster updates",
+            "rest-day recalculation after previous matches"
+          ]
+        },
+        {
+          "layer_id": "matchup",
+          "title": "阵容对位层",
+          "verdict": "home_edge",
+          "confidence": "medium",
+          "summary": "This layer turns roster shape into concrete matchup pressure rather than only a total score.",
+          "key_drivers": [
+            "Mexico shape: GK3/DF7/MF8/FW8; avg age 27.9, avg height 179.5cm",
+            "South Africa shape: GK3/DF10/MF5/FW8; avg age 26.8, avg height 178.8cm",
+            "Mexico has the cleaner depth/balance score."
+          ],
+          "counter_signals": [],
+          "missing_context": [],
+          "watch_triggers": [
+            "starting XI",
+            "formation change",
+            "set-piece personnel"
+          ]
+        },
+        {
+          "layer_id": "live_context",
+          "title": "临场变量层",
+          "verdict": "home_edge",
+          "confidence": "medium",
+          "summary": "Late news, rest, travel and referee profile are handled as separate pressure rather than hidden inside one score.",
+          "key_drivers": [
+            "Rest/travel delta: +10.0",
+            "News sentiment delta: 0.0",
+            "Referee Clement Turpin strictness=high, yellow-card line 4.5"
+          ],
+          "counter_signals": [],
+          "missing_context": [],
+          "watch_triggers": [
+            "team news within 24h",
+            "referee assignment correction",
+            "late travel/weather disruption"
+          ]
+        },
+        {
+          "layer_id": "market_track",
+          "title": "市场背离层",
+          "verdict": "aligned",
+          "confidence": "medium",
+          "summary": "【双轨共振】数据基本面与市场赔率一致倾向【Mexico】。章鱼哥触手坚定，玄学气运与盘口期望形成合力。",
+          "key_drivers": [
+            "Market favorite: Mexico",
+            "Implied probabilities home/draw/away: 0.511/0.278/0.21"
+          ],
+          "counter_signals": [],
+          "missing_context": [],
+          "watch_triggers": [
+            "odds refresh",
+            "large implied-probability movement",
+            "market/fundamental divergence near kickoff"
+          ]
+        },
+        {
+          "layer_id": "scenario_tree",
+          "title": "比赛剧本层",
+          "verdict": "home_win",
+          "confidence": "medium",
+          "summary": "Base case: Mexico 倾向不败或取胜, reference score 2-1. The model edge is +25.0 after fundamentals and Tianji overlay.",
+          "key_drivers": [
+            "Base case: Mexico 倾向不败或取胜, reference score 2-1. The model edge is +25.0 after fundamentals and Tianji overlay.",
+            "Counter case: South Africa changes the read if lineup news improves, set pieces land, or the favorite is forced into a slow first half.",
+            "Draw case: becomes live if the first 30 minutes stay low-event and both sides protect transition space."
+          ],
+          "counter_signals": [],
+          "missing_context": [],
+          "watch_triggers": [
+            "confirmed starting XI differs from roster-depth baseline",
+            "late injury or suspension changes the strongest positional unit",
+            "market probability moves against the model by more than 8 percentage points",
+            "referee strictness turns physical duels into card/penalty risk"
+          ]
+        },
+        {
+          "layer_id": "adversarial_review",
+          "title": "反方审稿层",
+          "verdict": "controlled",
+          "confidence": "medium",
+          "summary": "This layer records why the pick could be wrong before publishing the final entertainment call.",
+          "key_drivers": [
+            "Final model edge +25.0 points toward Mexico 倾向不败或取胜.",
+            "Market expectation and fundamentals point in the same direction."
+          ],
+          "counter_signals": [
+            "new injury/lineup evidence changes the strongest positional edge",
+            "fresh odds imply a different market favorite",
+            "post-match calibration shows this confidence bucket underperforming"
+          ],
+          "missing_context": [],
+          "watch_triggers": [
+            "new injury/lineup evidence changes the strongest positional edge",
+            "fresh odds imply a different market favorite",
+            "post-match calibration shows this confidence bucket underperforming"
+          ]
+        }
+      ],
+      "scenario_analysis": {
+        "base_case": "Base case: Mexico 倾向不败或取胜, reference score 2-1. The model edge is +25.0 after fundamentals and Tianji overlay.",
+        "upset_case": "Counter case: South Africa changes the read if lineup news improves, set pieces land, or the favorite is forced into a slow first half.",
+        "draw_case": "Draw case: becomes live if the first 30 minutes stay low-event and both sides protect transition space.",
+        "watch_triggers": [
+          "confirmed starting XI differs from roster-depth baseline",
+          "late injury or suspension changes the strongest positional unit",
+          "market probability moves against the model by more than 8 percentage points",
+          "referee strictness turns physical duels into card/penalty risk"
+        ]
+      },
+      "decision_audit": {
+        "risk_level": "controlled",
+        "why_this_pick": [
+          "Final model edge +25.0 points toward Mexico 倾向不败或取胜.",
+          "Market expectation and fundamentals point in the same direction."
+        ],
+        "what_would_change_the_pick": [
+          "new injury/lineup evidence changes the strongest positional edge",
+          "fresh odds imply a different market favorite",
+          "post-match calibration shows this confidence bucket underperforming"
+        ],
+        "thin_evidence_warnings": []
+      },
+      "analysis_summary": {
+        "layer_count": 7,
+        "risk_level": "controlled",
+        "primary_edge": "home_edge",
+        "storage_note": "JSON report remains the audit artifact; SQLite is an optional query/index layer."
+      },
+      "play_card": {
+        "share_title": "章鱼哥神算 | Mexico vs South Africa | 娱乐预测 2-1",
+        "match_hook": "Mexico 倾向胜出，总进球参考 3 球。A组对决，Estadio Azteca, Mexico City。",
+        "watch_points": [
+          "多层分析主线：Final model edge +25.0 points toward Mexico 倾向不败或取胜.",
+          "【双轨共振】数据基本面与市场赔率一致倾向【Mexico】。章鱼哥触手坚定，玄学气运与盘口期望形成合力。",
+          "Mexico排名优势明显",
+          "强方能否以冲击力弥补差距",
+          "小组赛积分策略可能影响比赛节奏"
+        ],
+        "risk_flags": [
+          "当前证据链完整度较好",
+          "裁判执法：Clement Turpin (尺度：HIGH)，场均黄牌预估：4.5"
+        ],
+        "poster_angle": "Mexico vs South Africa, Estadio Azteca, Mexico City, vibrant crowd atmosphere, 寅时 (03:00-04:59) aesthetic overlay, predicted score 2-1, total goals 3",
+        "confidence_meter": "数据 85% | 玄学 15% | 信心: 中等信心",
+        "gameplay_tags": [
+          "胜平负",
+          "比分",
+          "总进球",
+          "看点"
+        ]
+      },
+      "disclaimer": "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。"
+    }
+  ],
+  "disclaimer": "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。",
+  "safety_invariants": [
+    "data_model_weight_is_0_85",
+    "divination_overlay_weight_is_0_15",
+    "divination_overlay_capped_at_15_points",
+    "data_score_capped_at_85_points",
+    "no_betting_language_in_output",
+    "missing_evidence_downgrades_confidence",
+    "disclaimer_included_in_every_report"
+  ]
+}

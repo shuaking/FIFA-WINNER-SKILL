@@ -13,9 +13,10 @@
     "report_path": {"type": "string"},
     "summary": {
       "type": "object",
-      "required": ["format_ready", "data_accuracy_guardrails_ready", "playability_ready", "known_data_gaps_present"],
+      "required": ["format_ready", "agent_interop_ready", "data_accuracy_guardrails_ready", "playability_ready", "known_data_gaps_present"],
       "properties": {
         "format_ready": {"type": "boolean"},
+        "agent_interop_ready": {"type": "boolean"},
         "data_accuracy_guardrails_ready": {"type": "boolean"},
         "playability_ready": {"type": "boolean"},
         "known_data_gaps_present": {"type": "boolean"}
@@ -28,7 +29,7 @@
         "type": "object",
         "required": ["section_id", "status", "checks"],
         "properties": {
-          "section_id": {"enum": ["format", "data_accuracy", "playability"]},
+          "section_id": {"enum": ["format", "agent_interop", "data_accuracy", "playability"]},
           "status": {"enum": ["pass", "fail"]},
           "checks": {
             "type": "array",

@@ -175,6 +175,22 @@ def write_roster_outputs(*, root: Path, edition: str, roster: dict, output: Path
     data_root = edition_data_root(root, edition)
     output = output or (data_root / "rosters" / "fifa-squad-lists.json")
     write_json(output, roster)
+
+    db_path = data_root / f"worldcup_{edition}.db"
+    from worldcup_db import get_db_connection, init_database, save_team, save_player
+    init_database(db_path)
+    conn = get_db_connection(db_path)
+    try:
+        with conn:
+            for team in roster["teams"]:
+                save_team(conn, team)
+                for p in team["players"]:
+                    # Ensure team_id is set inside the player dict for foreign keys
+                    p["team_id"] = team["team_id"]
+                    save_player(conn, p)
+    finally:
+        conn.close()
+
     if update_edition_teams:
         teams = {
             "version": 1,

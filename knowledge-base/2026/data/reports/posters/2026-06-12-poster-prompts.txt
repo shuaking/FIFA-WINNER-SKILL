@@ -1,0 +1,89 @@
+# 2026-GA-02 South Korea vs Czechia
+
+为世界杯小组赛「韩国 vs 捷克」制作一张高燃赛前预测宣传海报。
+
+海报必须准确出现这些中文文字：
+主标题：韩国 VS 捷克
+比赛时间：6月12日 10:00 开赛
+氛围文案：亚洲锋刃，硬碰欧洲铁阵
+副文案：AI 赛前预测｜胜负趋势分析
+辅助文案：天纪卦象【离】：AI预测比分 1-0，韩国主线占优，但窄边局仍需防范平局拉扯。
+免责声明：娱乐预测，非投注建议
+
+重要要求：
+1. 海报中必须完整出现 韩国 和 捷克 两支球队的所有 26 人阵容（总计 52 人），禁止只渲染少数几名核心球员，绝不可遗漏后排球员。采用震撼的大合影战争海报对称构图：核心球星位于前排显眼位置，其余队员依次在中后排呈密集、威武的阵列排开。
+2. ⚠️【绝对禁令：严禁将球员名字直接以文字形式写在海报画面中】。除顶部标题与指定文案外，画面各处（如球员头部上方、身旁、下方等）绝对不要出现任何球员的名字、英文缩写或拼音文字标签！所有球员名字仅作为其真实长相生成特征（面部、发型、肤色、身材、球衣号码）的提示基础，而非用于排版文字。
+
+韩国 完整 26 人球员名单：
+1号 GK KIM Seunggyu (FC Tokyo (JPN)), 2号 DF LEE Hanbeom (FC Midtjylland (DEN)), 3号 MF LEE Gihyuk (Gangwon FC (KOR)), 4号 DF KIM Minjae (FC Bayern München (GER)), 5号 DF KIM Taehyeon (Kashima Antlers (JPN)), 6号 MF HWANG Inbeom (Feyenoord Rotterdam (NED)), 7号 FW SON Heungmin (LAFC (USA)), 8号 MF PAIK Seungho (Birmingham City FC (ENG)), 9号 FW CHO Guesung (FC Midtjylland (DEN)), 10号 MF LEE Jaesung (1. FSV Mainz 05 (GER)), 11号 MF HWANG Heechan (Wolverhampton Wanderers FC (ENG)), 12号 GK SONG Bumkeun (Jeonbuk Hyundai Motors FC (KOR)), 13号 DF LEE Taeseok (FK Austria Wien (AUT)), 14号 DF CHO Wije (Jeonbuk Hyundai Motors FC (KOR)), 15号 DF KIM Moonhwan (Daejeon Hana Citizen FC (KOR)), 16号 DF PARK Jinseob (Zhejiang FC (CHN)), 17号 MF BAE Junho (Stoke City FC (ENG)), 18号 FW OH Hyeongyu (Beşiktaş JK (TUR)), 19号 MF LEE Kangin (Paris Saint-Germain (FRA)), 20号 MF YANG Hyunjun (Celtic FC (SCO)), 21号 GK JO Hyeonwoo (Ulsan HD (KOR)), 22号 DF SEOL Youngwoo (FK Crvena Zvezda (SRB)), 23号 DF CASTROP Jens (Borussia Mönchengladbach (GER)), 24号 MF KIM Jingyu (Jeonbuk Hyundai Motors FC (KOR)), 25号 MF EOM Jisung (Swansea City AFC (WAL)), 26号 MF LEE Donggyeong (Ulsan HD (KOR))
+
+捷克 完整 26 人球员名单：
+1号 GK KOVAR Matej (PSV Eindhoven (NED)), 2号 DF ZIMA David (SK Slavia Praha (CZE)), 3号 DF HOLES Tomas (SK Slavia Praha (CZE)), 4号 DF HRANAC Robin (TSG Hoffenheim (GER)), 5号 DF COUFAL Vladimir (TSG Hoffenheim (GER)), 6号 DF CHALOUPEK Stepan (SK Slavia Praha (CZE)), 7号 DF KREJCI Ladislav (Wolverhampton Wanderers FC (ENG)), 8号 MF DARIDA Vladimir (FC Hradec Králové (CZE)), 9号 FW HLOZEK Adam (TSG Hoffenheim (GER)), 10号 FW SCHICK Patrik (Bayer 04 Leverkusen (GER)), 11号 FW KUCHTA Jan (AC Sparta Praha (CZE)), 12号 MF CERV Lukas (FC Viktoria Plzeň (CZE)), 13号 FW CHYTIL Mojmir (SK Slavia Praha (CZE)), 14号 DF JURASEK David (SK Slavia Praha (CZE)), 15号 FW SULC Pavel (Olympique Lyonnais (FRA)), 16号 GK STANEK Jindrich (SK Slavia Praha (CZE)), 17号 MF PROVOD Lukas (SK Slavia Praha (CZE)), 18号 MF SADILEK Michal (SK Slavia Praha (CZE)), 19号 FW CHORY Tomas (SK Slavia Praha (CZE)), 20号 DF ZELENY Jaroslav (AC Sparta Praha (CZE)), 21号 DF DOUDERA David (SK Slavia Praha (CZE)), 22号 MF SOUCEK Tomas (West Ham United FC (ENG)), 23号 GK HORNICEK Lukas (SC Braga (POR)), 24号 MF SOJKA Alexandr (FC Viktoria Plzeň (CZE)), 25号 MF SOCHUREK Hugo (AC Sparta Praha (CZE)), 26号 FW VISINSKY Denis (FC Viktoria Plzeň (CZE))
+
+构图：
+横版 16:9。画面整体呈严整的战争大合影列阵：左半侧为 韩国 完整阵容，穿 韩国 国家队 红色主色球衣；右半侧为 捷克 完整阵容，穿 捷克 国家队 白红或红蓝主色球衣。韩国 一侧前排突出渲染：Son Heungmin, Kim Minjae, Lee Kangin, Hwang Heechan；捷克 一侧前排突出渲染：Patrik Schick, Tomas Soucek, Pavel Sulc, Adam Hlozek。双方球员均根据公开赛事实时照片的真实面容生成，眼神中透露出大战将至的紧迫与杀气，前排前倾，后排紧密矗立。画面中央草坪放置足球，四周伴有强烈的光效对冲、草屑飞扬、战火硝烟与极具张力的氛围。
+
+视觉氛围：
+夜晚的现代化世界杯体育场内部，高空探照灯形成极具戏剧张力的顶光和侧逆光，看台座无虚席。红色 与 蓝白色 两股标志性的国家队代表色光效在画面中央激烈交撞。整体呈电影级体育海报质感，追求极高的超写实摄影细节、高对比度、高光影清晰度，摒弃任何卡通、低像素或塑料质感的 3D 渲染，呈现高燃的小组赛决战气氛。
+
+文字设计：
+顶部显著位置排版大标题「韩国 VS 捷克」
+大标题正下方放置「6月12日 10:00 开赛」
+画面中部或底部点缀「亚洲锋刃，硬碰欧洲铁阵」
+底部放置副文案「AI 赛前预测｜胜负趋势分析」
+所有文字版式均需与专业顶级赛事宣传视觉契合，位置合理、层次分明，不要乱码，不要出现任何多余或错误的文本图层。
+
+风格关键词：
+ultra realistic sports poster, cinematic football photography, official tournament atmosphere, dramatic stadium lighting, realistic faces, full squad lineup, intense face-off, high detail, professional commercial poster, epic matchday poster
+
+避免：
+不要生成虚构球员，不要只出现几个人，不要遗漏完整阵容，不要重复同一个球员，不要错误球衣颜色，不要错误国旗，不要乱码文字，不要卡通风，不要游戏渲染风，不要塑料皮肤，不要脸部畸形，不要多手多脚，不要把 韩国 球员放到 捷克 阵容里，不要把 捷克 球员放到 韩国 阵容里。
+
+负面提示词：
+fictional players, generic footballers, fake faces, missing squad members, only 5 players, only 10 players, duplicate players, wrong team colors, wrong jersey numbers, wrong flag, fake logo, unreadable Chinese text, misspelled text, incorrect date, incorrect kickoff time, distorted faces, deformed hands, extra limbs, plastic skin, cartoon, anime, video game render, fantasy armor, low quality
+
+---
+
+# 2026-GB-01 Canada vs Bosnia and Herzegovina
+
+为世界杯小组赛「加拿大 vs 波黑」制作一张高燃赛前预测宣传海报。
+
+海报必须准确出现这些中文文字：
+主标题：加拿大 VS 波黑
+比赛时间：6月13日 03:00 开赛
+氛围文案：北美枫刃，硬碰巴尔干铁骑
+副文案：AI 赛前预测｜胜负趋势分析
+辅助文案：天纪卦象【乾】：AI预测比分 1-1，双方拉扯成局，平局剧本是主线。
+免责声明：娱乐预测，非投注建议
+
+重要要求：
+1. 海报中必须完整出现 加拿大 和 波黑 两支球队的所有 26 人阵容（总计 52 人），禁止只渲染少数几名核心球员，绝不可遗漏后排球员。采用震撼的大合影战争海报对称构图：核心球星位于前排显眼位置，其余队员依次在中后排呈密集、威武的阵列排开。
+2. ⚠️【绝对禁令：严禁将球员名字直接以文字形式写在海报画面中】。除顶部标题与指定文案外，画面各处（如球员头部上方、身旁、下方等）绝对不要出现任何球员的名字、英文缩写或拼音文字标签！所有球员名字仅作为其真实长相生成特征（面部、发型、肤色、身材、球衣号码）的提示基础，而非用于排版文字。
+
+加拿大 完整 26 人球员名单：
+1号 GK ST. CLAIR Dayne (Inter Miami CF (USA)), 2号 DF JOHNSTON Alistair (Celtic FC (SCO)), 3号 DF JONES Ale (Middlesbrough FC (ENG)), 4号 DF DE FOUGEROLLES Luc (FCV Dender EH (BEL)), 5号 DF WATERMAN Joel (Chicago Fire FC (USA)), 6号 MF CHOINIERE Mathieu (LAFC (USA)), 7号 MF EUSTAQUIO Stephen (LAFC (USA)), 8号 MF KONE Ismael (US Sassuolo (ITA)), 9号 FW LARIN Cyle (Southampton FC (ENG)), 10号 FW DAVID Jonathan (Juventus FC (ITA)), 11号 MF MILLAR Liam (Hull City FC (ENG)), 12号 FW OLUWASEYI Tani (Villarreal CF (ESP)), 13号 DF CORNELIUS Derek (Rangers FC (SCO)), 14号 MF SHAFFELBURG Jacob (LAFC (USA)), 15号 DF BOMBITO Moise (OGC Nice (FRA)), 16号 GK CREPEAU Maxime (Orlando City SC (USA)), 17号 FW BUCHANAN Tajon (Villarreal CF (ESP)), 18号 GK GOODMAN Owen (Barnsley (ENG)), 19号 DF DAVIES Alphonso (FC Bayern München (GER)), 20号 FW AHMED Ali (Norwich City FC (ENG)), 21号 MF OSORIO Jonathan (Toronto FC (CAN)), 22号 DF LARYEA Richie (Toronto FC (CAN)), 23号 DF SIGUR Niko (HNK Hajduk Split (CRO)), 24号 FW DAVID Promise (Royale Union Saint-Gilloise (BEL)), 25号 MF SALIBA Nathan (RSC Anderlecht (BEL)), 26号 MF FLORES Marcelo (Tigres UANL (MEX))
+
+波黑 完整 26 人球员名单：
+1号 GK VASILJ Nikola (FC St. Pauli (GER)), 2号 DF MUJAKIC Nihad (Gaziantep FK (TUR)), 3号 DF HADZIKADUNIC Dennis (UC Sampdoria (ITA)), 4号 DF MUHAREMOVIC Tarik (US Sassuolo (ITA)), 5号 DF KOLASINAC Sead (Atalanta Bergamo (ITA)), 6号 MF TAHIROVIC Benjamin (Brøndby IF (DEN)), 7号 DF DEDIC Amar (SL Benca (POR)), 8号 MF GIGOVIC Armin (BSC Young Boys (SUI)), 9号 FW BAZDAR Samed (Jagiellonia Białystok (POL)), 10号 FW DEMIROVIC Ermedin (VfB Stuttgart (GER)), 11号 FW DZEKO Edin (FC Schalke 04 (GER)), 12号 GK JURKAS Mladen (FK Borac Banja Luka (BIH)), 13号 MF BASIC Ivan (FC Astana (KAZ)), 14号 MF SUNJIC Ivan (Pafos FC (CYP)), 15号 MF MEMIC Amar (FC Viktoria Plzeň (CZE)), 16号 MF HADZIAHMETOVIC Amir (Hull City FC (ENG)), 17号 MF BURNIC Dzenis (Karlsruher SC (GER)), 18号 DF KATIC Nikola (FC Schalke 04 (GER)), 19号 FW ALAJBEGOVIC Kerim (FC Red Bull Salzburg (AUT)), 20号 FW BAJRAKTAREVIC Esmir (PSV Eindhoven (NED)), 21号 DF RADELJIC Stjepan (HNK Rijeka (CRO)), 22号 GK ZLOMISLIC Martin (HNK Rijeka (CRO)), 23号 FW TABAKOVIC Haris (Borussia Mönchengladbach (GER)), 24号 DF CELIK Nidal (RC Lens (FRA)), 25号 FW LUKIC Jovo (Universitatea Cluj (ROU)), 26号 MF MAHMIC Ermin (FC Slovan Liberec (CZE))
+
+构图：
+横版 16:9。画面整体呈严整的战争大合影列阵：左半侧为 加拿大 完整阵容，穿 加拿大 国家队 红色或白色主色球衣；右半侧为 波黑 完整阵容，穿 波黑 国家队 蓝色或白色主色球衣。加拿大 一侧前排突出渲染：Alphonso Davies, Jonathan David, Stephen Eustaquio, Tajon Buchanan；波黑 一侧前排突出渲染：Edin Dzeko, Sead Kolasinac, Miralem Pjanic, Rade Krunic。双方球员均根据公开赛事实时照片的真实面容生成，眼神中透露出大战将至的紧迫与杀气，前排前倾，后排紧密矗立。画面中央草坪放置足球，四周伴有强烈的光效对冲、草屑飞扬、战火硝烟与极具张力的氛围。
+
+视觉氛围：
+夜晚的现代化世界杯体育场内部，高空探照灯形成极具戏剧张力的顶光和侧逆光，看台座无虚席。红白色 与 蓝黄色 两股标志性的国家队代表色光效在画面中央激烈交撞。整体呈电影级体育海报质感，追求极高的超写实摄影细节、高对比度、高光影清晰度，摒弃任何卡通、低像素或塑料质感的 3D 渲染，呈现高燃的小组赛决战气氛。
+
+文字设计：
+顶部显著位置排版大标题「加拿大 VS 波黑」
+大标题正下方放置「6月13日 03:00 开赛」
+画面中部或底部点缀「北美枫刃，硬碰巴尔干铁骑」
+底部放置副文案「AI 赛前预测｜胜负趋势分析」
+所有文字版式均需与专业顶级赛事宣传视觉契合，位置合理、层次分明，不要乱码，不要出现任何多余或错误的文本图层。
+
+风格关键词：
+ultra realistic sports poster, cinematic football photography, official tournament atmosphere, dramatic stadium lighting, realistic faces, full squad lineup, intense face-off, high detail, professional commercial poster, epic matchday poster
+
+避免：
+不要生成虚构球员，不要只出现几个人，不要遗漏完整阵容，不要重复同一个球员，不要错误球衣颜色，不要错误国旗，不要乱码文字，不要卡通风，不要游戏渲染风，不要塑料皮肤，不要脸部畸形，不要多手多脚，不要把 加拿大 球员放到 波黑 阵容里，不要把 波黑 球员放到 加拿大 阵容里。
+
+负面提示词：
+fictional players, generic footballers, fake faces, missing squad members, only 5 players, only 10 players, duplicate players, wrong team colors, wrong jersey numbers, wrong flag, fake logo, unreadable Chinese text, misspelled text, incorrect date, incorrect kickoff time, distorted faces, deformed hands, extra limbs, plastic skin, cartoon, anime, video game render, fantasy armor, low quality

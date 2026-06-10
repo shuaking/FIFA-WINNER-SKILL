@@ -254,20 +254,24 @@ def is_standalone_root(root: Path) -> bool:
     return (root / "scripts" / "worldcup_core.py").exists() and (root / "schema").exists()
 
 
+def knowledge_base_root(root: Path) -> Path:
+    return project_root(root) / "knowledge-base"
+
+
 def edition_data_root(root: Path, edition: str) -> Path:
-    return project_root(root) / "data" / "editions" / edition
+    return knowledge_base_root(root) / edition / "data"
 
 
 def raw_edition_root(root: Path, edition: str) -> Path:
-    return root / "raw" / SPORT_DOMAIN / WORLD_CUP_TOPIC / edition
+    return knowledge_base_root(root) / edition / "raw"
 
 
 def wiki_worldcup_root(root: Path) -> Path:
-    return root / "wiki" / SPORT_DOMAIN / WORLD_CUP_TOPIC
+    return knowledge_base_root(root)
 
 
 def wiki_edition_root(root: Path, edition: str) -> Path:
-    return wiki_worldcup_root(root) / edition
+    return knowledge_base_root(root) / edition / "wiki"
 
 
 def now_datetime(value: str | None = None) -> datetime:
@@ -476,35 +480,20 @@ def source_registry_payload(edition: str, generated_at: str) -> dict:
 
 def ensure_base_wiki(root: Path) -> None:
     write_text(
-        root / "wiki" / SPORT_DOMAIN / "index.md",
-        """---
-type: index
-domain: 体育
-status: active
----
-
-# 体育
-
-## 专题入口
-
-- [[wiki/体育/世界杯/index|世界杯]] — 每届世界杯资料库、赛前娱乐预测、海报和赛后复盘。
-""",
-    )
-    write_text(
         wiki_worldcup_root(root) / "index.md",
         """---
 type: index
-topic: 世界杯
+topic: 体育预测知识库
 status: active
 ---
 
-# 世界杯
+# 体育预测知识库 (Sports Prediction Knowledge Base)
 
-这个专题维护每一届世界杯的独立资料库。每届资料、预测、海报和复盘必须隔离。
+当前已收录的世界杯预测及复盘：
 
-## 届次
+## 届次目录
 
-- [[wiki/体育/世界杯/2026/index|2026 FIFA World Cup]]
+- [[2026/wiki/index|2026 FIFA World Cup (AI章鱼哥预测与复盘)]]
 """,
     )
 
@@ -547,11 +536,13 @@ status: active
 
 本页是 {edition} 届世界杯的专题地图。资料库服务赛前娱乐预测、海报生成和赛后复盘，不提供投注建议。
 
-## 运行时
+## 运行时与知识库结构
 
-- Runtime：`_meta/projects/世界杯预测/`
-- 届次数据：`_meta/projects/世界杯预测/data/editions/{edition}/`
-- 原始来源：`raw/体育/世界杯/{edition}/`
+- 项目 Runtime 根目录：`. /` (独立仓库运行)
+- 知识库归拢根目录：`knowledge-base/`
+- 本届核心数据：`knowledge-base/{edition}/data/` (包含 match-ledger, profiles, reports)
+- 原始来源数据：`knowledge-base/{edition}/raw/` (包含原始 evidence-packets)
+- 知识汇总与Wiki：`knowledge-base/{edition}/wiki/` (本 Wiki 目录)
 
 ## 核心产物
 
@@ -564,7 +555,7 @@ status: active
 ## 边界
 
 - 预测为娱乐内容。
-- 周易层最多影响 15%，必须标注娱乐解释。
+- 周易层/天纪神算最多影响 15%，必须标注娱乐解释。
 - 不输出投注金额、稳胆或保证命中措辞。
 """
 
@@ -661,10 +652,18 @@ def build_play_card(
     ]
     if confidence == "low":
         risk_flags.append("当前只适合娱乐讨论，不适合当作强判断")
+    score_text = f"{home_goals}-{away_goals}"
+    if result == "home_win":
+        poster_caption = f"AI预测比分 {score_text}，{home}主线占优，胜负趋势指向主队。"
+    elif result == "away_win":
+        poster_caption = f"AI预测比分 {score_text}，{away}主线占优，胜负趋势指向客队。"
+    else:
+        poster_caption = f"AI预测比分 {score_text}，双方拉扯成局，平局剧本需要重点防范。"
 
     return {
         "share_title": f"{home} vs {away} 娱乐预测：{home_goals}-{away_goals}",
         "match_hook": f"{result_labels[result]}，总进球参考 {total_goals} 球。",
+        "poster_caption": poster_caption,
         "watch_points": watch_points,
         "risk_flags": risk_flags,
         "poster_angle": f"{home} vs {away}，比分 {home_goals}-{away_goals}，{hexagram}象做娱乐氛围，不覆盖硬数据。",
@@ -756,46 +755,170 @@ def render_daily_prediction_markdown(report: dict) -> str:
         "status: active",
         "---",
         "",
-        f"# {report['edition']} 世界杯 {report['date']} 赛前娱乐预测",
+        f"# 🐙 {report['edition']} 世界杯 {report['date']} 赛前决策与双轨预测报告",
         "",
-        f"> {report['disclaimer']}",
+        f"> ⚠️ **免责声明**：{report['disclaimer']}",
         "",
-        "## 汇总",
+        "## 📊 每日预测汇总 (Summary)",
         "",
-        f"- 创建预测：{report['summary']['predictions_created']}",
-        f"- 已开球跳过：{report['summary']['matches_skipped_started']}",
-        f"- 已锁定沿用：{report['summary']['locked_existing_predictions']}",
+        f"- **生成预测总场次**：{report['summary']['predictions_created']}",
+        f"- **已开球跳过场次**：{report['summary']['matches_skipped_started']}",
+        f"- **沿用已锁定报告**：{report['summary']['locked_existing_predictions']}",
         "",
-        "## 比赛",
+        "## ⚽ 预测详情与决策回溯 (Detailed Predictions)",
         "",
     ]
     if not report.get("predictions"):
-        lines.append("- 无可预测比赛。")
+        lines.append("- 今日无可预测比赛。")
+
     for item in report.get("predictions", []):
-        score = item["prediction"]["score"]
-        lines.extend(
-            [
-                f"### {item['home_team']} vs {item['away_team']}",
+        home_team = item.get("home_team")
+        home_name = home_team.get("name") if isinstance(home_team, dict) else str(home_team or "主队")
+        away_team = item.get("away_team")
+        away_name = away_team.get("name") if isinstance(away_team, dict) else str(away_team or "客队")
+
+        prediction = item.get("prediction", {})
+        score = prediction.get("score", {"home": 0, "away": 0})
+
+        # 1. Basic Info
+        lines.extend([
+            f"### ⚔️ {home_name} vs {away_name}",
+            "",
+            f"- **比赛 ID (Match ID)**: `{item.get('match_id', 'N/A')}`",
+            f"- **开球时间 (Kickoff)**: `{item.get('kickoff_at', 'N/A')}`",
+            f"- **比赛场馆 (Venue)**: `{item.get('venue', '未确认')}`",
+            "",
+        ])
+
+        # 2. Decision Summary
+        dt = item.get("dual_track", {}) or {}
+        alignment = dt.get("alignment", "aligned")
+        alignment_label = "【双轨共振】" if alignment == "aligned" else "【双轨背离】"
+        reason = dt.get("divergence_analysis") or (item.get("play_card", {}).get("watch_points", ["无描述"])[0] if isinstance(item.get("play_card"), dict) else "无描述")
+
+        lines.extend([
+            "#### 🎯 双轨对比与决策结论",
+            f"- **最终预测结果**: **{prediction.get('result', 'N/A')}** (比分: `{score.get('home', 0)}-{score.get('away', 0)}`, 总进球: `{prediction.get('total_goals', 0)}`, 大小球: `{prediction.get('goals_line_2_5', 'N/A')}`)",
+            f"- **信心指数 (Confidence)**: `{prediction.get('confidence', 'N/A')}`",
+            f"- **决策对撞状态**: `{alignment_label}` (状态码: `{alignment}`)",
+            f"- **回溯决策依据**: {reason}",
+            "",
+        ])
+
+        # 3. Data Model Breakdown
+        ds = item.get("data_score", {}) or {}
+        lines.extend([
+            "#### ⚖️ 数据打分模型维度拆解 (Data Model Components - 85%)",
+            f"- **基本面实力打分**: 主队 `{ds.get('home', 'N/A')}` 分 vs 客队 `{ds.get('away', 'N/A')}` 分",
+        ])
+
+        comps = ds.get("components", {}) or {}
+        if comps:
+            for comp_name, comp_data in comps.items():
+                if isinstance(comp_data, dict):
+                    w = comp_data.get("weight", 0.0)
+                    pct = int(w * 100)
+                    lines.append(
+                        f"  * **{comp_name} ({pct}%)**: 主队 `{comp_data.get('home', 'N/A')}` vs 客队 `{comp_data.get('away', 'N/A')}`"
+                    )
+        lines.append("")
+
+        analysis_layers = item.get("analysis_layers", []) or []
+        if analysis_layers:
+            lines.extend([
+                "#### Multi-Layer Analysis Stack",
                 "",
-                f"- Match ID：`{item['match_id']}`",
-                f"- 开球：{item.get('kickoff_at', '')}",
-                f"- 胜平负：{item['prediction']['result']}",
-                f"- 预测比分：{score['home']}-{score['away']}",
-                f"- 总进球数：{item['prediction']['total_goals']}",
-                f"- 大小球倾向：{item['prediction']['goals_line_2_5']}",
-                f"- 信心：{item['prediction']['confidence']}",
-                f"- 周易娱乐：{item['divination_overlay']['hexagram']}，{item['divination_overlay']['interpretation']}",
-                f"- 玩法标题：{item.get('play_card', {}).get('share_title', '')}",
-                f"- 海报角度：{item.get('play_card', {}).get('poster_angle', '')}",
+            ])
+            for layer in analysis_layers:
+                lines.append(
+                    f"- **{layer.get('title') or layer.get('layer_id')}** (`{layer.get('verdict')}`): {layer.get('summary', '')}"
+                )
+                drivers = layer.get("key_drivers", []) or []
+                counters = layer.get("counter_signals", []) or []
+                missing = layer.get("missing_context", []) or []
+                if drivers:
+                    lines.append(f"  * Drivers: {'; '.join(drivers[:3])}")
+                if counters:
+                    lines.append(f"  * Counter-signals: {'; '.join(counters[:2])}")
+                if missing:
+                    lines.append(f"  * Missing context: {'; '.join(missing[:3])}")
+            scenario = item.get("scenario_analysis", {}) or {}
+            if scenario:
+                lines.extend([
+                    "",
+                    f"- **Base case**: {scenario.get('base_case', '')}",
+                    f"- **Counter case**: {scenario.get('upset_case', '')}",
+                    f"- **Draw case**: {scenario.get('draw_case', '')}",
+                    "",
+                ])
+            audit = item.get("decision_audit", {}) or {}
+            if audit:
+                lines.extend([
+                    f"- **Risk level**: `{audit.get('risk_level', 'unknown')}`",
+                    f"- **What could change the pick**: {'; '.join((audit.get('what_would_change_the_pick') or [])[:3])}",
+                    "",
+                ])
+
+        # 4. Metaphysics Overlay
+        div = item.get("divination_overlay", {}) or {}
+        if div:
+            home_stars = div.get("home_stars", []) or []
+            away_stars = div.get("away_stars", []) or []
+            lines.extend([
+                "#### 🌌 《天纪》开球干支与紫微排盘 (Tianji Oracle Overlay - 15%)",
+                f"- **排盘时间/农历**: `{div.get('lunar_date', 'N/A')}` (时辰: `{div.get('shichen', 'N/A')}`)",
+                f"- **命盘分支映射**: 主队命宫分支 `{div.get('host_palace_branch', 'N/A')}` vs 客队迁移宫分支 `{div.get('guest_palace_branch', 'N/A')}`",
+                f"- **主队命宫星曜**: `{', '.join(home_stars) or '无吉煞星'}` (气运修正: `{div.get('home_modifier', 0.0)}`)",
+                f"- **客队迁移星曜**: `{', '.join(away_stars) or '无吉煞星'}` (气运修正: `{div.get('away_modifier', 0.0)}`)",
+                f"- **玄学气运断语**: {div.get('interpretation', '相持无伤。')}",
                 "",
-            ]
-        )
-        play_card = item.get("play_card", {})
-        if play_card.get("watch_points"):
-            lines.append("看点：")
-            for point in play_card["watch_points"]:
-                lines.append(f"- {point}")
-            lines.append("")
+            ])
+
+        # 5. Market Odds & Sentiments
+        mo = item.get("market_odds", {}) or {}
+        ref = item.get("referee_analysis", {}) or {}
+        lines.extend([
+            "#### 📈 博彩市场期望与执裁影响 (Market Expectation & Referee)",
+        ])
+
+        if mo:
+            odds = mo.get("odds", {}) or {}
+            implied = mo.get("implied_probabilities", {}) or {}
+            lines.extend([
+                f"  * **博彩实时赔率**: 主胜 `{odds.get('home_win', 'N/A')}` | 平局 `{odds.get('draw', 'N/A')}` | 客胜 `{odds.get('away_win', 'N/A')}` (来源: `{odds.get('source', 'N/A')}`)",
+                f"  * **隐含胜负概率**: 主队 `{implied.get('home', 'N/A')}` | 平局 `{implied.get('draw', 'N/A')}` | 客队 `{implied.get('away', 'N/A')}`",
+            ])
+        else:
+            lines.append("  * **博彩赔率数据**: 未提供或缺失")
+
+        if ref:
+            lines.extend([
+                f"  * **主裁判执裁分析**: **{ref.get('name', '未指派')}** (尺度级别: `{ref.get('strictness', 'normal')}`)",
+                f"  * **执裁黄红牌预测**: 场均黄牌 `{ref.get('predicted_yellow_cards', 'N/A')}` 张，红牌 `{ref.get('predicted_red_cards', 'N/A')}` 张",
+            ])
+        lines.append("")
+
+        # 6. Play Card & Watch Points
+        pc = item.get("play_card", {}) or {}
+        lines.extend([
+            "#### 🎮 观赛看点与风险提示 (Watch Points & Risk Flags)",
+            f"- **分享金句**: *\"{pc.get('share_title', '')}\"*",
+            f"- **海报概念方向**: {pc.get('poster_angle', '无')}",
+        ])
+
+        rflags = pc.get("risk_flags", []) or []
+        if rflags:
+            lines.append(f"- **核心风险防线**: {', '.join(rflags)}")
+
+        wpoints = pc.get("watch_points", []) or []
+        if wpoints:
+            lines.append("- **实战技术与战术看点**:")
+            for wp in wpoints:
+                lines.append(f"  * {wp}")
+        lines.append("")
+        lines.append("---")
+        lines.append("")
+
     return "\n".join(lines).rstrip() + "\n"
 
 

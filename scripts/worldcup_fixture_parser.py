@@ -341,6 +341,17 @@ def cmd_parse(args: argparse.Namespace) -> dict:
 
     write_json(ledger_path, ledger)
 
+    db_path = edition_data_root(root, edition) / f"worldcup_{edition}.db"
+    from worldcup_db import get_db_connection, init_database, save_match
+    init_database(db_path)
+    conn = get_db_connection(db_path)
+    try:
+        with conn:
+            for m in ledger["matches"]:
+                save_match(conn, m)
+    finally:
+        conn.close()
+
     group_official = sum(
         1
         for m in ledger["matches"]

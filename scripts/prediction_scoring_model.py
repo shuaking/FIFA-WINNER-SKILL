@@ -32,6 +32,8 @@ from worldcup_core import (  # noqa: E402
     write_json,
 )
 
+from tianji_oracle import compute_tianji_overlay
+
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -558,16 +560,374 @@ def _build_play_card(
     confidence_meter = f"数据 {data_pct}% | 玄学 {div_pct}% | 信心: {confidence_label}"
 
     score_text = f"{predicted_score['home']}-{predicted_score['away']}"
+    if predicted_outcome == "home_win":
+        poster_caption = f"AI预测比分 {score_text}，{home_name}主线占优，胜负趋势指向主队。"
+    elif predicted_outcome == "away_win":
+        poster_caption = f"AI预测比分 {score_text}，{away_name}主线占优，胜负趋势指向客队。"
+    else:
+        poster_caption = f"AI预测比分 {score_text}，双方拉扯成局，平局剧本需要重点防范。"
 
     return {
         "share_title": f"{home_name} vs {away_name} | 娱乐预测 {score_text}",
         "match_hook": f"{outcome_labels[predicted_outcome]}，总进球参考 {total_goals} 球。{hook}",
+        "poster_caption": poster_caption,
         "watch_points": watch_points,
         "risk_flags": risk_flags,
         "poster_angle": f"{poster_angle}, predicted score {score_text}, total goals {total_goals}",
         "confidence_meter": confidence_meter,
         "gameplay_tags": ["胜平负", "比分", "总进球", "看点"],
     }
+
+
+def _outcome_label(outcome: str, home_name: str, away_name: str) -> str:
+    labels = {
+        "home_win": f"{home_name} 倾向不败或取胜",
+        "away_win": f"{away_name} 倾向不败或取胜",
+        "draw": "平局拉扯",
+    }
+    return labels.get(outcome, outcome)
+
+
+def _winner_name(outcome: str | None, home_name: str, away_name: str) -> str:
+    if outcome == "home_win":
+        return home_name
+    if outcome == "away_win":
+        return away_name
+    return "平局"
+
+
+def _format_delta(delta: float) -> str:
+    sign = "+" if delta > 0 else ""
+    return f"{sign}{delta:.1f}"
+
+
+def _edge_verdict(delta: float, *, threshold: float = 3.0) -> str:
+    if delta > threshold:
+        return "home_edge"
+    if delta < -threshold:
+        return "away_edge"
+    return "balanced"
+
+
+def _team_shape(team_squad: dict | None) -> str:
+    if not team_squad:
+        return "roster unavailable"
+    pos = team_squad.get("position_counts", {}) or {}
+    parts = [
+        f"GK{pos.get('GK', 0)}",
+        f"DF{pos.get('DF', 0)}",
+        f"MF{pos.get('MF', 0)}",
+        f"FW{pos.get('FW', 0)}",
+    ]
+    age = team_squad.get("avg_age_years")
+    height = team_squad.get("avg_height_cm")
+    extras = []
+    if age is not None:
+        extras.append(f"avg age {float(age):.1f}")
+    if height is not None:
+        extras.append(f"avg height {float(height):.1f}cm")
+    suffix = f"; {', '.join(extras)}" if extras else ""
+    return "/".join(parts) + suffix
+
+
+def _layer(
+    *,
+    layer_id: str,
+    title: str,
+    verdict: str,
+    confidence: str,
+    summary: str,
+    key_drivers: list[str] | None = None,
+    counter_signals: list[str] | None = None,
+    missing_context: list[str] | None = None,
+    watch_triggers: list[str] | None = None,
+) -> dict:
+    return {
+        "layer_id": layer_id,
+        "title": title,
+        "verdict": verdict,
+        "confidence": confidence,
+        "summary": summary,
+        "key_drivers": key_drivers or [],
+        "counter_signals": counter_signals or [],
+        "missing_context": missing_context or [],
+        "watch_triggers": watch_triggers or [],
+    }
+
+
+def _component_drivers(ctx: dict) -> tuple[list[str], list[str]]:
+    home = ctx["home_name"]
+    away = ctx["away_name"]
+    checks = [
+        ("FIFA ranking strength", ctx["rs_home"] - ctx["rs_away"], 8.0),
+        ("Squad depth and balance", ctx["sd_home"] - ctx["sd_away"], 5.0),
+        ("Historical proxy", ctx["hp_home"] - ctx["hp_away"], 8.0),
+        ("Rest/travel context", ctx["rt_home"] - ctx["rt_away"], 6.0),
+    ]
+    drivers: list[str] = []
+    counters: list[str] = []
+    for label, delta, threshold in checks:
+        if abs(delta) >= threshold:
+            leader = home if delta > 0 else away
+            drivers.append(f"{label}: {leader} edge {_format_delta(abs(delta))}")
+        else:
+            counters.append(f"{label}: near-even delta {_format_delta(delta)}")
+    if ctx["ec_modifier"] < 0:
+        counters.append(f"Evidence completeness drags both sides ({ctx['ec_modifier']})")
+    elif ctx["ec_modifier"] > 0:
+        drivers.append(f"Evidence completeness supports model confidence (+{ctx['ec_modifier']})")
+    return drivers, counters
+
+
+def _build_scenario_analysis(ctx: dict) -> dict:
+    home = ctx["home_name"]
+    away = ctx["away_name"]
+    predicted_outcome = ctx["predicted_outcome"]
+    predicted_score = ctx["predicted_score"]
+    final_delta = ctx["home_final"] - ctx["away_final"]
+    leader = _winner_name(predicted_outcome, home, away)
+    trailer = away if leader == home else home if leader == away else "任一方"
+    score_text = f"{predicted_score['home']}-{predicted_score['away']}"
+    is_close = abs(final_delta) <= 8.0
+
+    base_case = (
+        f"Base case: {_outcome_label(predicted_outcome, home, away)}, reference score {score_text}. "
+        f"The model edge is {_format_delta(final_delta)} after fundamentals and Tianji overlay."
+    )
+    if predicted_outcome == "draw":
+        upset_case = (
+            f"Breakout case: either {home} or {away} can flip the draw if early pressing creates a first-half goal."
+        )
+    else:
+        upset_case = (
+            f"Counter case: {trailer} changes the read if lineup news improves, set pieces land, or the favorite is forced into a slow first half."
+        )
+
+    draw_case = (
+        "Draw case: becomes live if the first 30 minutes stay low-event and both sides protect transition space."
+        if not is_close
+        else "Draw case: already material because the model gap is narrow; game state and finishing variance matter."
+    )
+
+    triggers = [
+        "confirmed starting XI differs from roster-depth baseline",
+        "late injury or suspension changes the strongest positional unit",
+        "market probability moves against the model by more than 8 percentage points",
+    ]
+    if ctx.get("referee"):
+        triggers.append("referee strictness turns physical duels into card/penalty risk")
+    if ctx.get("dual_track_alignment") == "divergent":
+        triggers.append("market and fundamentals remain divergent close to kickoff")
+
+    return {
+        "base_case": base_case,
+        "upset_case": upset_case,
+        "draw_case": draw_case,
+        "watch_triggers": triggers,
+    }
+
+
+def _build_decision_audit(ctx: dict) -> dict:
+    home = ctx["home_name"]
+    away = ctx["away_name"]
+    final_delta = ctx["home_final"] - ctx["away_final"]
+    predicted_outcome = ctx["predicted_outcome"]
+    evidence_gaps = ctx.get("evidence_gaps", [])
+    non_resolved_gaps = [gap for gap in evidence_gaps if not str(gap).endswith("_resolved")]
+
+    why = [
+        f"Final model edge {_format_delta(final_delta)} points toward {_outcome_label(predicted_outcome, home, away)}.",
+    ]
+    if ctx.get("dual_track_alignment") == "aligned":
+        why.append("Market expectation and fundamentals point in the same direction.")
+    elif ctx.get("dual_track_alignment") == "divergent":
+        why.append("Fundamentals and market disagree, so the pick is kept with explicit upset risk.")
+    if ctx.get("confidence") == "high":
+        why.append("Evidence coverage is strong enough to avoid the usual confidence cap.")
+
+    change_triggers = [
+        "new injury/lineup evidence changes the strongest positional edge",
+        "fresh odds imply a different market favorite",
+        "post-match calibration shows this confidence bucket underperforming",
+    ]
+    if abs(final_delta) <= 8.0:
+        change_triggers.append("small model gap means a single major lineup change can flip the pick")
+    if non_resolved_gaps:
+        change_triggers.append("blocked or partial evidence must be resolved before raising confidence")
+
+    if ctx.get("confidence") == "low" or len(non_resolved_gaps) >= 3:
+        risk_level = "high"
+    elif ctx.get("dual_track_alignment") == "divergent" or abs(final_delta) <= 8.0:
+        risk_level = "medium"
+    else:
+        risk_level = "controlled"
+
+    return {
+        "risk_level": risk_level,
+        "why_this_pick": why,
+        "what_would_change_the_pick": change_triggers,
+        "thin_evidence_warnings": non_resolved_gaps,
+    }
+
+
+def _build_analysis_layers(ctx: dict) -> list[dict]:
+    home = ctx["home_name"]
+    away = ctx["away_name"]
+    final_delta = ctx["home_final"] - ctx["away_final"]
+    evidence_gaps = ctx.get("evidence_gaps", [])
+    non_resolved_gaps = [gap for gap in evidence_gaps if not str(gap).endswith("_resolved")]
+    local_gaps = ctx.get("local_gaps", [])
+
+    layers: list[dict] = []
+
+    evidence_drivers = []
+    if ctx.get("daily_evidence"):
+        evidence_drivers.append("matchday evidence file available")
+    if ctx.get("odds"):
+        evidence_drivers.append("market odds available")
+    if ctx.get("referee"):
+        evidence_drivers.append("referee profile available")
+    if ctx.get("late_news"):
+        evidence_drivers.append(f"{len(ctx['late_news'])} late-news items scanned")
+
+    evidence_missing = non_resolved_gaps + local_gaps
+    evidence_verdict = "thin_evidence" if evidence_missing else "usable_evidence"
+    layers.append(
+        _layer(
+            layer_id="evidence_integrity",
+            title="证据完整度层",
+            verdict=evidence_verdict,
+            confidence=ctx["confidence"],
+            summary=(
+                "Evidence is strong enough for a richer read."
+                if not evidence_missing
+                else "Evidence has gaps; the model keeps uncertainty visible instead of overclaiming."
+            ),
+            key_drivers=evidence_drivers or ["baseline edition sources loaded"],
+            missing_context=evidence_missing,
+            watch_triggers=["refresh daily evidence before kickoff", "mark mock sources separately from live sources"],
+        )
+    )
+
+    fundamentals_drivers, fundamentals_counters = _component_drivers(ctx)
+    layers.append(
+        _layer(
+            layer_id="fundamentals",
+            title="基本面强弱层",
+            verdict=_edge_verdict(final_delta),
+            confidence=ctx["confidence"],
+            summary=(
+                f"Fundamentals plus capped overlay lean {_outcome_label(ctx['predicted_outcome'], home, away)} "
+                f"with final delta {_format_delta(final_delta)}."
+            ),
+            key_drivers=fundamentals_drivers,
+            counter_signals=fundamentals_counters,
+            watch_triggers=["ranking and roster updates", "rest-day recalculation after previous matches"],
+        )
+    )
+
+    home_shape = _team_shape(ctx.get("home_squad"))
+    away_shape = _team_shape(ctx.get("away_squad"))
+    matchup_drivers = [
+        f"{home} shape: {home_shape}",
+        f"{away} shape: {away_shape}",
+    ]
+    if abs(ctx["sd_home"] - ctx["sd_away"]) >= 5:
+        squad_leader = home if ctx["sd_home"] > ctx["sd_away"] else away
+        matchup_drivers.append(f"{squad_leader} has the cleaner depth/balance score.")
+    else:
+        matchup_drivers.append("Squad-balance score is close; tactical execution matters more than raw depth.")
+    layers.append(
+        _layer(
+            layer_id="matchup",
+            title="阵容对位层",
+            verdict=_edge_verdict(ctx["sd_home"] - ctx["sd_away"], threshold=5.0),
+            confidence=ctx["confidence"],
+            summary="This layer turns roster shape into concrete matchup pressure rather than only a total score.",
+            key_drivers=matchup_drivers,
+            missing_context=[] if ctx.get("home_squad") and ctx.get("away_squad") else ["official roster/depth data incomplete"],
+            watch_triggers=["starting XI", "formation change", "set-piece personnel"],
+        )
+    )
+
+    live_drivers = [
+        f"Rest/travel delta: {_format_delta(ctx['rt_home'] - ctx['rt_away'])}",
+        f"News sentiment delta: {_format_delta(ctx['home_news_sentiment'] - ctx['away_news_sentiment'])}",
+    ]
+    if ctx.get("referee"):
+        live_drivers.append(
+            f"Referee {ctx['referee'].get('name', 'Unknown')} strictness={ctx['referee'].get('strictness', 'medium')}, yellow-card line {ctx['yellow_cards_pred']}"
+        )
+    layers.append(
+        _layer(
+            layer_id="live_context",
+            title="临场变量层",
+            verdict=_edge_verdict(
+                (ctx["rt_home"] - ctx["rt_away"]) + (ctx["home_news_sentiment"] - ctx["away_news_sentiment"]),
+                threshold=4.0,
+            ),
+            confidence=ctx["confidence"],
+            summary="Late news, rest, travel and referee profile are handled as separate pressure rather than hidden inside one score.",
+            key_drivers=live_drivers,
+            missing_context=[] if ctx.get("referee") else ["referee profile missing"],
+            watch_triggers=["team news within 24h", "referee assignment correction", "late travel/weather disruption"],
+        )
+    )
+
+    if ctx.get("odds"):
+        implied = ctx.get("implied_probs") or {}
+        market_drivers = [
+            f"Market favorite: {_winner_name(ctx.get('market_outcome'), home, away)}",
+            f"Implied probabilities home/draw/away: {implied.get('home')}/{implied.get('draw')}/{implied.get('away')}",
+        ]
+        market_summary = ctx.get("divergence_analysis") or "Market signal is available but no narrative was generated."
+        market_missing: list[str] = []
+    else:
+        market_drivers = ["No market odds attached to this match evidence."]
+        market_summary = "Market track is unavailable, so the dual-track read cannot confirm or challenge fundamentals."
+        market_missing = ["odds_missing"]
+    layers.append(
+        _layer(
+            layer_id="market_track",
+            title="市场背离层",
+            verdict=ctx.get("dual_track_alignment") or "untracked",
+            confidence=ctx["confidence"],
+            summary=market_summary,
+            key_drivers=market_drivers,
+            missing_context=market_missing,
+            watch_triggers=["odds refresh", "large implied-probability movement", "market/fundamental divergence near kickoff"],
+        )
+    )
+
+    scenario = ctx["scenario_analysis"]
+    layers.append(
+        _layer(
+            layer_id="scenario_tree",
+            title="比赛剧本层",
+            verdict=ctx["predicted_outcome"],
+            confidence=ctx["confidence"],
+            summary=scenario["base_case"],
+            key_drivers=[scenario["base_case"], scenario["upset_case"], scenario["draw_case"]],
+            watch_triggers=scenario["watch_triggers"],
+        )
+    )
+
+    audit = ctx["decision_audit"]
+    layers.append(
+        _layer(
+            layer_id="adversarial_review",
+            title="反方审稿层",
+            verdict=audit["risk_level"],
+            confidence=ctx["confidence"],
+            summary="This layer records why the pick could be wrong before publishing the final entertainment call.",
+            key_drivers=audit["why_this_pick"],
+            counter_signals=audit["what_would_change_the_pick"],
+            missing_context=audit["thin_evidence_warnings"],
+            watch_triggers=audit["what_would_change_the_pick"],
+        )
+    )
+
+    return layers
 
 
 # ---------------------------------------------------------------------------
@@ -585,6 +945,7 @@ def predict_match(
     squad_index: dict[str, dict],
     evidence_index: dict[str, dict],
     global_summary: dict | None,
+    daily_evidence: dict | None = None,
 ) -> dict:
     """Compute the full prediction record for a single match."""
     home_team = match.get("home_team", {})
@@ -630,6 +991,84 @@ def predict_match(
 
     ec_modifier = score_evidence_completeness(evidence_index)
 
+    # --- Daily Evidence Parsing (Referee, News, Odds) ---
+    referee = None
+    odds = None
+    late_news = []
+
+    if daily_evidence:
+        late_news = daily_evidence.get("late_news", [])
+        for m in daily_evidence.get("matches", []):
+            if m.get("match_id") == match.get("match_id"):
+                referee = m.get("referee")
+                odds = m.get("odds")
+                break
+
+    # 1. Referee Rigor Modifier
+    referee_home_mod = 0.0
+    referee_away_mod = 0.0
+    yellow_cards_pred = 3.5
+    red_cards_pred = 0.1
+    penalties_pred = 0.2
+
+    if referee:
+        strictness = referee.get("strictness", "medium")
+        if strictness == "high":
+            # Protects technical/stronger teams, penalizes physical defensive teams
+            if rs_home > rs_away:
+                referee_home_mod += 2.0
+                referee_away_mod -= 1.0
+            else:
+                referee_away_mod += 2.0
+                referee_home_mod -= 1.0
+            if sd_home > sd_away:
+                referee_home_mod += 1.0
+            elif sd_away > sd_home:
+                referee_away_mod += 1.0
+
+            yellow_cards_pred = referee.get("yellow_cards_per_match") or 5.5
+            red_cards_pred = referee.get("red_cards_per_match") or 0.25
+            penalties_pred = referee.get("penalties_per_match") or 0.35
+        elif strictness == "low":
+            # Favors physical underdog defense
+            if rs_home < rs_away:
+                referee_home_mod += 2.0
+            elif rs_away < rs_home:
+                referee_away_mod += 2.0
+
+            yellow_cards_pred = referee.get("yellow_cards_per_match") or 2.0
+            red_cards_pred = referee.get("red_cards_per_match") or 0.05
+            penalties_pred = referee.get("penalties_per_match") or 0.10
+        else:
+            yellow_cards_pred = referee.get("yellow_cards_per_match") or 3.5
+            red_cards_pred = referee.get("red_cards_per_match") or 0.10
+            penalties_pred = referee.get("penalties_per_match") or 0.20
+
+    # 2. News Sentiment Modifier
+    home_news_sentiment = 0.0
+    away_news_sentiment = 0.0
+    for news in late_news:
+        news_team = news.get("team_code", "")
+        if news_team:
+            sentiment = news.get("sentiment", "neutral")
+            impact = news.get("impact", "medium")
+            factor = 2.0 if impact == "high" else 1.0 if impact == "medium" else 0.5
+
+            if sentiment == "positive":
+                if news_team == home_id:
+                    home_news_sentiment += factor
+                elif news_team == away_id:
+                    away_news_sentiment += factor
+            elif sentiment == "negative":
+                if news_team == home_id:
+                    home_news_sentiment -= factor
+                elif news_team == away_id:
+                    away_news_sentiment -= factor
+
+    # Cap news sentiment modifiers to [-3.0, 3.0]
+    home_news_sentiment = max(-3.0, min(3.0, home_news_sentiment))
+    away_news_sentiment = max(-3.0, min(3.0, away_news_sentiment))
+
     # --- Weighted data_score (per team, 0-100 before cap) ---
     raw_home = (
         rs_home * W_RANKING_STRENGTH
@@ -637,6 +1076,8 @@ def predict_match(
         + hp_home * W_HISTORICAL_PROXY
         + rt_home * W_REST_TRAVEL
         + ec_modifier * W_EVIDENCE_COMPLETENESS
+        + referee_home_mod
+        + home_news_sentiment
     )
     raw_away = (
         rs_away * W_RANKING_STRENGTH
@@ -644,19 +1085,26 @@ def predict_match(
         + hp_away * W_HISTORICAL_PROXY
         + rt_away * W_REST_TRAVEL
         + ec_modifier * W_EVIDENCE_COMPLETENESS
+        + referee_away_mod
+        + away_news_sentiment
     )
 
     data_home = round(min(_DATA_SCORE_CAP, max(0.0, raw_home)), 1)
     data_away = round(min(_DATA_SCORE_CAP, max(0.0, raw_away)), 1)
 
-    # --- Divination overlay ---
-    divination = compute_divination_overlay(date, match.get("match_id", ""))
+    # --- Divination overlay (Tianji Purple Star Astrology) ---
+    divination = compute_tianji_overlay(match.get("kickoff_at", ""), match.get("match_id", ""))
+    # Compatibility mapping for original keys
+    divination["hexagram_name"] = divination["shichen"]
+    divination["hexagram_number"] = 0
+    divination["hexagram"] = divination["shichen"]
+    divination["weight"] = DIVINATION_WEIGHT
 
     # --- Final scores ---
     home_final = round(min(100.0, max(0.0, data_home + divination["home_modifier"])), 1)
     away_final = round(min(100.0, max(0.0, data_away + divination["away_modifier"])), 1)
 
-    # --- Predicted outcome ---
+    # --- Predicted outcome (Fundamentals Track) ---
     gap = home_final - away_final
     if abs(gap) <= 3.0:
         predicted_outcome = "draw"
@@ -668,11 +1116,112 @@ def predict_match(
     total_goals = int(predicted_score["home"]) + int(predicted_score["away"])
     goals_line_2_5 = "over" if total_goals >= 3 else "under"
 
-    # --- Confidence ---
-    evidence_gaps = _collect_evidence_gaps(evidence_index)
-    # Use the average data_score for confidence determination
+    # --- Odds & Market Track & Divergence Analysis ---
+    implied_probs = None
+    market_outcome = None
+    dual_track_alignment = "untracked"
+    divergence_analysis = ""
+
+    if odds:
+        o_home = float(odds.get("home_win", 1.0))
+        o_draw = float(odds.get("draw", 1.0))
+        o_away = float(odds.get("away_win", 1.0))
+
+        raw_p_home = 1.0 / o_home
+        raw_p_draw = 1.0 / o_draw
+        raw_p_away = 1.0 / o_away
+        sum_p = raw_p_home + raw_p_draw + raw_p_away
+
+        implied_probs = {
+            "home": round(raw_p_home / sum_p, 3),
+            "draw": round(raw_p_draw / sum_p, 3),
+            "away": round(raw_p_away / sum_p, 3)
+        }
+
+        max_p = max(implied_probs["home"], implied_probs["draw"], implied_probs["away"])
+        if max_p == implied_probs["home"]:
+            market_outcome = "home_win"
+        elif max_p == implied_probs["away"]:
+            market_outcome = "away_win"
+        else:
+            market_outcome = "draw"
+
+        if predicted_outcome == market_outcome:
+            dual_track_alignment = "aligned"
+            winner_lbl = home_name if predicted_outcome == "home_win" else away_name if predicted_outcome == "away_win" else "双方平局"
+            divergence_analysis = f"【双轨共振】数据基本面与市场赔率一致倾向【{winner_lbl}】。章鱼哥触手坚定，玄学气运与盘口期望形成合力。"
+        else:
+            dual_track_alignment = "divergent"
+            fund_winner_lbl = home_name if predicted_outcome == "home_win" else away_name if predicted_outcome == "away_win" else "平局拉扯"
+            mkt_winner_lbl = home_name if market_outcome == "home_win" else away_name if market_outcome == "away_win" else "平局拉扯"
+            divergence_analysis = f"【双轨背离】硬实力基本面支持【{fund_winner_lbl}】，但市场赔率反向看好【{mkt_winner_lbl}】。章鱼哥在箱子前摇摆游离，谨防诱盘或爆冷！"
+
+    # --- Confidence Override ---
+    local_gaps = []
+    if not home_squad or not away_squad:
+        local_gaps.append("rosters_missing")
+    if not referee:
+        local_gaps.append("referee_missing")
+    if not odds:
+        local_gaps.append("odds_missing")
+
     avg_data = (data_home + data_away) / 2.0
-    confidence, confidence_label = _determine_confidence(avg_data, evidence_gaps)
+    if daily_evidence and not local_gaps:
+        # All local evidence is complete! Bypassing global gaps caps
+        if avg_data > 65.0:
+            confidence = "high"
+            confidence_label = "高信心"
+        elif avg_data >= 50.0:
+            confidence = "medium"
+            confidence_label = "中等信心"
+        else:
+            confidence = "low"
+            confidence_label = "低信心"
+        evidence_gaps = [g + "_resolved" for g in local_gaps]
+    else:
+        # Fallback to the original global gaps logic
+        evidence_gaps = _collect_evidence_gaps(evidence_index)
+        confidence, confidence_label = _determine_confidence(avg_data, evidence_gaps)
+
+    analysis_context = {
+        "home_name": home_name,
+        "away_name": away_name,
+        "home_squad": home_squad,
+        "away_squad": away_squad,
+        "rs_home": rs_home,
+        "rs_away": rs_away,
+        "sd_home": sd_home,
+        "sd_away": sd_away,
+        "hp_home": hp_home,
+        "hp_away": hp_away,
+        "rt_home": rt_home,
+        "rt_away": rt_away,
+        "ec_modifier": ec_modifier,
+        "home_final": home_final,
+        "away_final": away_final,
+        "predicted_outcome": predicted_outcome,
+        "predicted_score": predicted_score,
+        "confidence": confidence,
+        "confidence_label": confidence_label,
+        "evidence_gaps": evidence_gaps,
+        "local_gaps": local_gaps,
+        "daily_evidence": daily_evidence,
+        "late_news": late_news,
+        "referee": referee,
+        "yellow_cards_pred": yellow_cards_pred,
+        "home_news_sentiment": home_news_sentiment,
+        "away_news_sentiment": away_news_sentiment,
+        "odds": odds,
+        "implied_probs": implied_probs,
+        "market_outcome": market_outcome,
+        "dual_track_alignment": dual_track_alignment,
+        "divergence_analysis": divergence_analysis,
+    }
+    scenario_analysis = _build_scenario_analysis(analysis_context)
+    analysis_context["scenario_analysis"] = scenario_analysis
+    decision_audit = _build_decision_audit(analysis_context)
+    analysis_context["decision_audit"] = decision_audit
+    analysis_layers = _build_analysis_layers(analysis_context)
 
     # --- Ranking info for output ---
     home_rank_info = {
@@ -701,10 +1250,24 @@ def predict_match(
         confidence=confidence,
         confidence_label=confidence_label,
         evidence_gaps=evidence_gaps,
-        hexagram_name=divination["hexagram_name"],
+        hexagram_name=divination["shichen"],
         data_weight=DATA_WEIGHT,
         divination_weight=DIVINATION_WEIGHT,
     )
+
+    # Enrich play card with agent reasoning
+    if divergence_analysis:
+        play_card["watch_points"].insert(0, divergence_analysis)
+        play_card["share_title"] = f"章鱼哥神算 | " + play_card["share_title"]
+
+    if decision_audit.get("why_this_pick"):
+        play_card["watch_points"].insert(0, "多层分析主线：" + decision_audit["why_this_pick"][0])
+
+    if referee:
+        play_card["risk_flags"].append(f"裁判执法：{referee['name']} (尺度：{referee['strictness'].upper()})，场均黄牌预估：{yellow_cards_pred}")
+
+    if divination.get("has_physical_conflict"):
+        play_card["risk_flags"].append("天纪警示：星盘羊陀照会，物理对抗升级，注意红黄牌及伤病风险。")
 
     return {
         "match_id": match.get("match_id", ""),
@@ -758,6 +1321,31 @@ def predict_match(
             "confidence_label": confidence_label,
             "evidence_gaps": evidence_gaps,
         },
+        "referee_analysis": {
+            "name": referee["name"] if referee else "Unknown",
+            "strictness": referee["strictness"] if referee else "medium",
+            "predicted_yellow_cards": yellow_cards_pred,
+            "predicted_red_cards": red_cards_pred,
+            "predicted_penalties": penalties_pred
+        } if referee else None,
+        "market_odds": {
+            "odds": odds,
+            "implied_probabilities": implied_probs,
+            "market_outcome": market_outcome
+        } if odds else None,
+        "dual_track": {
+            "alignment": dual_track_alignment,
+            "divergence_analysis": divergence_analysis
+        } if odds else None,
+        "analysis_layers": analysis_layers,
+        "scenario_analysis": scenario_analysis,
+        "decision_audit": decision_audit,
+        "analysis_summary": {
+            "layer_count": len(analysis_layers),
+            "risk_level": decision_audit.get("risk_level"),
+            "primary_edge": _edge_verdict(home_final - away_final),
+            "storage_note": "JSON report remains the audit artifact; SQLite is an optional query/index layer.",
+        },
         "play_card": play_card,
         "disclaimer": DISCLAIMER,
     }
@@ -810,15 +1398,22 @@ def run_scoring_model(
             skipped_no_kickoff += 1
             continue
 
+        target_date = date or (kickoff.date().isoformat() if kickoff else None)
+        daily_evidence = {}
+        if target_date:
+            evidence_path = ed_root / "daily-evidence" / f"{target_date}.json"
+            daily_evidence = load_json(evidence_path, {})
+
         prediction = predict_match(
             match=match,
             edition=edition,
-            date=date or kickoff.date().isoformat(),
+            date=target_date or "undated",
             all_matches=all_matches,
             ranking_index=ranking_index,
             squad_index=squad_index,
             evidence_index=evidence_index,
             global_summary=global_summary,
+            daily_evidence=daily_evidence,
         )
         predictions.append(prediction)
 

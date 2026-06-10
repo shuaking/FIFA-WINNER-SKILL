@@ -13,8 +13,9 @@ sys.path.insert(0, str(SCRIPT_DIR))
 
 from worldcup_core import (  # noqa: E402
     DISCLAIMER,
-    build_prediction,
+    edition_data_root,
     iso_now,
+    load_json,
     load_match_ledger,
     match_on_date,
     match_started,
@@ -25,6 +26,13 @@ from worldcup_core import (  # noqa: E402
     save_match_ledger,
     write_json,
     write_text,
+)
+
+from prediction_scoring_model import (
+    _build_ranking_index,
+    _build_squad_index,
+    _build_evidence_index,
+    predict_match,
 )
 
 
@@ -49,6 +57,22 @@ def run_daily_predictions(
         return existing
 
     ledger = load_match_ledger(root, edition)
+    ed_root = edition_data_root(root, edition)
+
+    # Load scoring model sources
+    rankings_data = load_json(ed_root / "rankings" / "fifa-men-ranking.json", {"rankings": []})
+    squad_data = load_json(ed_root / "squad-depth-features.json", {"teams": [], "global_summary": {}})
+    evidence_plan = load_json(ed_root / "prediction-evidence-plan.json", {"items": []})
+
+    ranking_index = _build_ranking_index(rankings_data)
+    squad_index = _build_squad_index(squad_data)
+    evidence_index = _build_evidence_index(evidence_plan)
+    global_summary = squad_data.get("global_summary")
+
+    # Load daily evidence
+    evidence_path = ed_root / "daily-evidence" / f"{date}.json"
+    daily_evidence = load_json(evidence_path, {})
+
     predictions: list[dict] = []
     skipped_started = 0
     skipped_missing_kickoff = 0
@@ -61,7 +85,18 @@ def run_daily_predictions(
         if match_started(match, now_dt):
             skipped_started += 1
             continue
-        prediction = build_prediction(match, edition, generated_at)
+
+        prediction = predict_match(
+            match=match,
+            edition=edition,
+            date=date,
+            all_matches=ledger.get("matches", []),
+            ranking_index=ranking_index,
+            squad_index=squad_index,
+            evidence_index=evidence_index,
+            global_summary=global_summary,
+            daily_evidence=daily_evidence,
+        )
         predictions.append(prediction)
         match["prediction_report"] = str(report_path)
         match["prediction_status"] = "locked_pre_match_prediction"
@@ -92,6 +127,28 @@ def run_daily_predictions(
         ],
     }
     write_json(report_path, report)
+
+    db_path = edition_data_root(root, edition) / f"worldcup_{edition}.db"
+    from worldcup_db import (
+        get_db_connection,
+        init_database,
+        save_match,
+        save_prediction,
+        save_prediction_analysis_layers,
+    )
+    init_database(db_path)
+    conn = get_db_connection(db_path)
+    try:
+        with conn:
+            for p in predictions:
+                matched_ledger_list = [m for m in ledger.get("matches", []) if m["match_id"] == p["match_id"]]
+                if matched_ledger_list:
+                    save_match(conn, matched_ledger_list[0])
+                save_prediction(conn, p)
+                save_prediction_analysis_layers(conn, p)
+    finally:
+        conn.close()
+
     write_text(prediction_markdown_path(root, edition, date), render_daily_prediction_markdown(report))
     save_match_ledger(root, edition, ledger)
     if poster:

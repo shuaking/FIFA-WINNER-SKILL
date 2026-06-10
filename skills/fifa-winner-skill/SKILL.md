@@ -7,6 +7,12 @@ description: Use when the user asks to initialize a FIFA World Cup knowledge bas
 
 FIFA-WINNER-SKILL is a reusable World Cup edition workflow. It keeps raw sources, compiled wiki notes, structured data, predictions, posters and post-match evaluations tied to the same edition and match ledger.
 
+## Agent-to-Agent Entry
+
+Runtime agents should read `AGENT_README.md` before invoking commands. The machine-readable capability card is `knowledge-base/agent/AGENT_CARD.json`; the tool/resource/prompt catalog is `knowledge-base/agent/TOOL_CATALOG.json`; the quick operator guide is `knowledge-base/agent/RUNBOOK.md`.
+
+Use JSON reports as canonical audit artifacts. Use SQLite only as a query/index layer. If the two disagree, prefer the locked JSON report and report the mismatch.
+
 ## Safety First
 
 Every prediction is entertainment only.
@@ -29,45 +35,61 @@ If running inside the `dxboy` knowledge base, use the project path `_meta/projec
 - `wiki/体育/世界杯/<edition>/`
 - `_meta/projects/世界杯预测/data/editions/<edition>/`
 
-## Quick Routes
+## Quick Routes (Tool Layer CLI Command Reference)
 
-- Initialize edition:
+- **Initialize Edition & Structure**:
   - `python3 scripts/worldcup_edition_init.py init --edition <edition> --root .`
-- Source readiness:
+- **Source Config & Plan Audits**:
   - `python3 scripts/worldcup_source_readiness_auditor.py write --edition <edition> --root .`
-- Prediction evidence plan:
   - `python3 scripts/worldcup_prediction_evidence_planner.py write --edition <edition> --root .`
-- Snapshot source:
+- **T0/T1 Web Source Snapshotting**:
   - `python3 scripts/worldcup_source_snapshot_tool.py plan --edition <edition> --source-id <source-id> --root .`
   - `python3 scripts/worldcup_source_snapshot_tool.py apply --edition <edition> --source-id <source-id> --root .`
-- Parse FIFA official squad PDF:
-  - `python3 scripts/fifa_squad_pdf_parser.py parse --edition <edition> --pdf <snapshot.pdf> --update-edition-teams --root .`
-- Initialize teams and players:
-  - `python3 scripts/worldcup_profile_init.py init --edition <edition> --scope teams,players --root .`
-- Parse official FIFA schedule:
-  - `python3 scripts/worldcup_fixture_parser.py parse --edition <edition> --schedule-json <schedule.json> --root .`
-- Parse FIFA ranking:
+- **Official Squad PDF Parser**:
+  - `python3 scripts/fifa_squad_pdf_parser.py parse --edition <edition> --pdf <path/to/pdf> --update-edition-teams --root .`
+- **Initialize Team Profiles & Player Dossiers**:
+  - `python3 scripts/worldcup_profile_init.py init --edition <edition> --scope [teams|players|all] --root .`
+- **FIFA Fixtures & Schedule Parsers**:
+  - `python3 scripts/worldcup_fixture_parser.py parse --edition <edition> --schedule-json <path/to/json> --root .`
+- **FIFA Official Men's Ranking Parser**:
   - `python3 scripts/worldcup_ranking_parser.py parse --edition <edition> --ranking-json <ranking.json> --snapshot-manifest <manifest.json> --root .`
-- Compile squad depth:
+- **Squad Depth & Features Aggregator**:
   - `python3 scripts/worldcup_squad_depth_compiler.py build --edition <edition> --root .`
-- Add daily evidence:
+- **Roster Alignment compiler**:
+  - `python3 scripts/worldcup_roster_compiler.py compile --edition <edition> --root .`
+- **Adjust Daily Context Evidences (Weather, Injuries, Referee)**:
   - `python3 scripts/daily_evidence_input.py init --edition <edition> --date YYYY-MM-DD --root .`
   - `python3 scripts/daily_evidence_input.py status --edition <edition> --date YYYY-MM-DD --root .`
-- Daily prediction:
+- **Live Odds & News Sentiment Web Fetchers**:
+  - `python3 scripts/worldcup_live_fetcher.py fetch-odds --edition <edition> --date YYYY-MM-DD --root .`
+  - `python3 scripts/worldcup_live_fetcher.py fetch-news --edition <edition> --date YYYY-MM-DD --root .`
+- **Historical Results Fetcher**:
+  - `python3 scripts/worldcup_history_fetcher.py fetch --edition <edition> --root .`
+- **Physics Prediction Model (ELo, Rankings, Rest, Travel)**:
   - `python3 scripts/prediction_scoring_model.py predict --edition <edition> --date YYYY-MM-DD --root .`
-  - By teams: `python3 scripts/prediction_scoring_model.py predict --edition <edition> --teams "Team A,Team B" --root .`
-  - By match id: `python3 scripts/prediction_scoring_model.py predict --edition <edition> --match-id <match_id> --root .`
-- Report prompt:
-  - `python3 scripts/prediction_report_prompt_builder.py build --edition <edition> --date YYYY-MM-DD --report-path <prediction-report.json> --match-id <match_id> --root .`
-- Poster manifest and image generation:
-  - Only when the user explicitly asks for a poster prompt: `python3 scripts/poster_prompt_builder.py build --edition <edition> --date YYYY-MM-DD --report-path <prediction-report.json> --match-id <match_id> --root .`
-  - Give users the generated `.txt` prompt file for `image2`; keep JSON manifests for provenance only.
+  - By teams: `python3 scripts/prediction_scoring_model.py predict --edition <edition> --teams "TeamA,TeamB" --root .`
+  - By match ID: `python3 scripts/prediction_scoring_model.py predict --edition <edition> --match-id <match_id> --root .`
+- **Daily Prediction Runner (E2E daily runner)**:
+  - `python3 scripts/daily_prediction_runner.py run --edition <edition> --date YYYY-MM-DD [--now ISO-time] [--poster] --root .`
+- **Unified Agent Entrypoint (Octopus Paul Agent)**:
+  - `python3 scripts/octopus_paul_agent.py fetch-schedule --edition <edition> --root .`
+  - `python3 scripts/octopus_paul_agent.py predict --edition <edition> [--phase <phase> | --group <group> | --teams <teams> | --all] [--now ISO-time] --root .`
+- **Prediction Report Prompt Builder**:
+  - `python3 scripts/prediction_report_prompt_builder.py build --edition <edition> --date YYYY-MM-DD --report-path <report.json> --match-id <match_id> --root .`
+- **Poster Prompts Builder (Chinese Showdown Template)**:
+  - `python3 scripts/poster_prompt_builder.py build --edition <edition> --date YYYY-MM-DD --style [prediction|showdown] [--match-id <match_id>] --root .`
+- **Poster Generator & Rendering**:
   - `python3 scripts/poster_generator.py generate --manifest <manifest.json> --backend image2 --root .`
-- Post-match evaluation:
+- **Post-Match Predictions Evaluator**:
   - `python3 scripts/prediction_evaluator.py write --edition <edition> --date YYYY-MM-DD --root .`
+- **Prediction Accuracy Dashboard Compiler**:
   - `python3 scripts/prediction_evaluation_dashboard.py write --edition <edition> --root .`
-- GitHub readiness:
+- **README & Calendar History Compiler**:
+  - `python3 scripts/update_readme_and_history.py --edition <edition> --date YYYY-MM-DD --now <now> --root .`
+- **GitHub Public Readiness Auditor**:
   - `python3 scripts/worldcup_github_readiness_auditor.py write --edition <edition> --root .`
+- **Standalone Portable Export Tool**:
+  - `python3 scripts/worldcup_export_standalone.py --edition <edition> --output <target_dir> --root .`
 
 ## Workflow
 

@@ -7,6 +7,12 @@ description: Use when the user asks to initialize a FIFA World Cup knowledge bas
 
 FIFA-WINNER-SKILL is a reusable World Cup edition workflow. It keeps raw sources, compiled wiki notes, structured data, predictions, posters and post-match evaluations tied to the same edition and match ledger.
 
+## Agent-to-Agent Entry
+
+Runtime agents should read `AGENT_README.md` before invoking commands. The machine-readable capability card is `knowledge-base/agent/AGENT_CARD.json`; the tool/resource/prompt catalog is `knowledge-base/agent/TOOL_CATALOG.json`; the quick operator guide is `knowledge-base/agent/RUNBOOK.md`.
+
+Use JSON reports as canonical audit artifacts. Use SQLite only as a query/index layer. If the two disagree, prefer the locked JSON report and report the mismatch.
+
 ## Safety First
 
 Every prediction is entertainment only.
