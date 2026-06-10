@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "edition": "2026",
+  "date": "2026-06-11",
+  "backend": "image2",
+  "status": "blocked_missing_backend",
+  "summary": {
+    "poster_items": 1,
+    "images_generated": 0,
+    "images_blocked": 1
+  },
+  "blockers": ["missing_backend_command_env:WORLDCUP_IMAGE2_COMMAND"],
+  "outputs": []
+}

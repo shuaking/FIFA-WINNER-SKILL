@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "edition": "2026",
+  "date": "2026-06-11",
+  "generated_at": "2026-06-10T20:42:00+08:00",
+  "mode": "worldcup-prediction-scoring-model",
+  "model_weights": {
+    "data_model": 0.85,
+    "divination_overlay": 0.15,
+    "component_weights": {
+      "ranking_strength": 0.3,
+      "squad_depth": 0.2,
+      "historical_proxy": 0.2,
+      "rest_travel": 0.15,
+      "evidence_completeness": 0.15
+    }
+  },
+  "status": "created",
+  "summary": {
+    "predictions_created": 1,
+    "matches_skipped_started": 0,
+    "matches_skipped_missing_kickoff": 0
+  },
+  "predictions": [
+    {
+      "match_id": "2026-GA-01",
+      "kickoff_at": "2026-06-11T19:00:00Z",
+      "venue": "Estadio Azteca, Mexico City",
+      "group": "A",
+      "phase": "group",
+      "home_team": {
+        "team_id": "mex",
+        "name": "Mexico",
+        "ranking": 15,
+        "points": 1681.03
+      },
+      "away_team": {
+        "team_id": "rsa",
+        "name": "South Africa",
+        "ranking": 60,
+        "points": 1429.73
+      },
+      "data_score": {
+        "home": 66.5,
+        "away": 45.5,
+        "components": {
+          "ranking_strength": {
+            "home": 68.72,
+            "away": 32.82,
+            "weight": 0.3
+          },
+          "squad_depth": {
+            "home": 88.8,
+            "away": 81.01,
+            "weight": 0.2
+          },
+          "historical_proxy": {
+            "home": 68.72,
+            "away": 32.82,
+            "weight": 0.2
+          },
+          "rest_travel": {
+            "home": 95.0,
+            "away": 85.0,
+            "weight": 0.15
+          },
+          "evidence_completeness": {
+            "home": 1.02,
+            "away": 1.02,
+            "weight": 0.15
+          }
+        }
+      },
+      "divination_overlay": {
+        "hexagram_number": 51,
+        "hexagram_name": "震 (The Arousing)",
+        "interpretation": "洊雷震",
+        "home_modifier": -2.9,
+        "away_modifier": 0.6
+      },
+      "prediction": {
+        "home_final": 63.6,
+        "away_final": 46.1,
+        "result": "home_win",
+        "predicted_outcome": "home_win",
+        "score": {
+          "home": 2,
+          "away": 1
+        },
+        "total_goals": 3,
+        "goals_line_2_5": "over",
+        "confidence": "low",
+        "confidence_label": "低信心",
+        "evidence_gaps": [
+          "official_fixtures_partial",
+          "fifa_rankings_partial",
+          "historical_worldcup_results_blocked",
+          "recent_form_results_blocked",
+          "squad_depth_position_balance_partial",
+          "injury_availability_blocked",
+          "venue_rest_travel_blocked"
+        ]
+      },
+      "play_card": {
+        "share_title": "Mexico vs South Africa | 娱乐预测 2-1",
+        "match_hook": "Mexico 倾向胜出，总进球参考 3 球。A组对决，Estadio Azteca, Mexico City。",
+        "watch_points": [
+          "双方实力接近，临场发挥将决定走向",
+          "中场控制权和定位球效率是关键",
+          "小组赛积分策略可能影响比赛节奏"
+        ],
+        "risk_flags": [
+          "历史战绩数据不足",
+          "近期战绩数据缺失",
+          "伤停信息不完整",
+          "休息和旅行因素未充分计算"
+        ],
+        "poster_angle": "Mexico vs South Africa, Estadio Azteca, Mexico City, vibrant crowd atmosphere, 震 (The Arousing) aesthetic overlay, predicted score 2-1, total goals 3",
+        "confidence_meter": "数据 85% | 玄学 15% | 信心: 低信心",
+        "gameplay_tags": [
+          "胜平负",
+          "比分",
+          "总进球",
+          "看点"
+        ]
+      },
+      "disclaimer": "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。"
+    }
+  ],
+  "disclaimer": "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。",
+  "safety_invariants": [
+    "data_model_weight_is_0_85",
+    "divination_overlay_weight_is_0_15",
+    "divination_overlay_capped_at_15_points",
+    "data_score_capped_at_85_points",
+    "no_betting_language_in_output",
+    "missing_evidence_downgrades_confidence",
+    "disclaimer_included_in_every_report"
+  ]
+}

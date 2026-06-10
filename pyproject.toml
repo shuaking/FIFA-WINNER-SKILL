@@ -1,0 +1,11 @@
+[project]
+name = "fifa-winner-skill"
+version = "0.1.0"
+description = "Reusable FIFA World Cup knowledge-base and entertainment-prediction skill"
+requires-python = ">=3.10"
+dependencies = [
+  "pdfplumber>=0.10"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dxboy.local/worldcup/poster-manifest.schema.json",
+  "title": "World Cup Prediction Poster Manifest",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "edition", "date", "generated_at", "mode", "source_report", "poster_items", "safety_invariants"],
+  "properties": {
+    "version": {"type": "integer", "minimum": 1},
+    "edition": {"type": "string"},
+    "date": {"type": "string"},
+    "mode": {"const": "worldcup-prediction-poster-prompt-manifest"},
+    "source_report": {"type": "string"},
+    "poster_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["poster_id", "match_id", "prompt", "disclaimer", "required_text", "forbidden_text"],
+        "additionalProperties": true
+      }
+    },
+    "safety_invariants": {"type": "array", "items": {"type": "string"}}
+  }
+}

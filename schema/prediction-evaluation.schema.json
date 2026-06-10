@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dxboy.local/worldcup/prediction-evaluation.schema.json",
+  "title": "World Cup Prediction Evaluation",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "edition", "date", "generated_at", "mode", "summary", "evaluations", "safety_invariants"],
+  "properties": {
+    "version": {"type": "integer", "minimum": 1},
+    "edition": {"type": "string"},
+    "date": {"type": "string"},
+    "mode": {"const": "worldcup-prediction-post-match-evaluation"},
+    "summary": {"type": "object"},
+    "evaluations": {"type": "array", "items": {"type": "object", "additionalProperties": true}},
+    "safety_invariants": {"type": "array", "items": {"type": "string"}}
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "edition": "2026",
+  "date": "2026-06-11",
+  "backend": "image2",
+  "status": "generated",
+  "manifest_path": "examples/sample-poster-manifest.json",
+  "summary": {
+    "poster_items": 1,
+    "images_generated": 1,
+    "images_blocked": 0
+  },
+  "outputs": [
+    {
+      "poster_id": "2026-GA-01:prediction-poster",
+      "match_id": "2026-GA-01",
+      "output_path": "artifacts/editions/2026/posters/2026-06-11/2026-GA-01-image2.png",
+      "returncode": 0,
+      "stdout": "generated",
+      "stderr": ""
+    }
+  ],
+  "safety_invariants": ["poster_outputs_keep_manifest_provenance"]
+}

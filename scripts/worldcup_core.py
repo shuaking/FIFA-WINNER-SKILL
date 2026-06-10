@@ -1,0 +1,810 @@
+#!/usr/bin/env python3
+"""Shared helpers for the reusable World Cup predictor project."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import re
+from datetime import datetime, timezone
+from pathlib import Path
+from zoneinfo import ZoneInfo
+
+
+PROJECT_REL = Path("_meta/projects/世界杯预测")
+SPORT_DOMAIN = "体育"
+WORLD_CUP_TOPIC = "世界杯"
+DISCLAIMER = "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。"
+DIVINATION_WEIGHT = 0.15
+DATA_WEIGHT = 0.85
+
+SOURCE_REGISTRY = [
+    {
+        "source_id": "fifa-match-schedule",
+        "tier": "T0",
+        "name": "FIFA World Cup official match schedule",
+        "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/match-schedule-fixtures-results-teams-stadiums",
+        "allowed_use": "metadata_and_short_summary",
+        "role": "fixtures",
+    },
+    {
+        "source_id": "fifa-squad-lists-pdf",
+        "tier": "T0",
+        "name": "FIFA official squad lists PDF",
+        "url": "https://fdp.fifa.org/assetspublic/ce281/pdf/SquadLists-English.pdf",
+        "allowed_use": "metadata_and_short_summary",
+        "role": "rosters",
+    },
+    {
+        "source_id": "fifa-men-ranking",
+        "tier": "T0",
+        "name": "FIFA men's world ranking",
+        "url": "https://inside.fifa.com/fifa-world-ranking/men",
+        "allowed_use": "metadata_and_short_summary",
+        "role": "rankings",
+    },
+    {
+        "source_id": "national-fa-official-sites",
+        "tier": "T0",
+        "name": "National football association official sites",
+        "url": "",
+        "allowed_use": "metadata_and_short_summary",
+        "role": "team_and_player_cross_check",
+    },
+    {
+        "source_id": "wikidata-sparql",
+        "tier": "T1",
+        "name": "Wikidata SPARQL",
+        "url": "https://query.wikidata.org/",
+        "allowed_use": "structured_open_metadata",
+        "role": "identity_aliases_birth_club_links",
+    },
+    {
+        "source_id": "wikipedia",
+        "tier": "T1",
+        "name": "Wikipedia",
+        "url": "https://www.wikipedia.org/",
+        "allowed_use": "summary_and_url_only",
+        "role": "identity_and_history_orientation",
+    },
+    {
+        "source_id": "openfootball",
+        "tier": "T1",
+        "name": "OpenFootball data",
+        "url": "https://github.com/openfootball/worldcup",
+        "allowed_use": "open_structured_data_when_license_checked",
+        "role": "historical_fixtures",
+    },
+    {
+        "source_id": "openfootball-worldcup-json",
+        "tier": "T1",
+        "name": "OpenFootball World Cup JSON datasets",
+        "url": "https://api.github.com/repos/openfootball/worldcup.json/contents",
+        "allowed_use": "open_structured_data_when_license_checked",
+        "role": "historical_fixtures_results_cross_check",
+    },
+    {
+        "source_id": "worldfootball-elo",
+        "tier": "T1",
+        "name": "World Football Elo Ratings",
+        "url": "https://www.eloratings.net/",
+        "allowed_use": "metadata_and_short_summary_with_terms_check",
+        "role": "team_strength_recent_form_reference",
+    },
+    {
+        "source_id": "football-data-org",
+        "tier": "T2",
+        "name": "football-data.org API",
+        "url": "https://www.football-data.org/documentation/quickstart",
+        "allowed_use": "api_metadata_with_key_limit_license_record",
+        "role": "api_fixtures_results",
+    },
+    {
+        "source_id": "api-football",
+        "tier": "T2",
+        "name": "API-Football",
+        "url": "https://www.api-football.com/documentation-v3",
+        "allowed_use": "api_metadata_with_key_limit_license_record",
+        "role": "api_fixtures_stats",
+    },
+    {
+        "source_id": "thesportsdb",
+        "tier": "T2",
+        "name": "TheSportsDB API",
+        "url": "https://www.thesportsdb.com/api.php",
+        "allowed_use": "api_metadata_with_terms_check",
+        "role": "team_player_metadata",
+    },
+    {
+        "source_id": "fbref",
+        "tier": "T3",
+        "name": "FBref",
+        "url": "https://fbref.com/",
+        "allowed_use": "reference_only_no_unauthorized_bulk_scrape",
+        "role": "stats_cross_check",
+    },
+    {
+        "source_id": "statbunker",
+        "tier": "T3",
+        "name": "StatBunker",
+        "url": "https://www.statbunker.com/",
+        "allowed_use": "reference_only_no_unauthorized_bulk_scrape",
+        "role": "stats_cross_check",
+    },
+    {
+        "source_id": "transfermarkt",
+        "tier": "T3",
+        "name": "Transfermarkt",
+        "url": "https://www.transfermarkt.com/",
+        "allowed_use": "reference_only_no_unauthorized_bulk_scrape",
+        "role": "market_value_and_squad_reference",
+    },
+    {
+        "source_id": "espn-soccer",
+        "tier": "T3",
+        "name": "ESPN Soccer",
+        "url": "https://www.espn.com/soccer/",
+        "allowed_use": "reference_only_no_unauthorized_bulk_scrape",
+        "role": "injury_news_lineup_reference",
+    },
+]
+
+PREDICTION_EVIDENCE_REQUIREMENTS = [
+    {
+        "evidence_id": "official_fixtures",
+        "name": "官方赛程和比赛事实",
+        "why_needed": "确定 match_id、开球时间、场馆、阶段、对阵和每天可预测比赛。",
+        "required": True,
+        "source_ids": ["fifa-match-schedule"],
+        "minimum_status_for_prediction": "partial",
+        "confidence_impact": "missing_or_placeholder_fixtures_block_daily_prediction_for_real_matches",
+    },
+    {
+        "evidence_id": "official_rosters",
+        "name": "官方球队阵容",
+        "why_needed": "确认 48 队大名单、教练、球员位置、俱乐部和基础身份，支撑阵容深度判断。",
+        "required": True,
+        "source_ids": ["fifa-squad-lists-pdf", "national-fa-official-sites"],
+        "minimum_status_for_prediction": "complete",
+        "confidence_impact": "missing_rosters_cap_confidence_at_low",
+    },
+    {
+        "evidence_id": "fifa_rankings",
+        "name": "FIFA 男足排名",
+        "why_needed": "提供跨队伍强弱基线，不能单独决定胜负，但影响数据模型基础分。",
+        "required": True,
+        "source_ids": ["fifa-men-ranking"],
+        "minimum_status_for_prediction": "partial",
+        "confidence_impact": "missing_rankings_cap_confidence_at_low",
+    },
+    {
+        "evidence_id": "historical_worldcup_results",
+        "name": "历届世界杯成绩和比赛结果",
+        "why_needed": "补足国家队世界杯经验、淘汰赛韧性、进球/失球历史基线。",
+        "required": True,
+        "source_ids": ["openfootball", "openfootball-worldcup-json", "wikipedia"],
+        "minimum_status_for_prediction": "partial",
+        "confidence_impact": "missing_history_reduces_knockout_context",
+    },
+    {
+        "evidence_id": "recent_form_results",
+        "name": "近期国家队战绩",
+        "why_needed": "反映近 6-12 个月状态、进攻/防守趋势和教练体系稳定性。",
+        "required": True,
+        "source_ids": ["football-data-org", "api-football", "worldfootball-elo", "national-fa-official-sites"],
+        "minimum_status_for_prediction": "partial",
+        "confidence_impact": "missing_recent_form_cap_confidence_at_low_or_medium",
+    },
+    {
+        "evidence_id": "squad_depth_position_balance",
+        "name": "阵容深度和位置平衡",
+        "why_needed": "根据官方大名单统计门将、后卫、中场、前锋结构，识别板凳深度和位置短板。",
+        "required": True,
+        "source_ids": ["fifa-squad-lists-pdf"],
+        "minimum_status_for_prediction": "partial",
+        "confidence_impact": "missing_depth_features_keep_model_at_seed_baseline",
+    },
+    {
+        "evidence_id": "injury_availability",
+        "name": "伤停、停赛和赛前可用性",
+        "why_needed": "关键球员缺阵会显著影响胜平负和总进球倾向，必须赛前每日更新。",
+        "required": True,
+        "source_ids": ["national-fa-official-sites", "espn-soccer", "fbref", "statbunker"],
+        "minimum_status_for_prediction": "partial",
+        "confidence_impact": "missing_availability_cap_confidence_at_low",
+    },
+    {
+        "evidence_id": "venue_rest_travel",
+        "name": "场馆、休息天数和旅行因素",
+        "why_needed": "根据赛程计算休息间隔、跨城市旅行和主办国/近主场因素。",
+        "required": True,
+        "source_ids": ["fifa-match-schedule"],
+        "minimum_status_for_prediction": "partial",
+        "confidence_impact": "missing_rest_travel_reduces_total_goals_confidence",
+    },
+    {
+        "evidence_id": "head_to_head",
+        "name": "交锋历史",
+        "why_needed": "作为低权重参考，帮助解释风格克制和历史心理因素。",
+        "required": False,
+        "source_ids": ["openfootball", "openfootball-worldcup-json", "wikipedia"],
+        "minimum_status_for_prediction": "optional",
+        "confidence_impact": "missing_h2h_does_not_block_prediction",
+    },
+    {
+        "evidence_id": "player_identity_enrichment",
+        "name": "球员身份和别名补强",
+        "why_needed": "用 Wikidata/Wikipedia 对齐球员别名、出生日期、国家队/俱乐部关系，方便后续深档和海报。",
+        "required": False,
+        "source_ids": ["wikidata-sparql", "wikipedia"],
+        "minimum_status_for_prediction": "optional",
+        "confidence_impact": "missing_identity_enrichment_does_not_block_prediction_but_limits_player_storytelling",
+    },
+]
+
+
+def project_root(root: Path) -> Path:
+    if is_standalone_root(root):
+        return root
+    return root / PROJECT_REL
+
+
+def is_standalone_root(root: Path) -> bool:
+    return (root / "scripts" / "worldcup_core.py").exists() and (root / "schema").exists()
+
+
+def edition_data_root(root: Path, edition: str) -> Path:
+    return project_root(root) / "data" / "editions" / edition
+
+
+def raw_edition_root(root: Path, edition: str) -> Path:
+    return root / "raw" / SPORT_DOMAIN / WORLD_CUP_TOPIC / edition
+
+
+def wiki_worldcup_root(root: Path) -> Path:
+    return root / "wiki" / SPORT_DOMAIN / WORLD_CUP_TOPIC
+
+
+def wiki_edition_root(root: Path, edition: str) -> Path:
+    return wiki_worldcup_root(root) / edition
+
+
+def now_datetime(value: str | None = None) -> datetime:
+    if value:
+        raw = value.strip()
+        if raw.endswith("Z"):
+            raw = raw[:-1] + "+00:00"
+        parsed = datetime.fromisoformat(raw)
+        if parsed.tzinfo is None:
+            return parsed.replace(tzinfo=ZoneInfo("Asia/Shanghai"))
+        return parsed
+    return datetime.now(ZoneInfo("Asia/Shanghai"))
+
+
+def iso_now(value: str | None = None) -> str:
+    return now_datetime(value).isoformat()
+
+
+def parse_datetime(value: str) -> datetime | None:
+    if not value:
+        return None
+    raw = value.strip()
+    if raw.endswith("Z"):
+        raw = raw[:-1] + "+00:00"
+    try:
+        parsed = datetime.fromisoformat(raw)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=ZoneInfo("Asia/Shanghai"))
+    return parsed
+
+
+def write_json(path: Path, payload: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def load_json(path: Path, default: object | None = None) -> object:
+    if not path.exists():
+        if default is None:
+            raise FileNotFoundError(path)
+        return default
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def write_text(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+
+
+def slugify(value: str) -> str:
+    text = value.strip().lower()
+    text = re.sub(r"[^a-z0-9\u4e00-\u9fff]+", "-", text)
+    text = re.sub(r"-+", "-", text).strip("-")
+    return text or "unknown"
+
+
+def stable_int(*parts: str, modulo: int = 1000) -> int:
+    seed = "|".join(parts)
+    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()
+    return int(digest[:12], 16) % modulo
+
+
+def default_groups() -> list[str]:
+    return [chr(ord("A") + i) for i in range(12)]
+
+
+def default_teams() -> list[dict]:
+    teams: list[dict] = []
+    for group in default_groups():
+        for slot in range(1, 5):
+            team_id = f"group-{group.lower()}-team-{slot}"
+            name = f"Group {group} Team {slot}"
+            teams.append(
+                {
+                    "team_id": team_id,
+                    "name": name,
+                    "group": group,
+                    "slot": slot,
+                    "source_integrity": "partial",
+                    "status": "placeholder_until_official_roster_ingest",
+                    "source_refs": ["fifa-match-schedule", "fifa-squad-lists-pdf"],
+                }
+            )
+    return teams
+
+
+def default_group_matches(edition: str) -> list[dict]:
+    pairings = [(1, 2), (3, 4), (1, 3), (2, 4), (4, 1), (2, 3)]
+    matches: list[dict] = []
+    ordinal = 1
+    for group in default_groups():
+        for group_match_number, (home_slot, away_slot) in enumerate(pairings, start=1):
+            matches.append(
+                {
+                    "match_id": f"{edition}-G{group}-{group_match_number:02d}",
+                    "edition": edition,
+                    "phase": "group",
+                    "group": group,
+                    "match_number": ordinal,
+                    "kickoff_at": "",
+                    "venue": "",
+                    "status": "fixture_placeholder",
+                    "home_team": {
+                        "team_id": f"group-{group.lower()}-team-{home_slot}",
+                        "name": f"Group {group} Team {home_slot}",
+                        "slot": home_slot,
+                    },
+                    "away_team": {
+                        "team_id": f"group-{group.lower()}-team-{away_slot}",
+                        "name": f"Group {group} Team {away_slot}",
+                        "slot": away_slot,
+                    },
+                    "prediction_report": "",
+                    "poster_manifest": "",
+                    "poster_outputs": [],
+                    "final_score": None,
+                    "evaluation": None,
+                }
+            )
+            ordinal += 1
+    return matches
+
+
+def default_knockout_matches(edition: str) -> list[dict]:
+    rounds = [
+        ("R32", "round_of_32", 16),
+        ("R16", "round_of_16", 8),
+        ("QF", "quarter_final", 4),
+        ("SF", "semi_final", 2),
+        ("TP", "third_place", 1),
+        ("F", "final", 1),
+    ]
+    matches: list[dict] = []
+    ordinal = 73
+    for prefix, phase, count in rounds:
+        for index in range(1, count + 1):
+            matches.append(
+                {
+                    "match_id": f"{edition}-{prefix}-{index:02d}",
+                    "edition": edition,
+                    "phase": phase,
+                    "group": "",
+                    "match_number": ordinal,
+                    "kickoff_at": "",
+                    "venue": "",
+                    "status": "knockout_placeholder_until_teams_known",
+                    "home_team": {
+                        "team_id": f"{phase}-home-{index}",
+                        "name": f"{phase.replace('_', ' ').title()} Home {index}",
+                    },
+                    "away_team": {
+                        "team_id": f"{phase}-away-{index}",
+                        "name": f"{phase.replace('_', ' ').title()} Away {index}",
+                    },
+                    "prediction_report": "",
+                    "poster_manifest": "",
+                    "poster_outputs": [],
+                    "final_score": None,
+                    "evaluation": None,
+                }
+            )
+            ordinal += 1
+    return matches
+
+
+def default_match_ledger(edition: str, generated_at: str) -> dict:
+    matches = default_group_matches(edition) + default_knockout_matches(edition)
+    return {
+        "version": 1,
+        "edition": edition,
+        "generated_at": generated_at,
+        "mode": "worldcup-match-ledger",
+        "summary": {
+            "match_count": len(matches),
+            "group_stage_matches": 72,
+            "knockout_matches": 32,
+            "fixture_status": "placeholder_until_official_schedule_snapshot",
+        },
+        "matches": matches,
+        "safety_invariants": [
+            "worldcup_match_ledger_records_all_104_matches",
+            "unknown_knockout_teams_use_placeholders_until_officially_known",
+            "prediction_reports_append_to_matches_by_stable_match_id",
+        ],
+    }
+
+
+def source_registry_payload(edition: str, generated_at: str) -> dict:
+    return {
+        "version": 1,
+        "edition": edition,
+        "generated_at": generated_at,
+        "mode": "worldcup-source-registry",
+        "sources": SOURCE_REGISTRY,
+        "rules": [
+            "Prefer T0 official sources for schedule, squads, rankings and match facts.",
+            "Use T1 structured open sources for identity alignment and historical context.",
+            "Use T2 APIs only after key, rate limit and license boundaries are recorded.",
+            "Use T3 reference sources for cross-checks; do not perform unauthorized bulk scraping.",
+            "Store URLs, metadata and short summaries; do not store large copyrighted full text.",
+        ],
+    }
+
+
+def ensure_base_wiki(root: Path) -> None:
+    write_text(
+        root / "wiki" / SPORT_DOMAIN / "index.md",
+        """---
+type: index
+domain: 体育
+status: active
+---
+
+# 体育
+
+## 专题入口
+
+- [[wiki/体育/世界杯/index|世界杯]] — 每届世界杯资料库、赛前娱乐预测、海报和赛后复盘。
+""",
+    )
+    write_text(
+        wiki_worldcup_root(root) / "index.md",
+        """---
+type: index
+topic: 世界杯
+status: active
+---
+
+# 世界杯
+
+这个专题维护每一届世界杯的独立资料库。每届资料、预测、海报和复盘必须隔离。
+
+## 届次
+
+- [[wiki/体育/世界杯/2026/index|2026 FIFA World Cup]]
+""",
+    )
+
+
+def wiki_edition_index(edition: str) -> str:
+    return f"""---
+type: index
+topic: 世界杯{edition}
+status: active
+---
+
+# 世界杯 {edition}
+
+## 入口
+
+- [[MOC-世界杯{edition}]] — 本届资料、预测、海报和复盘地图。
+
+## 目录
+
+- `summaries/` — 来源摘要和证据边界。
+- `entities/teams/` — 国家队档案。
+- `entities/players/` — 球员深档。
+- `synthesis/` — MOC、总汇和缺口。
+- `reports/daily-predictions/` — 每日赛前预测报告。
+- `reports/posters/` — 预测海报和生成记录。
+- `reports/evaluations/` — 赛后复盘。
+"""
+
+
+def wiki_edition_moc(edition: str) -> str:
+    return f"""---
+type: moc
+topic: 世界杯{edition}
+status: active
+---
+
+# MOC-世界杯{edition}
+
+## 定位
+
+本页是 {edition} 届世界杯的专题地图。资料库服务赛前娱乐预测、海报生成和赛后复盘，不提供投注建议。
+
+## 运行时
+
+- Runtime：`_meta/projects/世界杯预测/`
+- 届次数据：`_meta/projects/世界杯预测/data/editions/{edition}/`
+- 原始来源：`raw/体育/世界杯/{edition}/`
+
+## 核心产物
+
+- 比赛账本：`match-ledger.json`
+- 来源注册表：`source-registry.json`
+- 每日预测：`reports/daily-predictions/`
+- 海报：`reports/posters/`
+- 赛后复盘：`reports/evaluations/`
+
+## 边界
+
+- 预测为娱乐内容。
+- 周易层最多影响 15%，必须标注娱乐解释。
+- 不输出投注金额、稳胆或保证命中措辞。
+"""
+
+
+def ensure_edition_wiki(root: Path, edition: str) -> None:
+    base = wiki_edition_root(root, edition)
+    for rel in [
+        "summaries",
+        "entities/teams",
+        "entities/players",
+        "concepts",
+        "comparisons",
+        "design-notes",
+        "synthesis",
+        "reports/daily-predictions",
+        "reports/posters",
+        "reports/evaluations",
+    ]:
+        (base / rel).mkdir(parents=True, exist_ok=True)
+    write_text(base / "index.md", wiki_edition_index(edition))
+    write_text(base / "synthesis" / f"MOC-世界杯{edition}.md", wiki_edition_moc(edition))
+
+
+def load_match_ledger(root: Path, edition: str) -> dict:
+    return load_json(edition_data_root(root, edition) / "match-ledger.json", {})
+
+
+def save_match_ledger(root: Path, edition: str, ledger: dict) -> None:
+    write_json(edition_data_root(root, edition) / "match-ledger.json", ledger)
+
+
+def prediction_report_path(root: Path, edition: str, date: str) -> Path:
+    return edition_data_root(root, edition) / "reports" / "daily-predictions" / f"{date}.json"
+
+
+def prediction_markdown_path(root: Path, edition: str, date: str) -> Path:
+    return wiki_edition_root(root, edition) / "reports" / "daily-predictions" / f"{date}.md"
+
+
+def poster_manifest_path(root: Path, edition: str, date: str) -> Path:
+    return edition_data_root(root, edition) / "reports" / "posters" / f"{date}-poster-manifest.json"
+
+
+def poster_result_path(root: Path, edition: str, date: str, backend: str) -> Path:
+    return edition_data_root(root, edition) / "reports" / "posters" / f"{date}-{backend}-poster-result.json"
+
+
+def match_on_date(match: dict, date: str) -> bool:
+    kickoff = parse_datetime(str(match.get("kickoff_at", "")))
+    return bool(kickoff and kickoff.date().isoformat() == date)
+
+
+def match_started(match: dict, now: datetime) -> bool:
+    kickoff = parse_datetime(str(match.get("kickoff_at", "")))
+    if not kickoff:
+        return False
+    return kickoff.astimezone(timezone.utc) <= now.astimezone(timezone.utc)
+
+
+def team_name(team: dict) -> str:
+    return str(team.get("name") or team.get("team_id") or "Unknown Team")
+
+
+def build_play_card(
+    *,
+    match: dict,
+    home: str,
+    away: str,
+    result: str,
+    home_goals: int,
+    away_goals: int,
+    total_goals: int,
+    confidence: str,
+    hexagram: str,
+) -> dict:
+    result_labels = {"home_win": f"{home} 不败倾向", "away_win": f"{away} 不败倾向", "draw": "平局拉扯倾向"}
+    watch_pool = [
+        "开场 15 分钟的压迫强度和失误率",
+        "定位球防守、二点球保护和禁区前沿犯规",
+        "边路推进能否稳定制造传中或倒三角机会",
+        "下半场 60 分钟后的换人质量和体能落差",
+        "领先一方收缩后反击质量，落后一方中路渗透效率",
+    ]
+    start = stable_int(match.get("match_id", ""), home, away, "watch", modulo=len(watch_pool))
+    watch_points = [watch_pool[start], watch_pool[(start + 2) % len(watch_pool)]]
+    if total_goals >= 3:
+        watch_points.append("比赛节奏一旦被早球打开，总进球可能继续抬升")
+    else:
+        watch_points.append("如果中场缠斗时间过长，总进球会被压低")
+
+    risk_flags = [
+        "伤停、首发和临场轮换未确认时，信心必须下调",
+        "赛程、排名或近期状态证据缺口会限制模型解释力",
+    ]
+    if confidence == "low":
+        risk_flags.append("当前只适合娱乐讨论，不适合当作强判断")
+
+    return {
+        "share_title": f"{home} vs {away} 娱乐预测：{home_goals}-{away_goals}",
+        "match_hook": f"{result_labels[result]}，总进球参考 {total_goals} 球。",
+        "watch_points": watch_points,
+        "risk_flags": risk_flags,
+        "poster_angle": f"{home} vs {away}，比分 {home_goals}-{away_goals}，{hexagram}象做娱乐氛围，不覆盖硬数据。",
+        "confidence_meter": {
+            "level": confidence,
+            "data_weight": DATA_WEIGHT,
+            "divination_weight": DIVINATION_WEIGHT,
+            "label": "证据越完整，娱乐层越只能做叙事点缀",
+        },
+        "gameplay_tags": ["胜平负", "比分", "总进球", "看点", "赛后复盘"],
+    }
+
+
+def build_prediction(match: dict, edition: str, generated_at: str) -> dict:
+    home = team_name(match.get("home_team", {}))
+    away = team_name(match.get("away_team", {}))
+    home_seed = stable_int(edition, match.get("match_id", ""), home, "home", modulo=100)
+    away_seed = stable_int(edition, match.get("match_id", ""), away, "away", modulo=100)
+    diff = home_seed - away_seed
+    if abs(diff) <= 8:
+        result = "draw"
+        home_goals = 1 + stable_int(home, away, "draw-home", modulo=2)
+        away_goals = home_goals
+    elif diff > 0:
+        result = "home_win"
+        home_goals = 1 + stable_int(home, "goals", modulo=3)
+        away_goals = stable_int(away, "goals", modulo=2)
+        if home_goals <= away_goals:
+            home_goals = away_goals + 1
+    else:
+        result = "away_win"
+        away_goals = 1 + stable_int(away, "goals", modulo=3)
+        home_goals = stable_int(home, "goals", modulo=2)
+        if away_goals <= home_goals:
+            away_goals = home_goals + 1
+
+    total_goals = home_goals + away_goals
+    confidence = "medium" if abs(diff) > 20 else "low"
+    hexagrams = ["乾", "坤", "震", "巽", "坎", "离", "艮", "兑"]
+    hexagram = hexagrams[stable_int(str(match.get("kickoff_at", "")), home, away, modulo=len(hexagrams))]
+    return {
+        "match_id": match["match_id"],
+        "edition": edition,
+        "generated_at": generated_at,
+        "status": "locked_pre_match_prediction",
+        "home_team": home,
+        "away_team": away,
+        "kickoff_at": match.get("kickoff_at", ""),
+        "prediction": {
+            "result": result,
+            "score": {"home": home_goals, "away": away_goals},
+            "total_goals": total_goals,
+            "goals_line_2_5": "over" if total_goals >= 3 else "under",
+            "confidence": confidence,
+        },
+        "weights": {"data_model": DATA_WEIGHT, "divination_overlay": DIVINATION_WEIGHT},
+        "evidence_summary": [
+            "T0/T1/T2/T3 sources must be checked before upgrading confidence.",
+            "This deterministic baseline is a pre-match entertainment model until team/player dossiers are complete.",
+            "Missing injury, lineup and recent-form evidence keeps confidence capped.",
+        ],
+        "divination_overlay": {
+            "weight": DIVINATION_WEIGHT,
+            "hexagram": hexagram,
+            "interpretation": f"{hexagram}象仅作娱乐叙事，最多微调倾向，不覆盖球队和球员证据。",
+        },
+        "play_card": build_play_card(
+            match=match,
+            home=home,
+            away=away,
+            result=result,
+            home_goals=home_goals,
+            away_goals=away_goals,
+            total_goals=total_goals,
+            confidence=confidence,
+            hexagram=hexagram,
+        ),
+        "disclaimer": DISCLAIMER,
+        "forbidden_actions": ["投注金额建议", "稳赢判断", "稳胆措辞"],
+    }
+
+
+def render_daily_prediction_markdown(report: dict) -> str:
+    lines = [
+        "---",
+        "type: report",
+        f"edition: {report['edition']}",
+        f"date: {report['date']}",
+        "status: active",
+        "---",
+        "",
+        f"# {report['edition']} 世界杯 {report['date']} 赛前娱乐预测",
+        "",
+        f"> {report['disclaimer']}",
+        "",
+        "## 汇总",
+        "",
+        f"- 创建预测：{report['summary']['predictions_created']}",
+        f"- 已开球跳过：{report['summary']['matches_skipped_started']}",
+        f"- 已锁定沿用：{report['summary']['locked_existing_predictions']}",
+        "",
+        "## 比赛",
+        "",
+    ]
+    if not report.get("predictions"):
+        lines.append("- 无可预测比赛。")
+    for item in report.get("predictions", []):
+        score = item["prediction"]["score"]
+        lines.extend(
+            [
+                f"### {item['home_team']} vs {item['away_team']}",
+                "",
+                f"- Match ID：`{item['match_id']}`",
+                f"- 开球：{item.get('kickoff_at', '')}",
+                f"- 胜平负：{item['prediction']['result']}",
+                f"- 预测比分：{score['home']}-{score['away']}",
+                f"- 总进球数：{item['prediction']['total_goals']}",
+                f"- 大小球倾向：{item['prediction']['goals_line_2_5']}",
+                f"- 信心：{item['prediction']['confidence']}",
+                f"- 周易娱乐：{item['divination_overlay']['hexagram']}，{item['divination_overlay']['interpretation']}",
+                f"- 玩法标题：{item.get('play_card', {}).get('share_title', '')}",
+                f"- 海报角度：{item.get('play_card', {}).get('poster_angle', '')}",
+                "",
+            ]
+        )
+        play_card = item.get("play_card", {})
+        if play_card.get("watch_points"):
+            lines.append("看点：")
+            for point in play_card["watch_points"]:
+                lines.append(f"- {point}")
+            lines.append("")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def scope_list(value: str | list[str]) -> list[str]:
+    if isinstance(value, list):
+        return value
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def backend_command_env(backend: str) -> str:
+    safe = re.sub(r"[^A-Za-z0-9]+", "_", backend).upper()
+    return f"WORLDCUP_{safe}_COMMAND"

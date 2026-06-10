@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dxboy.local/worldcup/source-readiness.schema.json",
+  "title": "World Cup Source Readiness",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "edition", "generated_at", "mode", "summary", "items", "safety_invariants"],
+  "properties": {
+    "version": {"type": "integer", "minimum": 1},
+    "edition": {"type": "string"},
+    "mode": {"const": "worldcup-source-readiness-no-fetch"},
+    "summary": {"type": "object"},
+    "items": {"type": "array", "items": {"type": "object", "additionalProperties": true}},
+    "safety_invariants": {"type": "array", "items": {"type": "string"}}
+  }
+}

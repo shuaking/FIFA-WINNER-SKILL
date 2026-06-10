@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dxboy.local/worldcup/daily-prediction-report.schema.json",
+  "title": "World Cup Daily Prediction Report",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "edition", "date", "generated_at", "mode", "summary", "predictions", "disclaimer", "safety_invariants"],
+  "properties": {
+    "version": {"type": "integer", "minimum": 1},
+    "edition": {"type": "string"},
+    "date": {"type": "string"},
+    "mode": {"const": "worldcup-daily-pre-match-entertainment-predictions"},
+    "summary": {"type": "object"},
+    "predictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["match_id", "prediction", "divination_overlay", "play_card", "disclaimer"],
+        "additionalProperties": true,
+        "properties": {
+          "play_card": {
+            "type": "object",
+            "required": ["share_title", "match_hook", "watch_points", "risk_flags", "poster_angle", "confidence_meter", "gameplay_tags"],
+            "properties": {
+              "share_title": {"type": "string"},
+              "match_hook": {"type": "string"},
+              "watch_points": {"type": "array", "items": {"type": "string"}},
+              "risk_flags": {"type": "array", "items": {"type": "string"}},
+              "poster_angle": {"type": "string"},
+              "confidence_meter": {"type": "object"},
+              "gameplay_tags": {"type": "array", "items": {"type": "string"}}
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "disclaimer": {"type": "string"},
+    "safety_invariants": {"type": "array", "items": {"type": "string"}}
+  }
+}

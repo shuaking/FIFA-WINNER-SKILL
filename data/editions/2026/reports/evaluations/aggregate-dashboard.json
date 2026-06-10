@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "edition": "2026",
+  "generated_at": "2026-06-10T19:52:00+08:00",
+  "mode": "worldcup-prediction-evaluation-dashboard",
+  "status": "no_evaluations_yet",
+  "dashboard_path": "data/editions/2026/reports/evaluations/aggregate-dashboard.json",
+  "markdown_path": "wiki/体育/世界杯/2026/reports/evaluations/aggregate-dashboard.md",
+  "summary": {
+    "evaluation_days": 0,
+    "evaluated_matches": 0,
+    "blocked_missing_final_score": 0,
+    "result_hits": 0,
+    "score_hits": 0,
+    "total_goals_hits": 0,
+    "confidence_calibration": {}
+  },
+  "rates": {
+    "result_hit_rate": 0.0,
+    "score_hit_rate": 0.0,
+    "total_goals_hit_rate": 0.0
+  },
+  "days": [],
+  "safety_invariants": [
+    "evaluation_dashboard_reads_evaluations_without_rewriting_predictions",
+    "locked_pre_match_reports_remain_unchanged"
+  ]
+}

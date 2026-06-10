@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dxboy.local/worldcup/match-ledger.schema.json",
+  "title": "World Cup Match Ledger",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "edition", "generated_at", "mode", "summary", "matches", "safety_invariants"],
+  "properties": {
+    "version": {"type": "integer", "minimum": 1},
+    "edition": {"type": "string"},
+    "generated_at": {"type": "string"},
+    "mode": {"const": "worldcup-match-ledger"},
+    "summary": {
+      "type": "object",
+      "required": ["match_count", "group_stage_matches", "knockout_matches"],
+      "properties": {
+        "match_count": {"const": 104},
+        "group_stage_matches": {"const": 72},
+        "knockout_matches": {"const": 32}
+      }
+    },
+    "matches": {
+      "type": "array",
+      "minItems": 104,
+      "maxItems": 104,
+      "items": {
+        "type": "object",
+        "required": ["match_id", "edition", "phase", "match_number", "status", "home_team", "away_team"],
+        "additionalProperties": true
+      }
+    },
+    "safety_invariants": {"type": "array", "items": {"type": "string"}}
+  }
+}

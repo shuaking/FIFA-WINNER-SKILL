@@ -1,0 +1,360 @@
+{
+  "version": 1,
+  "edition": "2026",
+  "generated_at": "2026-06-10T20:56:05.921576+08:00",
+  "mode": "worldcup-github-readiness",
+  "status": "ready_with_known_data_gaps",
+  "report_path": "data/editions/2026/github-readiness.json",
+  "summary": {
+    "format_ready": true,
+    "data_accuracy_guardrails_ready": true,
+    "playability_ready": true,
+    "known_data_gaps_present": true
+  },
+  "sections": [
+    {
+      "section_id": "format",
+      "status": "pass",
+      "checks": [
+        {
+          "check_id": "file:README.md",
+          "status": "pass",
+          "path": "README.md"
+        },
+        {
+          "check_id": "file:TODO.md",
+          "status": "pass",
+          "path": "TODO.md"
+        },
+        {
+          "check_id": "file:SKILL.md",
+          "status": "pass",
+          "path": "SKILL.md"
+        },
+        {
+          "check_id": "file:LICENSE",
+          "status": "pass",
+          "path": "LICENSE"
+        },
+        {
+          "check_id": "file:install_as_skill.sh",
+          "status": "pass",
+          "path": "install_as_skill.sh"
+        },
+        {
+          "check_id": "file:pyproject.toml",
+          "status": "pass",
+          "path": "pyproject.toml"
+        },
+        {
+          "check_id": "file:.github/workflows/ci.yml",
+          "status": "pass",
+          "path": ".github/workflows/ci.yml"
+        },
+        {
+          "check_id": "file:examples/sample-prediction-report.json",
+          "status": "pass",
+          "path": "examples/sample-prediction-report.json"
+        },
+        {
+          "check_id": "file:examples/sample-poster-manifest.json",
+          "status": "pass",
+          "path": "examples/sample-poster-manifest.json"
+        },
+        {
+          "check_id": "file:examples/sample-poster-result-blocked.json",
+          "status": "pass",
+          "path": "examples/sample-poster-result-blocked.json"
+        },
+        {
+          "check_id": "file:examples/sample-poster-result-generated.json",
+          "status": "pass",
+          "path": "examples/sample-poster-result-generated.json"
+        },
+        {
+          "check_id": "file:assets/posters/2026-06-12-mexico-vs-south-africa.png",
+          "status": "pass",
+          "path": "assets/posters/2026-06-12-mexico-vs-south-africa.png"
+        },
+        {
+          "check_id": "file:assets/posters/2026-06-12-south-korea-vs-czechia.png",
+          "status": "pass",
+          "path": "assets/posters/2026-06-12-south-korea-vs-czechia.png"
+        },
+        {
+          "check_id": "file:assets/contact/wechat-qr.jpg",
+          "status": "pass",
+          "path": "assets/contact/wechat-qr.jpg"
+        },
+        {
+          "check_id": "file:scripts/worldcup_core.py",
+          "status": "pass",
+          "path": "scripts/worldcup_core.py"
+        },
+        {
+          "check_id": "file:scripts/daily_prediction_runner.py",
+          "status": "pass",
+          "path": "scripts/daily_prediction_runner.py"
+        },
+        {
+          "check_id": "file:scripts/prediction_report_prompt_builder.py",
+          "status": "pass",
+          "path": "scripts/prediction_report_prompt_builder.py"
+        },
+        {
+          "check_id": "file:scripts/worldcup_prediction_evidence_planner.py",
+          "status": "pass",
+          "path": "scripts/worldcup_prediction_evidence_planner.py"
+        },
+        {
+          "check_id": "file:scripts/worldcup_source_snapshot_tool.py",
+          "status": "pass",
+          "path": "scripts/worldcup_source_snapshot_tool.py"
+        },
+        {
+          "check_id": "file:scripts/poster_generator.py",
+          "status": "pass",
+          "path": "scripts/poster_generator.py"
+        },
+        {
+          "check_id": "file:schema/match-ledger.schema.json",
+          "status": "pass",
+          "path": "schema/match-ledger.schema.json"
+        },
+        {
+          "check_id": "file:schema/prediction-evidence-plan.schema.json",
+          "status": "pass",
+          "path": "schema/prediction-evidence-plan.schema.json"
+        },
+        {
+          "check_id": "file:schema/daily-prediction-report.schema.json",
+          "status": "pass",
+          "path": "schema/daily-prediction-report.schema.json"
+        },
+        {
+          "check_id": "file:schema/github-readiness.schema.json",
+          "status": "pass",
+          "path": "schema/github-readiness.schema.json"
+        },
+        {
+          "check_id": "file:skills/fifa-winner-skill/SKILL.md",
+          "status": "pass",
+          "path": "skills/fifa-winner-skill/SKILL.md"
+        },
+        {
+          "check_id": "file:tests/test_worldcup_predictor_system.py",
+          "status": "pass",
+          "path": "tests/test_worldcup_predictor_system.py"
+        },
+        {
+          "check_id": "README.md:Quick Start",
+          "status": "pass",
+          "section": "Quick Start"
+        },
+        {
+          "check_id": "README.md:Roadmap",
+          "status": "pass",
+          "section": "Roadmap"
+        },
+        {
+          "check_id": "README.md:Prediction Evidence",
+          "status": "pass",
+          "section": "Prediction Evidence"
+        },
+        {
+          "check_id": "README.md:Daily Prediction",
+          "status": "pass",
+          "section": "Daily Prediction"
+        },
+        {
+          "check_id": "README.md:GitHub Readiness",
+          "status": "pass",
+          "section": "GitHub Readiness"
+        },
+        {
+          "check_id": "README.md:Playability",
+          "status": "pass",
+          "section": "Playability"
+        },
+        {
+          "check_id": "README.md:Examples",
+          "status": "pass",
+          "section": "Examples"
+        },
+        {
+          "check_id": "README.md:Safety",
+          "status": "pass",
+          "section": "Safety"
+        },
+        {
+          "check_id": "skills/fifa-winner-skill/SKILL.md:Source Tiers",
+          "status": "pass",
+          "section": "Source Tiers"
+        },
+        {
+          "check_id": "skills/fifa-winner-skill/SKILL.md:Prediction Evidence",
+          "status": "pass",
+          "section": "Prediction Evidence"
+        },
+        {
+          "check_id": "skills/fifa-winner-skill/SKILL.md:Prediction Rules",
+          "status": "pass",
+          "section": "Prediction Rules"
+        },
+        {
+          "check_id": "skills/fifa-winner-skill/SKILL.md:Poster Rules",
+          "status": "pass",
+          "section": "Poster Rules"
+        },
+        {
+          "check_id": "skills/fifa-winner-skill/SKILL.md:玩法卡片",
+          "status": "pass",
+          "section": "玩法卡片"
+        }
+      ]
+    },
+    {
+      "section_id": "data_accuracy",
+      "status": "pass",
+      "checks": [
+        {
+          "check_id": "source:fifa-match-schedule",
+          "status": "pass",
+          "tier": "T0",
+          "missing_fields": []
+        },
+        {
+          "check_id": "source:fifa-squad-lists-pdf",
+          "status": "pass",
+          "tier": "T0",
+          "missing_fields": []
+        },
+        {
+          "check_id": "source:fifa-men-ranking",
+          "status": "pass",
+          "tier": "T0",
+          "missing_fields": []
+        },
+        {
+          "check_id": "source:national-fa-official-sites",
+          "status": "pass",
+          "tier": "T0",
+          "missing_fields": []
+        },
+        {
+          "check_id": "source:wikidata-sparql",
+          "status": "pass",
+          "tier": "T1",
+          "missing_fields": []
+        },
+        {
+          "check_id": "source:wikipedia",
+          "status": "pass",
+          "tier": "T1",
+          "missing_fields": []
+        },
+        {
+          "check_id": "source:openfootball",
+          "status": "pass",
+          "tier": "T1",
+          "missing_fields": []
+        },
+        {
+          "check_id": "source:openfootball-worldcup-json",
+          "status": "pass",
+          "tier": "T1",
+          "missing_fields": []
+        },
+        {
+          "check_id": "source:worldfootball-elo",
+          "status": "pass",
+          "tier": "T1",
+          "missing_fields": []
+        },
+        {
+          "check_id": "source:football-data-org",
+          "status": "pass",
+          "tier": "T2",
+          "missing_fields": []
+        },
+        {
+          "check_id": "source:api-football",
+          "status": "pass",
+          "tier": "T2",
+          "missing_fields": []
+        },
+        {
+          "check_id": "source:thesportsdb",
+          "status": "pass",
+          "tier": "T2",
+          "missing_fields": []
+        },
+        {
+          "check_id": "source:fbref",
+          "status": "pass",
+          "tier": "T3",
+          "missing_fields": []
+        },
+        {
+          "check_id": "source:statbunker",
+          "status": "pass",
+          "tier": "T3",
+          "missing_fields": []
+        },
+        {
+          "check_id": "source:transfermarkt",
+          "status": "pass",
+          "tier": "T3",
+          "missing_fields": []
+        },
+        {
+          "check_id": "source:espn-soccer",
+          "status": "pass",
+          "tier": "T3",
+          "missing_fields": []
+        },
+        {
+          "check_id": "prediction-evidence-plan-present",
+          "status": "pass",
+          "path": "data/editions/2026/prediction-evidence-plan.json"
+        },
+        {
+          "check_id": "source-refs-include-tier-and-allowed-use",
+          "status": "pass"
+        },
+        {
+          "check_id": "missing-evidence-visible",
+          "status": "pass",
+          "statuses": [
+            "blocked",
+            "complete",
+            "partial"
+          ]
+        }
+      ]
+    },
+    {
+      "section_id": "playability",
+      "status": "pass",
+      "checks": [
+        {
+          "check_id": "play-card-builder-present",
+          "status": "pass"
+        },
+        {
+          "check_id": "daily-report-schema-play-card",
+          "status": "pass"
+        },
+        {
+          "check_id": "readme-playability-section",
+          "status": "pass"
+        }
+      ]
+    }
+  ],
+  "safety_invariants": [
+    "github_readiness_does_not_claim_data_completeness_when_evidence_has_gaps",
+    "github_readiness_requires_source_tier_allowed_use_and_blocker_visibility",
+    "github_readiness_requires_playability_without_betting_language"
+  ]
+}

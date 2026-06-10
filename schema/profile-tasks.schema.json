@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dxboy.local/worldcup/profile-tasks.schema.json",
+  "title": "World Cup Profile Initialization Tasks",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "edition", "generated_at", "mode", "summary", "tasks", "safety_invariants"],
+  "properties": {
+    "version": {"type": "integer", "minimum": 1},
+    "edition": {"type": "string"},
+    "generated_at": {"type": "string"},
+    "mode": {"const": "worldcup-profile-initialization"},
+    "summary": {
+      "type": "object",
+      "required": ["team_dossiers", "player_dossiers", "blocked_player_profile_tasks", "source_integrity"]
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["task_id", "task_type", "status", "required_sources"],
+        "additionalProperties": true
+      }
+    },
+    "safety_invariants": {"type": "array", "items": {"type": "string"}}
+  }
+}

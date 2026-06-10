@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dxboy.local/worldcup/roster-compiled.schema.json",
+  "title": "World Cup Roster Compiled Status",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "edition", "generated_at", "mode", "summary", "teams", "player_profile_tasks", "safety_invariants"],
+  "properties": {
+    "version": {"type": "integer", "minimum": 1},
+    "edition": {"type": "string"},
+    "mode": {"const": "worldcup-roster-compiled-status"},
+    "summary": {"type": "object"},
+    "teams": {"type": "array", "items": {"type": "object", "additionalProperties": true}},
+    "player_profile_tasks": {"type": "array", "items": {"type": "object", "additionalProperties": true}},
+    "safety_invariants": {"type": "array", "items": {"type": "string"}}
+  }
+}

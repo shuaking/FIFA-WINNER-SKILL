@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dxboy.local/worldcup/fifa-squad-roster.schema.json",
+  "title": "FIFA Squad PDF Parsed Roster",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "edition", "generated_at", "mode", "source_pdf", "summary", "teams", "safety_invariants"],
+  "properties": {
+    "version": {"type": "integer", "minimum": 1},
+    "edition": {"type": "string"},
+    "mode": {"const": "fifa-squad-pdf-parsed-roster"},
+    "source_pdf": {"type": "string"},
+    "summary": {
+      "type": "object",
+      "required": ["teams", "players", "coaches", "source_integrity"],
+      "properties": {
+        "teams": {"type": "integer", "minimum": 0},
+        "players": {"type": "integer", "minimum": 0},
+        "coaches": {"type": "integer", "minimum": 0},
+        "source_integrity": {"type": "string"}
+      }
+    },
+    "teams": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["team_id", "name", "code", "players"],
+        "additionalProperties": true
+      }
+    },
+    "safety_invariants": {"type": "array", "items": {"type": "string"}}
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dxboy.local/worldcup/prediction-evidence-plan.schema.json",
+  "title": "World Cup Prediction Evidence Plan",
+  "type": "object",
+  "required": ["version", "edition", "generated_at", "mode", "status", "summary", "items"],
+  "properties": {
+    "version": {"type": "integer"},
+    "edition": {"type": "string"},
+    "generated_at": {"type": "string"},
+    "mode": {"const": "worldcup-prediction-evidence-plan"},
+    "status": {"type": "string"},
+    "plan_path": {"type": "string"},
+    "markdown_path": {"type": "string"},
+    "summary": {
+      "type": "object",
+      "required": ["requirements", "complete", "partial", "blocked"],
+      "properties": {
+        "requirements": {"type": "integer", "minimum": 0},
+        "complete": {"type": "integer", "minimum": 0},
+        "partial": {"type": "integer", "minimum": 0},
+        "blocked": {"type": "integer", "minimum": 0},
+        "optional": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": true
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_id", "name", "status", "source_refs", "blockers"],
+        "properties": {
+          "evidence_id": {"type": "string"},
+          "name": {"type": "string"},
+          "why_needed": {"type": "string"},
+          "required": {"type": "boolean"},
+          "source_ids": {"type": "array", "items": {"type": "string"}},
+          "source_refs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["source_id", "tier", "url", "allowed_use"],
+              "properties": {
+                "source_id": {"type": "string"},
+                "tier": {"type": "string"},
+                "url": {"type": "string"},
+                "allowed_use": {"type": "string"}
+              },
+              "additionalProperties": true
+            }
+          },
+          "status": {"enum": ["complete", "partial", "blocked"]},
+          "current_counts": {"type": "object"},
+          "blockers": {"type": "array", "items": {"type": "string"}},
+          "artifacts": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": true
+      }
+    },
+    "rules": {"type": "array", "items": {"type": "string"}},
+    "safety_invariants": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

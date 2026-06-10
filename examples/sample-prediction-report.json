@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "edition": "2026",
+  "date": "2026-06-11",
+  "mode": "worldcup-daily-pre-match-entertainment-predictions",
+  "status": "created",
+  "summary": {
+    "predictions_created": 1,
+    "matches_skipped_started": 0,
+    "matches_skipped_missing_kickoff": 0,
+    "locked_existing_predictions": 0
+  },
+  "predictions": [
+    {
+      "match_id": "2026-GA-01",
+      "home_team": "Mexico",
+      "away_team": "South Africa",
+      "prediction": {
+        "result": "home_win",
+        "score": {"home": 2, "away": 1},
+        "total_goals": 3,
+        "goals_line_2_5": "over",
+        "confidence": "medium"
+      },
+      "play_card": {
+        "share_title": "Mexico vs South Africa 娱乐预测：2-1",
+        "match_hook": "Mexico 不败倾向，总进球参考 3 球。",
+        "watch_points": ["开场压迫强度", "定位球防守", "下半场换人质量"],
+        "risk_flags": ["伤停和首发未确认时信心下调"],
+        "poster_angle": "主办国揭幕战氛围，比分 2-1，强调娱乐预测。",
+        "confidence_meter": {"level": "medium", "data_weight": 0.85, "divination_weight": 0.15},
+        "gameplay_tags": ["胜平负", "比分", "总进球", "看点", "赛后复盘"]
+      },
+      "divination_overlay": {
+        "weight": 0.15,
+        "hexagram": "泰",
+        "interpretation": "周易内容仅作娱乐叙事。"
+      },
+      "disclaimer": "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。"
+    }
+  ],
+  "disclaimer": "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。"
+}

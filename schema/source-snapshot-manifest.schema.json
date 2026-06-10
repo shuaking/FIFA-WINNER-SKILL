@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dxboy.local/worldcup/source-snapshot-manifest.schema.json",
+  "title": "World Cup Source Snapshot Manifest",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "edition", "source_id", "url", "generated_at", "mode", "status", "snapshot_path", "manifest_path", "summary", "safety_invariants"],
+  "properties": {
+    "version": {"type": "integer", "minimum": 1},
+    "edition": {"type": "string"},
+    "source_id": {"type": "string"},
+    "url": {"type": "string"},
+    "mode": {"const": "source-snapshot-apply"},
+    "status": {"enum": ["snapshot_written", "blocked_missing_url", "blocked_fetch_failed"]},
+    "snapshot_path": {"type": "string"},
+    "manifest_path": {"type": "string"},
+    "sha256": {"type": "string"},
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "error_type": {"type": "string"},
+    "error_message": {"type": "string"},
+    "summary": {"type": "object"},
+    "safety_invariants": {"type": "array", "items": {"type": "string"}}
+  }
+}

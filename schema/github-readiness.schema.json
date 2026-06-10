@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dxboy.local/worldcup/github-readiness.schema.json",
+  "title": "World Cup GitHub Readiness Report",
+  "type": "object",
+  "required": ["version", "edition", "generated_at", "mode", "status", "summary", "sections", "safety_invariants"],
+  "properties": {
+    "version": {"type": "integer", "minimum": 1},
+    "edition": {"type": "string"},
+    "generated_at": {"type": "string"},
+    "mode": {"const": "worldcup-github-readiness"},
+    "status": {"enum": ["ready", "ready_with_known_data_gaps", "blocked"]},
+    "report_path": {"type": "string"},
+    "summary": {
+      "type": "object",
+      "required": ["format_ready", "data_accuracy_guardrails_ready", "playability_ready", "known_data_gaps_present"],
+      "properties": {
+        "format_ready": {"type": "boolean"},
+        "data_accuracy_guardrails_ready": {"type": "boolean"},
+        "playability_ready": {"type": "boolean"},
+        "known_data_gaps_present": {"type": "boolean"}
+      },
+      "additionalProperties": true
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["section_id", "status", "checks"],
+        "properties": {
+          "section_id": {"enum": ["format", "data_accuracy", "playability"]},
+          "status": {"enum": ["pass", "fail"]},
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["check_id", "status"],
+              "properties": {
+                "check_id": {"type": "string"},
+                "status": {"enum": ["pass", "fail"]}
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "safety_invariants": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

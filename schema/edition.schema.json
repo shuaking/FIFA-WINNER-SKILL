@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dxboy.local/worldcup/edition.schema.json",
+  "title": "World Cup Edition Initialization",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "edition", "generated_at", "paths", "summary", "safety_invariants"],
+  "properties": {
+    "version": {"type": "integer", "minimum": 1},
+    "edition": {"type": "string"},
+    "generated_at": {"type": "string"},
+    "paths": {"type": "object"},
+    "summary": {"type": "object"},
+    "safety_invariants": {"type": "array", "items": {"type": "string"}}
+  }
+}

@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install package
+        run: python -m pip install -e .
+      - name: Run tests
+        run: python -m unittest tests/test_worldcup_predictor_system.py
+      - name: Check GitHub readiness if sample edition exists
+        run: |
+          if [ -d data/editions/2026 ]; then
+            python scripts/worldcup_github_readiness_auditor.py write --edition 2026 --root .
+          fi

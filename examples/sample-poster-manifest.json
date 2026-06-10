@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "edition": "2026",
+  "date": "2026-06-11",
+  "mode": "worldcup-prediction-poster-prompt-manifest",
+  "source_report": "examples/sample-prediction-report.json",
+  "poster_items": [
+    {
+      "poster_id": "2026-GA-01:prediction-poster",
+      "match_id": "2026-GA-01",
+      "home_team": "Mexico",
+      "away_team": "South Africa",
+      "prediction": {
+        "result": "home_win",
+        "score": {"home": 2, "away": 1},
+        "total_goals": 3,
+        "confidence": "medium"
+      },
+      "disclaimer": "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。",
+      "prompt": "Create a polished Chinese editorial sports prediction poster for Mexico vs South Africa, score 2-1, with a visible entertainment-only disclaimer.",
+      "required_text": ["Mexico", "South Africa", "2-1", "娱乐预测，非投注建议"],
+      "forbidden_text": ["投注金额", "稳赢", "稳胆", "下注", "odds", "sportsbook"]
+    }
+  ],
+  "summary": {"poster_items": 1}
+}
