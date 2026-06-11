@@ -1,0 +1,26 @@
+# CODEOWNERS - 代码所有者和审核责任分配
+#
+# 当PR涉及到这些文件时，需要对应负责人审核批准才能合并
+# 格式: <文件路径模式>  <GitHub用户名>
+
+# 默认：所有文件由项目所有者审核
+*  @Dxboy266
+
+# 核心预测逻辑 - 必须由项目所有者审核
+scripts/prediction_scoring_model.py  @Dxboy266
+scripts/tianji_oracle.py  @Dxboy266
+scripts/daily_prediction_runner.py  @Dxboy266
+
+# 安全边界文件 - 禁止修改免责声明和安全规则
+knowledge-base/agent/GUARDRAILS.md  @Dxboy266
+schema/*.json  @Dxboy266
+
+# 文档可以由社区贡献者修改（如果有可信贡献者，可以添加他们的用户名）
+*.md  @Dxboy266
+docs/  @Dxboy266
+
+# 测试文件可以相对宽松
+tests/  @Dxboy266
+
+# GitHub配置文件必须严格审核
+.github/  @Dxboy266

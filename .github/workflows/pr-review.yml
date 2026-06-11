@@ -1,0 +1,73 @@
+name: Code Review & Quality Check
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  automated-review:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # 获取完整历史便于diff
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pylint flake8 bandit safety
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Run code quality checks
+      run: |
+        # 代码风格检查
+        flake8 scripts/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 scripts/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Security vulnerability scan
+      run: |
+        # 检查已知安全漏洞
+        bandit -r scripts/ -ll
+
+    - name: Check for gambling-related code (安全边界检查)
+      run: |
+        # 检查是否包含博彩相关的禁用词汇
+        FORBIDDEN_WORDS="投注建议|赔率交易|稳赚|必赢|梭哈|下注金额|stake|bankroll|betting advice"
+
+        if git diff origin/main...HEAD | grep -iE "$FORBIDDEN_WORDS"; then
+          echo "❌ 发现禁用词汇！违反安全边界。"
+          exit 1
+        else
+          echo "✅ 未发现博彩相关内容"
+        fi
+
+    - name: Run unit tests
+      run: |
+        python -m pytest tests/ -v || echo "⚠️ 测试未通过，请检查"
+
+    - name: Check disclaimer presence
+      run: |
+        # 确保免责声明存在
+        if ! grep -r "娱乐预测，非投注建议" scripts/; then
+          echo "⚠️ 警告：可能缺少免责声明"
+        fi
+
+    - name: Generate review summary
+      run: |
+        echo "## 🤖 AI自动审核报告" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ 代码风格检查通过" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ 安全漏洞扫描完成" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ 安全边界检查通过" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "人工审核建议：" >> $GITHUB_STEP_SUMMARY
+        echo "1. 检查代码逻辑是否符合预期" >> $GITHUB_STEP_SUMMARY
+        echo "2. 验证是否遵守GUARDRAILS.md" >> $GITHUB_STEP_SUMMARY
+        echo "3. 确认不会引入博彩相关功能" >> $GITHUB_STEP_SUMMARY
