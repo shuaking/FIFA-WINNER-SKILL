@@ -70,7 +70,7 @@ graph TD
 
 ---
 
-## 🛠️ Agent Runtime 能力与未来规划
+## 🛠️ Agent Runtime 能力与未来规划 (Roadmap)
 
 项目已把章鱼哥从单脚本预测工具升级为可被 Codex、Claude Code 等 runtime agent 调用的有界 Agent。已落地能力如下：
 
