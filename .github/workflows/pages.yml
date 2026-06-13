@@ -24,10 +24,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
+        id: pages
+        continue-on-error: true
+      - name: Skip when GitHub Pages is not enabled
+        if: steps.pages.outcome == 'failure'
+        run: |
+          echo "::notice title=GitHub Pages is not enabled::Open repository Settings -> Pages and set Source to GitHub Actions, then rerun this workflow."
       - uses: actions/upload-pages-artifact@v3
+        if: steps.pages.outcome == 'success'
         with:
           path: knowledge-base/2026/wiki
       - id: deployment
+        if: steps.pages.outcome == 'success'
         uses: actions/deploy-pages@v4

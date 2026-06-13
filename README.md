@@ -185,6 +185,8 @@ python3 scripts/prediction_visual_dashboard.py serve --edition 2026 --root . --h
 
 GitHub Pages 发布目录为 `knowledge-base/2026/wiki`。推送到 `main` 后，Actions 会自动部署静态站点；项目页路径通常为：
 
+首次发布前需要在 GitHub 仓库里手动打开一次：`Settings -> Pages -> Source -> GitHub Actions`。如果还没开启，Pages workflow 会跳过部署并给出提示；开启后 rerun workflow 或再次推送即可发布。
+
 ```text
 https://<github-user>.github.io/FIFA-WINNER-SKILL/dashboard/
 ```
