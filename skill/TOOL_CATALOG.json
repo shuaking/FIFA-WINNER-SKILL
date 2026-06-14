@@ -1,0 +1,398 @@
+{
+  "$schema": "skill/schema/agent-tool-catalog.schema.json",
+  "schema_version": "a2a.tool-catalog.v1",
+  "catalog_id": "fifa-winner-skill-tools",
+  "skill_id": "fifa-winner-skill",
+  "tools": [
+    {
+      "id": "initialize_edition",
+      "kind": "cli_tool",
+      "description": "Initialize edition-scoped match ledger, source registry, wiki, and SQLite query index.",
+      "command_template": "python skill/scripts/worldcup_edition_init.py init --edition <edition> --root .",
+      "inputs": ["edition"],
+      "outputs": ["match-ledger.json", "source-registry.json"],
+      "safety_profile": "setup_only"
+    },
+    {
+      "id": "plan_prediction_evidence",
+      "kind": "cli_tool",
+      "description": "Audit source readiness and generate prediction evidence plan with status per evidence family.",
+      "command_template": "python skill/scripts/worldcup_prediction_evidence_planner.py write --edition <edition> --root .",
+      "inputs": ["edition"],
+      "outputs": ["prediction-evidence-plan.json"],
+      "safety_profile": "evidence_boundary"
+    },
+    {
+      "id": "source_readiness_audit",
+      "kind": "cli_tool",
+      "description": "Audit source registry completeness and write readiness report.",
+      "command_template": "python skill/scripts/worldcup_source_readiness_auditor.py write --edition <edition> --root .",
+      "inputs": ["edition"],
+      "outputs": ["source-readiness.json"],
+      "safety_profile": "evidence_boundary"
+    },
+    {
+      "id": "snapshot_source",
+      "kind": "cli_tool",
+      "description": "Plan or apply a T0/T1 web source snapshot with URL, tier, hash and allowed-use metadata.",
+      "command_template": "python skill/scripts/worldcup_source_snapshot_tool.py <plan|apply> --edition <edition> --source-id <source-id> --root .",
+      "inputs": ["edition", "source_id"],
+      "outputs": ["snapshot-manifest.json"],
+      "safety_profile": "evidence_boundary"
+    },
+    {
+      "id": "parse_squad_pdf",
+      "kind": "cli_tool",
+      "description": "Parse FIFA official squad list PDF into structured roster JSON.",
+      "command_template": "python skill/scripts/fifa_squad_pdf_parser.py parse --edition <edition> --pdf <path/to/pdf> --update-edition-teams --root .",
+      "inputs": ["edition", "pdf_path"],
+      "outputs": ["fifa-squad-lists.json"],
+      "safety_profile": "data_ingestion"
+    },
+    {
+      "id": "init_profiles",
+      "kind": "cli_tool",
+      "description": "Initialize team and player profile dossiers.",
+      "command_template": "python skill/scripts/worldcup_profile_init.py init --edition <edition> --scope <teams|players|all> --root .",
+      "inputs": ["edition", "scope"],
+      "outputs": ["team-dossiers", "player-dossiers"],
+      "safety_profile": "data_ingestion"
+    },
+    {
+      "id": "parse_fixtures",
+      "kind": "cli_tool",
+      "description": "Parse FIFA official schedule JSON into match ledger.",
+      "command_template": "python skill/scripts/worldcup_fixture_parser.py parse --edition <edition> --schedule-json <path/to/json> --root .",
+      "inputs": ["edition", "schedule_json"],
+      "outputs": ["match-ledger.json"],
+      "safety_profile": "data_ingestion"
+    },
+    {
+      "id": "parse_rankings",
+      "kind": "cli_tool",
+      "description": "Parse FIFA men's ranking snapshot into structured ranking data.",
+      "command_template": "python skill/scripts/worldcup_ranking_parser.py parse --edition <edition> --ranking-json <ranking.json> --snapshot-manifest <manifest.json> --root .",
+      "inputs": ["edition", "ranking_json", "snapshot_manifest"],
+      "outputs": ["fifa-ranking-snapshot.json"],
+      "safety_profile": "data_ingestion"
+    },
+    {
+      "id": "build_squad_depth",
+      "kind": "cli_tool",
+      "description": "Aggregate squad depth and feature summaries for all teams.",
+      "command_template": "python skill/scripts/worldcup_squad_depth_compiler.py build --edition <edition> --root .",
+      "inputs": ["edition"],
+      "outputs": ["squad-depth.json"],
+      "safety_profile": "data_ingestion"
+    },
+    {
+      "id": "compile_roster",
+      "kind": "cli_tool",
+      "description": "Align and compile roster data across sources.",
+      "command_template": "python skill/scripts/worldcup_roster_compiler.py compile --edition <edition> --root .",
+      "inputs": ["edition"],
+      "outputs": ["compiled-roster.json"],
+      "safety_profile": "data_ingestion"
+    },
+    {
+      "id": "init_daily_evidence",
+      "kind": "cli_tool",
+      "description": "Initialize or show daily evidence context (weather, injuries, referee).",
+      "command_template": "python skill/scripts/daily_evidence_input.py <init|status> --edition <edition> --date <YYYY-MM-DD> --root .",
+      "inputs": ["edition", "date"],
+      "outputs": ["daily-evidence.json"],
+      "safety_profile": "evidence_boundary"
+    },
+    {
+      "id": "fetch_live_odds",
+      "kind": "cli_tool",
+      "description": "Fetch live odds from The Odds API or generate mock odds for evidence.",
+      "command_template": "python skill/scripts/worldcup_live_fetcher.py fetch-odds --edition <edition> --date <YYYY-MM-DD> --root .",
+      "inputs": ["edition", "date"],
+      "outputs": ["daily-evidence.json"],
+      "safety_profile": "evidence_boundary"
+    },
+    {
+      "id": "fetch_live_news",
+      "kind": "cli_tool",
+      "description": "Fetch team news and sentiment for daily evidence.",
+      "command_template": "python skill/scripts/worldcup_live_fetcher.py fetch-news --edition <edition> --date <YYYY-MM-DD> --root .",
+      "inputs": ["edition", "date"],
+      "outputs": ["daily-evidence.json"],
+      "safety_profile": "evidence_boundary"
+    },
+    {
+      "id": "fetch_history",
+      "kind": "cli_tool",
+      "description": "Fetch historical World Cup match results.",
+      "command_template": "python skill/scripts/worldcup_history_fetcher.py fetch --edition <edition> --root .",
+      "inputs": ["edition"],
+      "outputs": ["historical-results.json"],
+      "safety_profile": "data_ingestion"
+    },
+    {
+      "id": "predict_scoring",
+      "kind": "cli_tool",
+      "description": "Run physics prediction model (ELO, rankings, rest, travel) for specified filters.",
+      "command_template": "python skill/scripts/prediction_scoring_model.py predict --edition <edition> [--date <date> | --teams <teams> | --match-id <match_id>] --root .",
+      "inputs": ["edition"],
+      "outputs": ["prediction-report.json"],
+      "safety_profile": "entertainment_prediction_only"
+    },
+    {
+      "id": "predict_daily",
+      "kind": "cli_tool",
+      "description": "End-to-end daily prediction runner: collect evidence, run model, lock reports.",
+      "command_template": "python skill/scripts/daily_prediction_runner.py run --edition <edition> --date <YYYY-MM-DD> [--poster] --root .",
+      "inputs": ["edition", "date"],
+      "outputs": ["prediction-report.json"],
+      "safety_profile": "entertainment_prediction_only"
+    },
+    {
+      "id": "predict_octopus",
+      "kind": "cli_tool",
+      "description": "Unified agent entrypoint: fetch schedule or predict by group/phase/teams.",
+      "command_template": "python skill/scripts/octopus_paul_agent.py <fetch-schedule|predict> --edition <edition> [--group <group> | --phase <phase> | --teams <teams> | --all] --root .",
+      "inputs": ["edition"],
+      "outputs": ["prediction-report.json"],
+      "safety_profile": "entertainment_prediction_only"
+    },
+    {
+      "id": "build_report_prompt",
+      "kind": "cli_tool",
+      "description": "Build human-readable report prompt from structured prediction report.",
+      "command_template": "python skill/scripts/prediction_report_prompt_builder.py build --edition <edition> --date <date> --report-path <report.json> --match-id <match_id> --root .",
+      "inputs": ["edition", "date", "report_path", "match_id"],
+      "outputs": ["report-prompt-manifest.json", "report-prompt.md"],
+      "safety_profile": "entertainment_prediction_only"
+    },
+    {
+      "id": "build_poster_prompt",
+      "kind": "cli_tool",
+      "description": "Build poster prompt (prediction or showdown style) from prediction report.",
+      "command_template": "python skill/scripts/poster_prompt_builder.py build --edition <edition> --date <date> --style <prediction|showdown> [--match-id <match_id>] --root .",
+      "inputs": ["edition", "date"],
+      "outputs": ["poster-manifest.json", "poster-prompt.txt"],
+      "safety_profile": "entertainment_prediction_only"
+    },
+    {
+      "id": "generate_poster",
+      "kind": "cli_tool",
+      "description": "Generate poster image from manifest using specified backend. Returns blocked_missing_backend if backend unavailable.",
+      "command_template": "python skill/scripts/poster_generator.py generate --manifest <manifest.json> --backend <backend> --root .",
+      "inputs": ["manifest_path", "backend"],
+      "outputs": ["poster-result.json"],
+      "safety_profile": "entertainment_prediction_only"
+    },
+    {
+      "id": "evaluate_predictions",
+      "kind": "cli_tool",
+      "description": "Evaluate locked predictions against final scores post-match.",
+      "command_template": "python skill/scripts/prediction_evaluator.py write --edition <edition> --date <YYYY-MM-DD> --root .",
+      "inputs": ["edition", "date"],
+      "outputs": ["evaluation.json"],
+      "safety_profile": "entertainment_prediction_only"
+    },
+    {
+      "id": "build_evaluation_dashboard",
+      "kind": "cli_tool",
+      "description": "Aggregate daily evaluation files into a calibration dashboard.",
+      "command_template": "python skill/scripts/prediction_evaluation_dashboard.py write --edition <edition> --root .",
+      "inputs": ["edition"],
+      "outputs": ["evaluation-dashboard.json", "evaluation-dashboard.md"],
+      "safety_profile": "entertainment_prediction_only"
+    },
+    {
+      "id": "reflect_tune",
+      "kind": "cli_tool",
+      "description": "Run reflection tuning loop to adjust model hyperparameters based on evaluation.",
+      "command_template": "python skill/scripts/octopus_reflection_tuning.py tune --edition <edition> --root .",
+      "inputs": ["edition"],
+      "outputs": ["model-hyperparameters.json", "self-reflection-journal.md"],
+      "safety_profile": "entertainment_prediction_only"
+    },
+    {
+      "id": "write_visual_dashboard",
+      "kind": "cli_tool",
+      "description": "Generate visual prediction dashboard HTML with merge view (user_local > octopus_default > none).",
+      "command_template": "python skill/scripts/prediction_visual_dashboard.py write --edition <edition> --root .",
+      "inputs": ["edition"],
+      "outputs": ["dashboard/index.html", "prediction-dashboard.json"],
+      "safety_profile": "entertainment_prediction_only"
+    },
+    {
+      "id": "serve_visual_dashboard",
+      "kind": "cli_tool",
+      "description": "Serve visual dashboard on a local HTTP server for preview.",
+      "command_template": "python skill/scripts/prediction_visual_dashboard.py serve --edition <edition> --root . --host <host> --port <port>",
+      "inputs": ["edition", "host", "port"],
+      "outputs": ["http_server"],
+      "safety_profile": "local_only"
+    },
+    {
+      "id": "github_readiness_audit",
+      "kind": "cli_tool",
+      "description": "Audit GitHub publication readiness: format, agent interop, data accuracy, playability.",
+      "command_template": "python skill/scripts/worldcup_github_readiness_auditor.py write --edition <edition> --root .",
+      "inputs": ["edition"],
+      "outputs": ["github-readiness.json"],
+      "safety_profile": "portable_export"
+    },
+    {
+      "id": "export_standalone",
+      "kind": "cli_tool",
+      "description": "Export repo, skill docs, schemas, tests, and edition knowledge base for another runtime.",
+      "command_template": "python skill/scripts/worldcup_export_standalone.py --edition <edition> --output <target_dir> --root .",
+      "inputs": ["edition", "output"],
+      "outputs": ["export-manifest.json"],
+      "safety_profile": "portable_export"
+    },
+    {
+      "id": "update_readme_history",
+      "kind": "cli_tool",
+      "description": "Update README prediction schedule and HISTORY.md with match results.",
+      "command_template": "python skill/scripts/update_readme_and_history.py --edition <edition> --date <YYYY-MM-DD> --now <ISO-time> --root .",
+      "inputs": ["edition", "date", "now"],
+      "outputs": ["README.md", "HISTORY.md"],
+      "safety_profile": "portable_export"
+    }
+  ],
+  "resources": [
+    {
+      "id": "agent_card",
+      "kind": "json",
+      "path": "skill/AGENT_CARD.json",
+      "description": "Machine-readable capability card for agent-to-agent discovery"
+    },
+    {
+      "id": "skill_readme",
+      "kind": "markdown",
+      "path": "skill/SKILL.md",
+      "description": "Skill entry declaration and mental model"
+    },
+    {
+      "id": "tool_catalog",
+      "kind": "json",
+      "path": "skill/TOOL_CATALOG.json",
+      "description": "This file — complete tool, resource, prompt, guardrail catalog"
+    },
+    {
+      "id": "orchestration_guide",
+      "kind": "markdown",
+      "path": "skill/ORCHESTRATION.md",
+      "description": "Recommended workflow guides for host agents"
+    },
+    {
+      "id": "runbook",
+      "kind": "markdown",
+      "path": "skill/RUNBOOK.md",
+      "description": "Operational runbook and first-read guide"
+    },
+    {
+      "id": "architecture",
+      "kind": "markdown",
+      "path": "skill/ARCHITECTURE.md",
+      "description": "Architecture documentation"
+    },
+    {
+      "id": "match_ledger",
+      "kind": "json",
+      "path": "wiki/<edition>/data/match-ledger.json",
+      "description": "Canonical match ledger for the edition"
+    },
+    {
+      "id": "match_ledger_schema",
+      "kind": "json_schema",
+      "path": "skill/schema/match-ledger.schema.json",
+      "description": "JSON Schema for match ledger"
+    },
+    {
+      "id": "prediction_report_schema",
+      "kind": "json_schema",
+      "path": "skill/schema/daily-prediction-report.schema.json",
+      "description": "JSON Schema for daily prediction report"
+    }
+  ],
+  "prompts": [
+    {
+      "id": "daily_prediction_summary",
+      "description": "Summarize daily prediction results for user",
+      "source": "skill/ORCHESTRATION.md",
+      "inputs": ["status", "matches", "main_pick", "confidence", "evidence_gaps"]
+    },
+    {
+      "id": "report_prompt",
+      "description": "Build human-readable report from structured prediction",
+      "source": "skill/scripts/prediction_report_prompt_builder.py",
+      "inputs": ["edition", "date", "report_path", "match_id"]
+    },
+    {
+      "id": "poster_prompt",
+      "description": "Build poster creative prompt from prediction",
+      "source": "skill/scripts/poster_prompt_builder.py",
+      "inputs": ["edition", "date", "style", "match_id"]
+    }
+  ],
+  "guardrails": [
+    {
+      "id": "entertainment_only",
+      "description": "All predictions are entertainment only. Never output stake sizing, odds advice, guaranteed wins, lottery advice, 稳赢, 稳胆, or similar gambling-oriented language."
+    },
+    {
+      "id": "evidence_integrity",
+      "description": "Missing roster, injury, lineup or recent-form evidence must downgrade confidence. Mark missing evidence as partial or blocked; never pretend it is complete."
+    },
+    {
+      "id": "report_locking",
+      "description": "Pre-match reports are locked after kickoff. Do not overwrite or modify them post-match."
+    },
+    {
+      "id": "poster_on_request",
+      "description": "Only build poster prompts when the user explicitly requests poster material."
+    }
+  ],
+  "handoffs": [
+    {
+      "id": "prediction_requested",
+      "description": "User requests match prediction — host agent should follow daily prediction or scoped prediction workflow"
+    },
+    {
+      "id": "evidence_gap_found",
+      "description": "Evidence plan shows partial or blocked items — host agent should collect missing evidence before stronger prediction claims"
+    },
+    {
+      "id": "poster_requested",
+      "description": "User explicitly requests poster — host agent should build poster prompt, not auto-generate"
+    },
+    {
+      "id": "post_match_evaluation",
+      "description": "Match completed — host agent should evaluate prediction accuracy and optionally run reflection tuning"
+    }
+  ],
+  "trace_events": [
+    {
+      "id": "tool.started",
+      "description": "Tool invocation started"
+    },
+    {
+      "id": "tool.completed",
+      "description": "Tool invocation completed successfully"
+    },
+    {
+      "id": "tool.failed",
+      "description": "Tool invocation failed"
+    },
+    {
+      "id": "prediction.locked",
+      "description": "Pre-match prediction report locked"
+    },
+    {
+      "id": "evidence.gap_detected",
+      "description": "Missing evidence detected during planning"
+    },
+    {
+      "id": "guardrail.triggered",
+      "description": "Safety guardrail triggered"
+    }
+  ]
+}

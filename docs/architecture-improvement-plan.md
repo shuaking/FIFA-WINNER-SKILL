@@ -13,7 +13,7 @@
 1. **双轨背离模型**：物理轨（实力+玄学）vs 市场轨（赔率），独特且有娱乐性
 2. **模块化设计**：5大核心模块清晰分离
 3. **Agent-to-Agent 接口**：完善的 AGENT_CARD.json 和 TOOL_CATALOG.json
-4. **知识库结构**：统一的 knowledge-base 目录，便于 Agent 读取
+4. **知识库结构**：统一的 wiki 目录，便于 Agent 读取
 5. **多层分析**：evidence_integrity、scenario_analysis、decision_audit
 
 ### ⚠️ 短板
@@ -241,12 +241,12 @@ class WebDashboard:
 
 ### 第一阶段：特征工程层重构 (1-2周)
 ```bash
-knowledge-base/
+wiki/
   agent/
     FEATURE_REGISTRY.json  # 新增：特征注册表
     FEATURE_CATALOG.md     # 新增：特征说明文档
   
-scripts/
+skill/scripts/
   feature_engineering/
     __init__.py
     feature_registry.py     # 特征注册表
@@ -256,7 +256,7 @@ scripts/
 
 ### 第二阶段：多模型集成 (2-3周)
 ```bash
-scripts/
+skill/scripts/
   prediction_models/
     __init__.py
     poisson_model.py        # 泊松分布模型
@@ -282,7 +282,7 @@ web/
 
 ### 第四阶段：自动化调度 (1周)
 ```bash
-scripts/
+skill/scripts/
   scheduler/
     __init__.py
     daily_pipeline.py       # 每日自动化流程

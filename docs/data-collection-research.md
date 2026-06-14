@@ -142,7 +142,7 @@
 - **实现方式**:
   ```python
   # 当前项目已有 ESPN RSS 抓取
-  python scripts/worldcup_live_fetcher.py fetch-news --edition 2026 --date 2026-06-11
+  python skill/skill/scripts/worldcup_live_fetcher.py fetch-news --edition 2026 --date 2026-06-11
   ```
 - **成本**: 免费
 
@@ -198,7 +198,7 @@
   - 实时赔率更新
 - **当前项目已集成**: ✅
   ```python
-  python scripts/worldcup_live_fetcher.py fetch-odds --edition 2026 --date 2026-06-11
+  python skill/skill/scripts/worldcup_live_fetcher.py fetch-odds --edition 2026 --date 2026-06-11
   ```
 - **成本**:
   - 免费层: 500 requests/month

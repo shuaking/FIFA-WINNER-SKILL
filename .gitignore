@@ -5,8 +5,22 @@ __pycache__/
 .venv/
 .DS_Store
 .env
-artifacts/
-tmp/
 generated-images/
-scripts/knowledge-base/
-knowledge-base/**/data/*.db
+
+# ── 用户个人数据（不入库）──
+wiki/person/
+wiki/cache/
+
+# ── 旧版残留（v1 路径，v2 不再使用）──
+knowledge-base/
+data/
+scripts/
+schema/
+skills/
+assets/
+docs/
+raw/
+install_as_skill.sh
+node_modules/
+package.json
+package-lock.json

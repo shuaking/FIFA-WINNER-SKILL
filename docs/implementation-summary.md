@@ -46,7 +46,7 @@
 #### 1. 伤停数据采集（最重要的消息面）
 ```bash
 # 一键获取所有球队伤停
-python scripts/fetch_injuries_api_football.py \
+python skill/skill/scripts/fetch_injuries_api_football.py \
   --edition 2026 \
   --date 2026-06-11 \
   --root .
@@ -58,7 +58,7 @@ Fetching injuries for 32 teams...
   [3/32] Fetching FRA... ✓ (0 issues)
   ...
 
-✓ Saved to: knowledge-base/2026/data/daily-evidence/2026-06-11.json
+✓ Saved to: wiki/2026/data/daily-evidence/2026-06-11.json
   - Teams with injuries: 18
   - Total injuries: 45
   - Total suspensions: 12
@@ -106,7 +106,7 @@ Fetching injuries for 32 teams...
   ```
 - [ ] **测试伤停采集脚本**
   ```bash
-  python scripts/fetch_injuries_api_football.py --edition 2026 --date 2026-06-11 --teams "BRA,ARG" --root .
+  python skill/skill/scripts/fetch_injuries_api_football.py --edition 2026 --date 2026-06-11 --teams "BRA,ARG" --root .
   ```
 
 ### 本周完成
@@ -122,11 +122,11 @@ Fetching injuries for 32 teams...
 
 ### 两周内完成
 - [ ] **自动化调度器**
-  - 创建 `scripts/scheduler/daily_pipeline.py`
+  - 创建 `skill/scripts/scheduler/daily_pipeline.py`
   - 使用 APScheduler 定时任务
   - 每天早上 8:00 自动采集
 - [ ] **数据质量监控**
-  - 创建 `scripts/data_quality_check.py`
+  - 创建 `skill/scripts/data_quality_check.py`
   - 缺失数据报警
   - 数据源故障切换
 - [ ] **舆情分析**

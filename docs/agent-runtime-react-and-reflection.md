@@ -34,8 +34,8 @@ What it does per date:
 7. Write a JSON and Markdown trace under:
 
 ```text
-knowledge-base/{edition}/data/reports/agent-runs/
-knowledge-base/{edition}/wiki/reports/agent-runs/
+wiki/{edition}/data/reports/agent-runs/
+wiki/{edition}/wiki/reports/agent-runs/
 ```
 
 ## Reflection Loop

@@ -14,7 +14,7 @@ The dashboard merges both layers. Local data wins when both exist.
 ## Storage Layout
 
 ```text
-knowledge-base/public/{edition}/
+wiki/public/{edition}/
   match-ledger.json
   teams.json
   rankings/
@@ -23,7 +23,7 @@ knowledge-base/public/{edition}/
   results/
   source-manifest.json
 
-knowledge-base/{edition}/data/
+wiki/{edition}/data/
   match-overrides.json
   match-ledger.json        # compatibility view only; public ledger remains authoritative
   worldcup_{edition}.db
@@ -41,22 +41,22 @@ knowledge-base/{edition}/data/
 5. Odds are valid only when source, timestamp, and non-mock status are present.
 6. External reference schedules are review inputs. They must not be promoted into the canonical public ledger unless their match IDs and fixtures pass the 104-match World Cup invariant.
 7. `load_match_ledger()` reads the public ledger first, then overlays local match state from `match-overrides.json` and the legacy local `match-ledger.json`.
-8. Ranking, roster, history, team and squad-depth reads should prefer local files only when present; otherwise they fall back to `knowledge-base/public/{edition}/`.
+8. Ranking, roster, history, team and squad-depth reads should prefer local files only when present; otherwise they fall back to `wiki/public/{edition}/`.
 
 ## Default Prediction Overlay
 
 AI Octopus default predictions are bundled as public reusable knowledge:
 
 ```text
-knowledge-base/public/{edition}/default-predictions/
+wiki/public/{edition}/default-predictions/
   manifest.json
   daily-predictions/*.json
 ```
 
 Dashboard prediction precedence is:
 
-1. `user_local`: user-generated daily predictions in `knowledge-base/{edition}/data/reports/daily-predictions/*.json`.
-2. `octopus_default`: bundled AI Octopus default predictions in `knowledge-base/public/{edition}/default-predictions/daily-predictions/*.json`.
+1. `user_local`: user-generated daily predictions in `wiki/{edition}/data/reports/daily-predictions/*.json`.
+2. `octopus_default`: bundled AI Octopus default predictions in `wiki/public/{edition}/default-predictions/daily-predictions/*.json`.
 3. `none`: public fact card with no prediction.
 
 The merge key is always `match_id`. If a user predicts the same match, the local item replaces the default item. Dashboard cards expose:
@@ -94,7 +94,7 @@ Reference-project IDs such as `{edition}-20260613-...` stay outside the main das
   "matches": [
     {
       "match_id": "2026-GC-01",
-      "prediction_report": "knowledge-base/2026/data/reports/daily-predictions/2026-06-13.json",
+      "prediction_report": "wiki/2026/data/reports/daily-predictions/2026-06-13.json",
       "prediction_status": "locked_pre_match_prediction",
       "final_score": {"home": 1, "away": 2},
       "evaluation": {}

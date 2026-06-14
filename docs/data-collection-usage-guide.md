@@ -22,17 +22,17 @@ echo "API_FOOTBALL_KEY=your-api-key-here" >> .env
 
 #### 方法2：命令行参数
 ```bash
-python scripts/fetch_injuries_api_football.py --api-key your-api-key-here ...
+python skill/skill/scripts/fetch_injuries_api_football.py --api-key your-api-key-here ...
 ```
 
 ### 第三步：运行伤停数据采集
 
 ```bash
 # 获取所有球队的伤停数据
-python scripts/fetch_injuries_api_football.py --edition 2026 --date 2026-06-11 --root .
+python skill/skill/scripts/fetch_injuries_api_football.py --edition 2026 --date 2026-06-11 --root .
 
 # 只获取特定球队
-python scripts/fetch_injuries_api_football.py --edition 2026 --date 2026-06-11 --teams "BRA,ARG,FRA" --root .
+python skill/skill/scripts/fetch_injuries_api_football.py --edition 2026 --date 2026-06-11 --teams "BRA,ARG,FRA" --root .
 ```
 
 ---
@@ -49,7 +49,7 @@ python scripts/fetch_injuries_api_football.py --edition 2026 --date 2026-06-11 -
 
 **数据来源**: API-Football `/injuries` endpoint
 
-**输出路径**: `knowledge-base/{edition}/data/daily-evidence/{date}.json`
+**输出路径**: `wiki/{edition}/data/daily-evidence/{date}.json`
 
 **输出格式**:
 ```json
@@ -105,13 +105,13 @@ python scripts/fetch_injuries_api_football.py --edition 2026 --date 2026-06-11 -
 **使用示例**:
 ```bash
 # 每日采集（世界杯期间）
-python scripts/fetch_injuries_api_football.py \
+python skill/skill/scripts/fetch_injuries_api_football.py \
   --edition 2026 \
   --date $(date +%Y-%m-%d) \
   --root .
 
 # 只采集今天有比赛的球队
-python scripts/fetch_injuries_api_football.py \
+python skill/skill/scripts/fetch_injuries_api_football.py \
   --edition 2026 \
   --date 2026-06-11 \
   --teams "MEX,RSA,KOR,CZE" \
@@ -126,9 +126,9 @@ python scripts/fetch_injuries_api_football.py \
 
 ```bash
 # 每天早上执行一次
-python scripts/fetch_injuries_api_football.py --edition 2026 --date 2026-06-11 --root .
-python scripts/worldcup_live_fetcher.py fetch-odds --edition 2026 --date 2026-06-11 --root .
-python scripts/worldcup_live_fetcher.py fetch-news --edition 2026 --date 2026-06-11 --root .
+python skill/skill/scripts/fetch_injuries_api_football.py --edition 2026 --date 2026-06-11 --root .
+python skill/skill/scripts/worldcup_live_fetcher.py fetch-odds --edition 2026 --date 2026-06-11 --root .
+python skill/skill/scripts/worldcup_live_fetcher.py fetch-news --edition 2026 --date 2026-06-11 --root .
 ```
 
 ### 方案B：自动化调度（生产环境）
@@ -140,12 +140,12 @@ python scripts/worldcup_live_fetcher.py fetch-news --edition 2026 --date 2026-06
 3. 触发器：每天早上 8:00
 4. 操作：启动程序
    - 程序：`python`
-   - 参数：`scripts/fetch_injuries_api_football.py --edition 2026 --date %date:~0,10% --root .`
+   - 参数：`skill/scripts/fetch_injuries_api_football.py --edition 2026 --date %date:~0,10% --root .`
    - 起始于：`D:\res\project\FIFA-WINNER-SKILL`
 
 #### Python APScheduler（推荐）
 
-创建 `scripts/scheduler/daily_pipeline.py`:
+创建 `skill/scripts/scheduler/daily_pipeline.py`:
 
 ```python
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -161,7 +161,7 @@ def run_daily_pipeline():
     
     # 1. 伤停数据
     subprocess.run([
-        "python", "scripts/fetch_injuries_api_football.py",
+        "python", "skill/scripts/fetch_injuries_api_football.py",
         "--edition", edition,
         "--date", date,
         "--root", "."
@@ -169,7 +169,7 @@ def run_daily_pipeline():
     
     # 2. 赔率数据
     subprocess.run([
-        "python", "scripts/worldcup_live_fetcher.py",
+        "python", "skill/scripts/worldcup_live_fetcher.py",
         "fetch-odds",
         "--edition", edition,
         "--date", date,
@@ -178,7 +178,7 @@ def run_daily_pipeline():
     
     # 3. 新闻数据
     subprocess.run([
-        "python", "scripts/worldcup_live_fetcher.py",
+        "python", "skill/scripts/worldcup_live_fetcher.py",
         "fetch-news",
         "--edition", edition,
         "--date", date,
@@ -199,7 +199,7 @@ scheduler.start()
 
 运行调度器：
 ```bash
-python scripts/scheduler/daily_pipeline.py
+python skill/skill/scripts/scheduler/daily_pipeline.py
 ```
 
 ---
@@ -230,12 +230,12 @@ python scripts/scheduler/daily_pipeline.py
 
 ### 数据完整性检查
 
-创建 `scripts/data_quality_check.py`:
+创建 `skill/scripts/data_quality_check.py`:
 
 ```python
 def check_daily_evidence(edition, date):
     """检查每日证据数据完整性"""
-    evidence_file = f"knowledge-base/{edition}/data/daily-evidence/{date}.json"
+    evidence_file = f"wiki/{edition}/data/daily-evidence/{date}.json"
     
     with open(evidence_file, 'r') as f:
         data = json.load(f)

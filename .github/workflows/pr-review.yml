@@ -28,13 +28,13 @@ jobs:
     - name: Run code quality checks
       run: |
         # 代码风格检查
-        flake8 scripts/ --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 scripts/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        flake8 skill/scripts/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 skill/scripts/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Security vulnerability scan
       run: |
         # 检查已知安全漏洞
-        bandit -r scripts/ -ll
+        bandit -r skill/scripts/ -ll
 
     - name: Check for gambling-related code (安全边界检查)
       run: |
@@ -50,12 +50,12 @@ jobs:
 
     - name: Run unit tests
       run: |
-        python -m pytest tests/ -v || echo "⚠️ 测试未通过，请检查"
+        python -m pytest skill/tests/ -v || echo "⚠️ 测试未通过，请检查"
 
     - name: Check disclaimer presence
       run: |
         # 确保免责声明存在
-        if ! grep -r "娱乐预测，非投注建议" scripts/; then
+        if ! grep -r "娱乐预测，非投注建议" skill/scripts/; then
           echo "⚠️ 警告：可能缺少免责声明"
         fi
 

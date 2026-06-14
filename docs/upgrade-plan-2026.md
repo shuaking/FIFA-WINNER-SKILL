@@ -81,7 +81,7 @@
 
 **2.1 特征注册表 (FeatureRegistry)**
 
-在 `scripts/feature_engineering/` 目录下创建统一的特征注册表。每个特征定义包含：`feature_id`、`feature_name`、`weight`、`calculator`（计算函数引用）、`dependencies`（依赖的数据源列表）。当前的五大特征（排名强度 30%、阵容深度 20%、历史底蕴 20%、休息旅途 15%、证据完整度 15%）全部迁移到注册表中。同时注册新的特征：进攻火力（场均进球/xG）、防守能力（场均失球/xGA）、核心球员影响因子（伤停时动态调整）、动机指数（出线形势、复仇情结等）。
+在 `skill/scripts/feature_engineering/` 目录下创建统一的特征注册表。每个特征定义包含：`feature_id`、`feature_name`、`weight`、`calculator`（计算函数引用）、`dependencies`（依赖的数据源列表）。当前的五大特征（排名强度 30%、阵容深度 20%、历史底蕴 20%、休息旅途 15%、证据完整度 15%）全部迁移到注册表中。同时注册新的特征：进攻火力（场均进球/xG）、防守能力（场均失球/xGA）、核心球员影响因子（伤停时动态调整）、动机指数（出线形势、复仇情结等）。
 
 **2.2 核心预测函数拆分重构**
 
@@ -89,7 +89,7 @@
 
 **2.3 多模型集成框架 (ModelEnsemble)**
 
-在 `scripts/prediction_models/` 目录下实现多模型集成：
+在 `skill/scripts/prediction_models/` 目录下实现多模型集成：
 
 - **泊松分布模型**：基于进攻/防守火力计算最可能比分概率分布。
 - **Elo 评分模型**：基于 FIFA 排名和历史战绩的 Elo 胜率转换。
@@ -111,11 +111,11 @@
 
 **3.1 自主 ReAct 规划循环**
 
-在 `scripts/agent_runtime/` 目录下实现一个轻量级的 ReAct（Reasoning + Acting）循环引擎。当接收到"帮我预测明天的比赛"这类指令时，Agent 能够自主拆解子任务：检查赛程 → 采集赔率 → 采集新闻 → 提取伤停 → 检查证据完整度 → 补充缺失证据 → 生成预测 → 输出报告。每一步的推理过程和工具调用结果都记录在 trace 中。
+在 `skill/scripts/agent_runtime/` 目录下实现一个轻量级的 ReAct（Reasoning + Acting）循环引擎。当接收到"帮我预测明天的比赛"这类指令时，Agent 能够自主拆解子任务：检查赛程 → 采集赔率 → 采集新闻 → 提取伤停 → 检查证据完整度 → 补充缺失证据 → 生成预测 → 输出报告。每一步的推理过程和工具调用结果都记录在 trace 中。
 
 **3.2 赛后反思与权重自调整**
 
-在 `scripts/agent_runtime/self_reflection.py` 中实现赛后反思机制。每场比赛结束后，Agent 自动比对预测与实际赛果，写入反思日志（哪些特征偏差最大、玄学修正是否合理、市场轨道是否被低估）。当某类预测（如爆冷预警）出现持续偏差时，通过反射机制微调特征权重，实现自适应演进。
+在 `skill/scripts/agent_runtime/self_reflection.py` 中实现赛后反思机制。每场比赛结束后，Agent 自动比对预测与实际赛果，写入反思日志（哪些特征偏差最大、玄学修正是否合理、市场轨道是否被低估）。当某类预测（如爆冷预警）出现持续偏差时，通过反射机制微调特征权重，实现自适应演进。
 
 **3.3 证据时效性与自动补给**
 
@@ -123,7 +123,7 @@
 
 **3.4 管道编排器**
 
-创建一个简洁的编排脚本 `scripts/daily_pipeline_orchestrator.py`，将完整的日常流水线串联起来：`fetch-odds -> fetch-news -> extract-injuries -> intelligence-briefing -> predict -> poster`。支持 `--dry-run` 模式预览将执行的操作，支持按日期、按分组、按对阵的灵活调度。
+创建一个简洁的编排脚本 `skill/scripts/daily_pipeline_orchestrator.py`，将完整的日常流水线串联起来：`fetch-odds -> fetch-news -> extract-injuries -> intelligence-briefing -> predict -> poster`。支持 `--dry-run` 模式预览将执行的操作，支持按日期、按分组、按对阵的灵活调度。
 
 ---
 

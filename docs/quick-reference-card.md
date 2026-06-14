@@ -19,7 +19,7 @@
 
 3. **测试脚本**
    ```bash
-   python scripts/fetch_injuries_api_football.py \
+   python skill/skill/scripts/fetch_injuries_api_football.py \
      --edition 2026 \
      --date 2026-06-11 \
      --teams "BRA,ARG" \
@@ -33,20 +33,20 @@
 ### 伤停数据采集
 ```bash
 # 所有球队
-python scripts/fetch_injuries_api_football.py --edition 2026 --date 2026-06-11 --root .
+python skill/skill/scripts/fetch_injuries_api_football.py --edition 2026 --date 2026-06-11 --root .
 
 # 指定球队
-python scripts/fetch_injuries_api_football.py --edition 2026 --date 2026-06-11 --teams "BRA,ARG,FRA" --root .
+python skill/skill/scripts/fetch_injuries_api_football.py --edition 2026 --date 2026-06-11 --teams "BRA,ARG,FRA" --root .
 ```
 
 ### 赔率数据采集（已有）
 ```bash
-python scripts/worldcup_live_fetcher.py fetch-odds --edition 2026 --date 2026-06-11 --root .
+python skill/skill/scripts/worldcup_live_fetcher.py fetch-odds --edition 2026 --date 2026-06-11 --root .
 ```
 
 ### 新闻数据采集（已有）
 ```bash
-python scripts/worldcup_live_fetcher.py fetch-news --edition 2026 --date 2026-06-11 --root .
+python skill/skill/scripts/worldcup_live_fetcher.py fetch-news --edition 2026 --date 2026-06-11 --root .
 ```
 
 ---
@@ -54,7 +54,7 @@ python scripts/worldcup_live_fetcher.py fetch-news --edition 2026 --date 2026-06
 ## 📊 数据输出位置
 
 ```
-knowledge-base/
+wiki/
   └── 2026/
       └── data/
           └── daily-evidence/
@@ -123,7 +123,7 @@ $env:API_FOOTBALL_KEY = "your-api-key-here"
 ```
 
 ### Q2: Team ID 未找到？
-编辑 `scripts/fetch_injuries_api_football.py`，添加到 `TEAM_ID_MAP`：
+编辑 `skill/scripts/fetch_injuries_api_football.py`，添加到 `TEAM_ID_MAP`：
 ```python
 TEAM_ID_MAP = {
     "NEW": 12345,  # 新增的国家队

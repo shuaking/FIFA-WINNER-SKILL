@@ -1,0 +1,185 @@
+{
+  "$schema": "skill/schema/agent-card.schema.json",
+  "schema_version": "a2a.capability-card.v1",
+  "skill_id": "fifa-winner-skill",
+  "name": "FIFA Winner Skill",
+  "version": "2.0.0",
+  "description": "World Cup entertainment-prediction skill with evidence planning, multi-layer match analysis, play cards, poster prompts, and post-match evaluation. Designed for host agents (Codex, Claude Code, etc.) to call as a domain-specific tool set.",
+  "runtime_contract": {
+    "type": "local_cli",
+    "working_directory": "repository_root",
+    "command_template": "python skill/scripts/<tool>.py <command> --edition <edition> --root .",
+    "canonical_human_readme": "AGENT_README.md",
+    "canonical_skill_file": "skill/SKILL.md"
+  },
+  "discovery": {
+    "skill_readme": "skill/SKILL.md",
+    "agent_card": "skill/AGENT_CARD.json",
+    "tool_catalog": "skill/TOOL_CATALOG.json",
+    "orchestration": "skill/ORCHESTRATION.md",
+    "runbook": "skill/RUNBOOK.md",
+    "guardrails": "skill/GUARDRAILS.md",
+    "handoffs": "skill/HANDOFFS.md",
+    "trace_events": "skill/TRACE_EVENTS.md",
+    "architecture": "skill/ARCHITECTURE.md",
+    "schemas": {
+      "agent_card": "skill/schema/agent-card.schema.json",
+      "tool_catalog": "skill/schema/agent-tool-catalog.schema.json",
+      "daily_prediction_report": "skill/schema/daily-prediction-report.schema.json"
+    }
+  },
+  "interfaces": [
+    {
+      "protocol": "local_cli",
+      "status": "implemented",
+      "transport": "stdio",
+      "entrypoint": "skill/scripts/*.py",
+      "notes": "Primary interface; call from repository root with --root ."
+    },
+    {
+      "protocol": "a2a",
+      "status": "static_contract_ready",
+      "agent_card_path": "skill/AGENT_CARD.json",
+      "handoff_contract": "skill/HANDOFFS.md",
+      "notes": "Runtime server is intentionally deferred; the card and handoff contract are ready for a wrapper."
+    },
+    {
+      "protocol": "mcp",
+      "status": "catalog_ready",
+      "tool_catalog_path": "skill/TOOL_CATALOG.json",
+      "notes": "Tools, resources, and prompts are cataloged for a future MCP server wrapper."
+    },
+    {
+      "protocol": "openai_agents_sdk",
+      "status": "wrapper_ready_contract",
+      "alignment": ["tools", "handoffs", "guardrails", "tracing"],
+      "notes": "Use TOOL_CATALOG.json, HANDOFFS.md, GUARDRAILS.md, and TRACE_EVENTS.md when building a wrapper."
+    }
+  ],
+  "skills": [
+    {
+      "id": "worldcup_edition_setup",
+      "name": "World Cup edition setup",
+      "description": "Initialize edition-scoped match ledger, source registry, wiki, and SQLite query index.",
+      "tags": ["setup", "wiki", "fixtures"],
+      "examples": ["Initialize the 2026 World Cup knowledge base."]
+    },
+    {
+      "id": "evidence_aware_prediction",
+      "name": "Evidence-aware entertainment prediction",
+      "description": "Generate locked pre-match predictions with data score, Tianji overlay, market/evidence context, scenario analysis, and decision audit.",
+      "tags": ["prediction", "analysis_layers", "entertainment_only"],
+      "examples": ["Predict Mexico vs South Africa with visible evidence gaps."]
+    },
+    {
+      "id": "public_default_user_overlay",
+      "name": "Public default and user-local overlay",
+      "description": "Merge public facts, bundled AI Octopus default predictions, and user-generated predictions into a dashboard view where user_local replaces octopus_default by match_id.",
+      "tags": ["dashboard", "public_knowledge", "user_local"],
+      "examples": ["Show default predictions on a fresh install, then replace them when the user generates local predictions."]
+    },
+    {
+      "id": "shareable_report_and_poster_prompting",
+      "name": "Shareable report and poster prompting",
+      "description": "Turn structured prediction reports into human report prompts, play cards, and poster prompts when explicitly requested.",
+      "tags": ["report", "poster", "play_card"],
+      "examples": ["Build a showdown poster prompt for match 2026-GA-01."]
+    },
+    {
+      "id": "post_match_evaluation",
+      "name": "Post-match evaluation",
+      "description": "Evaluate locked predictions after final scores are recorded and aggregate calibration dashboards.",
+      "tags": ["evaluation", "calibration", "reflection"],
+      "examples": ["Evaluate all 2026-06-11 predictions after final scores."]
+    },
+    {
+      "id": "portable_skill_export",
+      "name": "Portable skill export",
+      "description": "Export the repo, skill docs, schemas, examples, tests, and selected edition knowledge base for another runtime.",
+      "tags": ["export", "a2a"],
+      "examples": ["Export a standalone 2026 bundle for another agent."]
+    }
+  ],
+  "design_alignment": {
+    "a2a": {
+      "agent_card_ready": true,
+      "skills_ready": true,
+      "task_states": ["submitted", "working", "input_required", "blocked", "completed", "failed", "canceled"],
+      "runtime_server_status": "deferred"
+    },
+    "mcp": {
+      "tools_cataloged": true,
+      "resources_cataloged": true,
+      "prompts_cataloged": true,
+      "server_status": "deferred"
+    },
+    "agent_sdk_style": {
+      "tools": "skill/TOOL_CATALOG.json",
+      "handoffs": "skill/HANDOFFS.md",
+      "guardrails": "skill/GUARDRAILS.md",
+      "tracing": "skill/TRACE_EVENTS.md"
+    }
+  },
+  "safety": {
+    "disclaimer": "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。",
+    "not_for": [
+      "betting advice",
+      "stake sizing",
+      "bankroll decisions",
+      "lottery advice",
+      "guaranteed win claims"
+    ],
+    "forbidden_terms": [
+      "稳赢",
+      "稳胆",
+      "必赚",
+      "梭哈",
+      "guaranteed win",
+      "lock bet"
+    ]
+  },
+  "storage_policy": {
+    "public_knowledge": "Reusable facts and bundled defaults live under wiki/public/<edition>/.",
+    "user_local_state": "User-generated predictions, local evidence, evaluations, run traces, overrides, dashboard output, and caches live under wiki/<edition>/data/.",
+    "dashboard_merge_view": "prediction_visual_dashboard.py merges public facts, octopus_default predictions, and user_local predictions by match_id.",
+    "prediction_precedence": [
+      "user_local",
+      "octopus_default",
+      "none"
+    ],
+    "canonical_artifacts": "JSON and Markdown files under wiki/<edition>/ and wiki/public/<edition>/",
+    "query_index": "SQLite file wiki/cache/<edition>/worldcup_<edition>.db",
+    "conflict_policy": "Prefer locked JSON reports over SQLite rows and report any mismatch."
+  },
+  "prediction_contract": {
+    "data_model_weight": 0.6,
+    "tianji_overlay_weight": 0.4,
+    "tianji_time_rule": "Calculate Tianji from match-local venue time when venue timezone is known; display converted time separately.",
+    "required_layers": [
+      "evidence_integrity",
+      "fundamentals",
+      "matchup",
+      "live_context",
+      "venue_adaptation",
+      "market_track",
+      "scenario_tree",
+      "score_distribution",
+      "adversarial_review"
+    ],
+    "evaluation_policy": "Report result direction, exact score, and total-goals hits separately. Direction hit alone is a partial hit, not full success."
+  },
+  "inputs": {
+    "required": ["edition"],
+    "optional": ["date", "match_id", "teams", "phase", "group", "now", "root", "poster"]
+  },
+  "recommended_a2a_response_shape": {
+    "status": "created | locked_existing_report | blocked | no_matches_found",
+    "report": "<path>",
+    "matches": "<count>",
+    "main_pick": "<result plus score>",
+    "confidence": "low | medium | high",
+    "evidence_gaps": [],
+    "key_layers": [],
+    "safety": "娱乐预测，非投注建议；不得作为投注、购彩或资金决策依据。"
+  }
+}

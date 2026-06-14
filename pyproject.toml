@@ -17,4 +17,4 @@ packages = []
 py-modules = []
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["skill/tests"]

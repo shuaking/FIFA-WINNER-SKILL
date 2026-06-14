@@ -46,7 +46,7 @@ curl https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/wo
   -o worldcup-2026.json
 
 # 或使用我们创建的脚本
-python scripts/sync_openfootball_data.py --edition 2026 --root .
+python skill/skill/scripts/sync_openfootball_data.py --edition 2026 --root .
 ```
 
 ### 数据示例
@@ -124,11 +124,11 @@ curl https://raw.githubusercontent.com/statsbomb/open-data/master/data/competiti
 #### 方案A：从新闻中提取（NLP）⭐⭐⭐⭐
 ```bash
 # 1. 先获取新闻（已有脚本）
-python scripts/worldcup_live_fetcher.py fetch-news \
+python skill/skill/scripts/worldcup_live_fetcher.py fetch-news \
   --edition 2026 --date 2026-06-11 --root .
 
 # 2. 使用 NLP 提取伤停信息
-python scripts/extract_injuries_from_news.py \
+python skill/skill/scripts/extract_injuries_from_news.py \
   --edition 2026 --date 2026-06-11 --root .
 ```
 
@@ -150,7 +150,7 @@ python scripts/extract_injuries_from_news.py \
 #### 方案B：手动录入 ⭐⭐⭐
 ```bash
 # 使用现有的手动录入脚本
-python scripts/daily_evidence_input.py add-injury \
+python skill/skill/scripts/daily_evidence_input.py add-injury \
   --edition 2026 \
   --date 2026-06-11 \
   --team-code BRA \
@@ -203,27 +203,27 @@ echo "=== Starting FREE data collection for $DATE ==="
 
 # 1. 同步世界杯赛程和比分（OpenFootball）
 echo "[1/4] Syncing World Cup fixtures (OpenFootball)..."
-python scripts/sync_openfootball_data.py \
+python skill/skill/scripts/sync_openfootball_data.py \
   --edition $EDITION \
   --root .
 
 # 2. 获取新闻舆情（ESPN RSS）
 echo "[2/4] Fetching news (ESPN RSS)..."
-python scripts/worldcup_live_fetcher.py fetch-news \
+python skill/skill/scripts/worldcup_live_fetcher.py fetch-news \
   --edition $EDITION \
   --date $DATE \
   --root .
 
 # 3. 获取赔率（The Odds API 免费层）
 echo "[3/4] Fetching odds (The Odds API Free Tier)..."
-python scripts/worldcup_live_fetcher.py fetch-odds \
+python skill/skill/scripts/worldcup_live_fetcher.py fetch-odds \
   --edition $EDITION \
   --date $DATE \
   --root .
 
 # 4. 从新闻中提取伤停信息（NLP）
 echo "[4/4] Extracting injuries from news (NLP)..."
-python scripts/extract_injuries_from_news.py \
+python skill/skill/scripts/extract_injuries_from_news.py \
   --edition $EDITION \
   --date $DATE \
   --root .
@@ -268,21 +268,21 @@ echo "=== ✓ Data collection completed! Total cost: $0 ==="
 
 ### 第一步：测试 OpenFootball
 ```bash
-python scripts/sync_openfootball_data.py --edition 2026 --root .
+python skill/skill/scripts/sync_openfootball_data.py --edition 2026 --root .
 ```
 
 ### 第二步：获取新闻并提取伤停
 ```bash
 # 获取新闻
-python scripts/worldcup_live_fetcher.py fetch-news --edition 2026 --date 2026-06-11 --root .
+python skill/skill/scripts/worldcup_live_fetcher.py fetch-news --edition 2026 --date 2026-06-11 --root .
 
 # 提取伤停
-python scripts/extract_injuries_from_news.py --edition 2026 --date 2026-06-11 --root .
+python skill/skill/scripts/extract_injuries_from_news.py --edition 2026 --date 2026-06-11 --root .
 ```
 
 ### 第三步：查看结果
 ```bash
-cat knowledge-base/2026/data/daily-evidence/2026-06-11.json
+cat wiki/2026/data/daily-evidence/2026-06-11.json
 ```
 
 ---
@@ -312,10 +312,10 @@ cat knowledge-base/2026/data/daily-evidence/2026-06-11.json
 ### 1. 混合使用多种方法
 ```bash
 # NLP 提取 + 手动补充
-python scripts/extract_injuries_from_news.py --edition 2026 --date 2026-06-11 --root .
+python skill/skill/scripts/extract_injuries_from_news.py --edition 2026 --date 2026-06-11 --root .
 
 # 然后手动添加关键球员的准确信息
-python scripts/daily_evidence_input.py add-injury \
+python skill/skill/scripts/daily_evidence_input.py add-injury \
   --edition 2026 --date 2026-06-11 \
   --team-code BRA --player-name "Neymar Jr" \
   --severity out --source national_fa --root .

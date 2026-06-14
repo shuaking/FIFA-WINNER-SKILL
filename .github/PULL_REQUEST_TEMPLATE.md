@@ -20,8 +20,8 @@ Closes #
 
 ### 测试情况
 <!-- 请说明如何测试的 -->
-- [ ] 已运行单元测试: `pytest tests/`
-- [ ] 已运行审计脚本: `python scripts/worldcup_github_readiness_auditor.py write --edition 2026 --root .`
+- [ ] 已运行单元测试: `pytest skill/tests/`
+- [ ] 已运行审计脚本: `python skill/scripts/worldcup_github_readiness_auditor.py write --edition 2026 --root .`
 - [ ] 已手动测试验证
 
 ### 安全边界确认 ⚠️

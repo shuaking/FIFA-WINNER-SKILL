@@ -15,7 +15,7 @@ User-local data wins. Never edit public default predictions to represent a user'
 ## Paths
 
 ```text
-knowledge-base/public/<edition>/
+wiki/public/<edition>/
   match-ledger.json
   teams.json
   rankings/
@@ -25,7 +25,7 @@ knowledge-base/public/<edition>/
     manifest.json
     daily-predictions/*.json
 
-knowledge-base/<edition>/data/
+wiki/<edition>/data/
   match-overrides.json
   worldcup_<edition>.db
   daily-evidence/
@@ -56,7 +56,7 @@ python scripts\prediction_visual_dashboard.py write --edition 2026 --root .
 Then read:
 
 ```text
-knowledge-base/2026/data/reports/dashboard/prediction-dashboard.json
+wiki/2026/data/reports/dashboard/prediction-dashboard.json
 ```
 
 Expected behavior:
@@ -72,9 +72,9 @@ Pulling the latest repository code gives the user the latest committed public/de
 After a fresh clone or pull:
 
 - If public default predictions are committed, the dashboard can show `octopus_default`.
-- If the user's local `knowledge-base/<edition>/data/reports/daily-predictions/*.json` exists, those cards show `user_local` and replace defaults.
+- If the user's local `wiki/<edition>/data/reports/daily-predictions/*.json` exists, those cards show `user_local` and replace defaults.
 - If the user has no local predictions for a match, the dashboard falls back to `octopus_default` or `none`.
-- If real final scores or new official facts were not committed into `knowledge-base/public/<edition>/`, the user must run the update/evaluation tools locally or pull a commit that contains those public fact updates.
+- If real final scores or new official facts were not committed into `wiki/public/<edition>/`, the user must run the update/evaluation tools locally or pull a commit that contains those public fact updates.
 
 For a public release, commit only reusable public/default artifacts and docs. Treat `worldcup_<edition>.db`, local run traces, and user-specific predictions as local state unless the release intentionally publishes a default snapshot.
 
@@ -93,8 +93,8 @@ python scripts\prediction_visual_dashboard.py write --edition 2026 --root .
 Then read:
 
 ```text
-knowledge-base/2026/data/reports/daily-predictions/2026-06-13.json
-knowledge-base/2026/data/reports/dashboard/prediction-dashboard.json
+wiki/2026/data/reports/daily-predictions/2026-06-13.json
+wiki/2026/data/reports/dashboard/prediction-dashboard.json
 ```
 
 The dashboard card for the predicted match should now show:
@@ -115,7 +115,7 @@ Minimum fields another agent should inspect before summarizing:
 {
   "match_id": "2026-GA-01",
   "prediction_origin": "user_local",
-  "prediction_source_path": "knowledge-base/2026/data/reports/daily-predictions/2026-06-11.json",
+  "prediction_source_path": "wiki/2026/data/reports/daily-predictions/2026-06-11.json",
   "home_name": "Mexico",
   "away_name": "South Africa",
   "predicted_result_label": "home win",
@@ -148,9 +148,9 @@ python scripts\prediction_visual_dashboard.py write --edition 2026 --root .
 Read:
 
 ```text
-knowledge-base/2026/data/reports/evaluations/2026-06-13.json
-knowledge-base/2026/data/reports/evaluations/aggregate-dashboard.json
-knowledge-base/2026/data/reports/dashboard/prediction-dashboard.json
+wiki/2026/data/reports/evaluations/2026-06-13.json
+wiki/2026/data/reports/evaluations/aggregate-dashboard.json
+wiki/2026/data/reports/dashboard/prediction-dashboard.json
 ```
 
 Report result direction, exact score, and total-goals hits separately.
@@ -161,7 +161,7 @@ Report result direction, exact score, and total-goals hits separately.
 Status: created | ready | blocked | no_matches_found
 Source layer: user_local | octopus_default | none
 Report: <path>
-Dashboard: knowledge-base/<edition>/data/reports/dashboard/prediction-dashboard.json
+Dashboard: wiki/<edition>/data/reports/dashboard/prediction-dashboard.json
 Matches: <count>
 Main pick: <result plus score>
 Confidence: <result confidence / score confidence>

@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "edition": "2026",
+  "date": "2026-06-12",
+  "generated_at": "2026-06-14T14:17:14.275143+08:00",
+  "mode": "worldcup-prediction-post-match-evaluation",
+  "summary": {
+    "evaluations": 2,
+    "evaluated_matches": 2,
+    "blocked_missing_final_score": 0,
+    "result_hits": 2,
+    "score_hits": 1,
+    "total_goals_hits": 1,
+    "confidence_calibration": {
+      "low": {
+        "evaluated_matches": 1,
+        "result_hits": 1,
+        "result_hit_rate": 1.0
+      },
+      "medium": {
+        "evaluated_matches": 1,
+        "result_hits": 1,
+        "result_hit_rate": 1.0
+      }
+    }
+  },
+  "evaluations": [
+    {
+      "match_id": "2026-GA-02",
+      "status": "evaluated",
+      "predicted_result": "home_win",
+      "prediction_confidence": "medium",
+      "actual_result": "home_win",
+      "actual_score": {
+        "home": 2,
+        "away": 1
+      },
+      "actual_total_goals": 3,
+      "result_hit": true,
+      "score_hit": false,
+      "total_goals_hit": false,
+      "prediction_kept_locked": true
+    },
+    {
+      "match_id": "2026-GB-01",
+      "status": "evaluated",
+      "predicted_result": "draw",
+      "prediction_confidence": "low",
+      "actual_result": "draw",
+      "actual_score": {
+        "home": 1,
+        "away": 1
+      },
+      "actual_total_goals": 2,
+      "result_hit": true,
+      "score_hit": true,
+      "total_goals_hit": true,
+      "prediction_kept_locked": true
+    }
+  ],
+  "safety_invariants": [
+    "post_match_evaluation_does_not_rewrite_locked_pre_match_predictions"
+  ]
+}

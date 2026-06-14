@@ -91,30 +91,30 @@
 
 ### 第一步：测试 OpenFootball 同步
 ```bash
-python scripts/sync_openfootball_data.py --edition 2026 --root .
+python skill/skill/scripts/sync_openfootball_data.py --edition 2026 --root .
 ```
 
 **预期输出**：
 ```
 Fetching World Cup 2026 data from OpenFootball...
 ✓ Fetched 64 matches
-✓ Saved to knowledge-base/2026/data/match-ledger.json
+✓ Saved to wiki/2026/data/match-ledger.json
   Total matches: 64
 ```
 
 ### 第二步：获取新闻并提取伤停
 ```bash
 # 获取新闻
-python scripts/worldcup_live_fetcher.py fetch-news --edition 2026 --date 2026-06-11 --root .
+python skill/skill/scripts/worldcup_live_fetcher.py fetch-news --edition 2026 --date 2026-06-11 --root .
 
 # NLP 提取伤停
-python scripts/extract_injuries_from_news.py --edition 2026 --date 2026-06-11 --root .
+python skill/skill/scripts/extract_injuries_from_news.py --edition 2026 --date 2026-06-11 --root .
 ```
 
 **预期输出**：
 ```
 Analyzing 15 news articles...
-✓ Saved extracted injuries to: knowledge-base/2026/data/daily-evidence/2026-06-11.json
+✓ Saved extracted injuries to: wiki/2026/data/daily-evidence/2026-06-11.json
   - Teams with injuries: 3
   - Total injuries: 5
   - Total suspensions: 2
@@ -123,7 +123,7 @@ Analyzing 15 news articles...
 
 ### 第三步：（可选）手动补充关键信息
 ```bash
-python scripts/daily_evidence_input.py add-injury \
+python skill/skill/scripts/daily_evidence_input.py add-injury \
   --edition 2026 --date 2026-06-11 \
   --team-code BRA --player-name "Neymar Jr" \
   --severity out --source national_fa --root .
