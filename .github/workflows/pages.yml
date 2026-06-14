@@ -33,7 +33,7 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         if: steps.pages.outcome == 'success'
         with:
-          path: knowledge-base/2026/wiki
+          path: wiki/public/2026/wiki
       - id: deployment
         if: steps.pages.outcome == 'success'
         uses: actions/deploy-pages@v4
